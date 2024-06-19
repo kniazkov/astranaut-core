@@ -7,9 +7,9 @@ import org.cqfn.astranaut.core.exceptions.WrongFileExtension;
 import org.cqfn.astranaut.core.utils.TreeVisualizer;
 
 /**
- * Main class.
+ * Testing class.
  */
-public class Main {
+public class ReadAndVisualize {
     /**
      * Starting point.
      * @param args Program arguments
@@ -35,5 +35,7 @@ public class Main {
         } catch (IOException | WrongFileExtension ignored) {
             System.err.println("Could not write " + image);
         }
+
+
     }
 }
