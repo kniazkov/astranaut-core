@@ -146,5 +146,10 @@ SOFTWARE.
       <artifactId>logback-classic</artifactId>
       <version>1.2.11</version>
     </dependency>
+    <dependency>
+      <groupId>com.github.javaparser</groupId>
+      <artifactId>javaparser-core</artifactId>
+      <version>3.24.0</version>
+    </dependency>
   </dependencies>
 </project>
