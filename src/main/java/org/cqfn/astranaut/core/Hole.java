@@ -86,7 +86,9 @@ public final class Hole implements PatternItem {
 
     @Override
     public String toString() {
-        return this.getData();
+        final StringBuilder builder = new StringBuilder();
+        builder.append(this.type.getName()).append('<').append(this.getData()).append('>');
+        return builder.toString();
     }
 
     /**

@@ -33,7 +33,7 @@ import java.util.ListIterator;
  *
  * @since 1.1.0
  */
-public final class DifferenceNode implements DifferenceTreeItem {
+public final class DifferenceNode implements DifferenceTreeItem, PrototypeBasedNode {
     /**
      * The parent node with action.
      */

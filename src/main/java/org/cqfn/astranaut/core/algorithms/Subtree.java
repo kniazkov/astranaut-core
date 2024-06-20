@@ -31,6 +31,7 @@ import java.util.Set;
 import org.cqfn.astranaut.core.EmptyTree;
 import org.cqfn.astranaut.core.Fragment;
 import org.cqfn.astranaut.core.Node;
+import org.cqfn.astranaut.core.PrototypeBasedNode;
 import org.cqfn.astranaut.core.Type;
 
 /**
@@ -129,7 +130,7 @@ public class Subtree {
      *
      * @since 1.1.4
      */
-    private static final class SubNode implements Node {
+    private static final class SubNode implements Node, PrototypeBasedNode {
         /**
          * Original node.
          */
@@ -187,6 +188,33 @@ public class Subtree {
                 );
             }
             return this.children[index];
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder builder = new StringBuilder();
+            builder.append(this.getTypeName());
+            if (!this.getData().isEmpty()) {
+                builder.append("<\"").append(this.getData()).append("\">");
+            }
+            if (this.children.length > 0) {
+                boolean flag = false;
+                builder.append('(');
+                for (int index = 0; index < this.children.length; index = index + 1) {
+                    if (flag) {
+                        builder.append(", ");
+                    }
+                    flag = true;
+                    builder.append(this.getChild(index).toString());
+                }
+                builder.append(')');
+            }
+            return builder.toString();
+        }
+
+        @Override
+        public Node getPrototype() {
+            return this.original;
         }
     }
 }

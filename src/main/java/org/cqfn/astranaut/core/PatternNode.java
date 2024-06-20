@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 1.1.5
  */
-public final class PatternNode implements PatternItem {
+public final class PatternNode implements PatternItem, PrototypeBasedNode {
     /**
      * The prototype node, i.e. 'ordinary', non-difference original node.
      */

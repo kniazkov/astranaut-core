@@ -9,7 +9,7 @@ import org.cqfn.astranaut.core.utils.TreeVisualizer;
 /**
  * Testing class.
  */
-public class ReadAndVisualize {
+public class T01_ReadAndVisualize {
     /**
      * Starting point.
      * @param args Program arguments

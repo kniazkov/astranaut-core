@@ -33,6 +33,7 @@ import org.cqfn.astranaut.core.Hole;
 import org.cqfn.astranaut.core.Insert;
 import org.cqfn.astranaut.core.Node;
 import org.cqfn.astranaut.core.PatternNode;
+import org.cqfn.astranaut.core.PrototypeBasedNode;
 import org.cqfn.astranaut.core.Replace;
 import org.cqfn.astranaut.core.algorithms.DeepTraversal;
 import org.cqfn.astranaut.core.utils.deserializer.ActionList;
@@ -42,7 +43,7 @@ import org.cqfn.astranaut.core.utils.deserializer.ActionList;
  *
  * @since 1.1.5
  */
-class PatternMatcher {
+public class PatternMatcher {
     /**
      * Root node of the tree in which patterns are searched.
      */
@@ -57,7 +58,7 @@ class PatternMatcher {
      * Constructor.
      * @param root Root node of the tree in which patterns are searched
      */
-    PatternMatcher(final Node root) {
+    public PatternMatcher(final Node root) {
         this.root = root;
         this.actions = new ActionList();
     }
@@ -75,7 +76,7 @@ class PatternMatcher {
      * @param pattern Root node of the pattern
      * @return Nodes that match the root node of the pattern
      */
-    Set<Node> match(final PatternNode pattern) {
+    public Set<Node> match(final PatternNode pattern) {
         final DeepTraversal deep = new DeepTraversal(this.root);
         final List<Node> preset = deep.findAll(
             node -> node.getTypeName().equals(pattern.getTypeName())
@@ -100,20 +101,27 @@ class PatternMatcher {
      */
     @SuppressWarnings("PMD.UnusedFormalParameter")
     private boolean checkNode(final Node node, final Node parent, final Node pattern) {
-        final Node sample;
-        if (pattern instanceof Replace || pattern instanceof Delete) {
-            sample = ((Action) pattern).getBefore();
-        } else {
-            sample = pattern;
+        Node sample = pattern;
+        final String typename = pattern.getTypeName();
+        if (typename.equals("Replace") || typename.equals("Delete")) {
+            if (pattern instanceof Action) {
+                sample = ((Action) pattern).getBefore();
+            } else if (pattern instanceof PrototypeBasedNode){
+                sample = ((PrototypeBasedNode) pattern).toAction().getBefore();
+            }
         }
         boolean result = node.getTypeName().equals(sample.getTypeName());
         if (!(pattern instanceof Hole)) {
             result = result && node.getData().equals(sample.getData());
             result = result && (node.getChildCount() == 0 || this.checkChildren(node, sample));
         }
-        if (result && pattern instanceof Replace) {
-            this.actions.replaceNode(node, ((Action) pattern).getAfter());
-        } else if (result & pattern instanceof Delete) {
+        if (result && typename.equals("Replace")) {
+            if (pattern instanceof Action) {
+                this.actions.replaceNode(node, ((Action) pattern).getAfter());
+            } else if (pattern instanceof PrototypeBasedNode) {
+                this.actions.replaceNode(node, (((PrototypeBasedNode) pattern).toAction().getAfter()));
+            }
+        } else if (result && typename.equals("Delete")) {
             this.actions.deleteNode(node);
         }
         return result;
@@ -137,8 +145,12 @@ class PatternMatcher {
             Node current = null;
             while (result && offset < right && iterator.hasNext()) {
                 final Node child = iterator.next();
-                if (child instanceof Insert) {
-                    this.actions.insertNodeAfter(((Insert) child).getAfter(), node, current);
+                if (child.getTypeName().equals("Insert")) {
+                    if (child instanceof Action) {
+                        this.actions.insertNodeAfter(((Insert) child).getAfter(), node, current);
+                    } else if (child instanceof PrototypeBasedNode) {
+                        this.actions.insertNodeAfter(((PrototypeBasedNode) child).toAction().getAfter(), node, current);
+                    }
                 } else if (index + offset >= left) {
                     result = false;
                 } else {

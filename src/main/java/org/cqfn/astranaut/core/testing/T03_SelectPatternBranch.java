@@ -2,9 +2,14 @@ package org.cqfn.astranaut.core.testing;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
+import java.util.Set;
+import org.cqfn.astranaut.core.Action;
 import org.cqfn.astranaut.core.DifferenceNode;
 import org.cqfn.astranaut.core.Node;
+import org.cqfn.astranaut.core.algorithms.DeepTraversal;
 import org.cqfn.astranaut.core.algorithms.DifferenceTreeBuilder;
+import org.cqfn.astranaut.core.algorithms.NodeSelector;
 import org.cqfn.astranaut.core.algorithms.mapping.TopDownMapper;
 import org.cqfn.astranaut.core.exceptions.WrongFileExtension;
 import org.cqfn.astranaut.core.utils.TreeVisualizer;
@@ -12,7 +17,7 @@ import org.cqfn.astranaut.core.utils.TreeVisualizer;
 /**
  * Testing class.
  */
-public class BuildDiffTree {
+public class T03_SelectPatternBranch {
     /**
      * Starting point.
      * @param args Program arguments
@@ -44,12 +49,26 @@ public class BuildDiffTree {
 
         final DifferenceNode diff = diffBuilder.getRoot();
 
-        String image = args[0] + ".diff.png";
-        TreeVisualizer visualizer = new TreeVisualizer(diff);
-        try {
-            visualizer.visualize(new File(image));
-        } catch (IOException | WrongFileExtension ignored) {
-            System.err.println("Could not write " + image);
+        Set<Node> branches = new NodeSelector(diff)
+                .select((node, parents) -> node.belongsToGroup("MethodDeclaration"));
+        Node selectedBranch = null;
+        for (Node branch : branches) {
+            Optional<Node> action = new DeepTraversal(branch)
+                    .findFirst(node -> node instanceof Action);
+            if (action.isPresent()) {
+                selectedBranch = branch;
+                break;
+            }
+        }
+
+        if (selectedBranch != null) {
+            String image = args[0] + ".branch.png";
+            TreeVisualizer visualizer = new TreeVisualizer(selectedBranch);
+            try {
+                visualizer.visualize(new File(image));
+            } catch (IOException | WrongFileExtension ignored) {
+                System.err.println("Could not write " + image);
+            }
         }
     }
 }
