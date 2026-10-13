@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering conversion algorithms.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class ConversionTest {
     /**
@@ -268,7 +268,7 @@ class ConversionTest {
 
     /**
      * Node that returns "bad" builder for testing purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNode extends NodeAndType {

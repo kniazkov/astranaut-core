@@ -29,7 +29,7 @@ import com.kniazkov.astranaut.core.base.ExtNode;
  * Auxiliary algorithm for top-down mapping.
  *  Finds pairs of matching nodes.
  *  Matching is determined by some criterion, usually hash equality.
- * @since 2.0.0
+ * @since 0.0.1
  */
 final  class NodePairFinder {
     /**
@@ -151,7 +151,7 @@ final  class NodePairFinder {
     /**
      * Converts a node to a number.
      *  This number will be used when comparing nodes and finding matches.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     interface Converter {
         /**
@@ -164,7 +164,7 @@ final  class NodePairFinder {
 
     /**
      * Matching result.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     static final class Result {
         /**

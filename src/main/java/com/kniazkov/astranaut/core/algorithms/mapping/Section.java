@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Auxiliary structure for mapping child nodes. Contains a subset of child nodes of one node
  *  and a corresponding but unmapped subset of child nodes of another node.
- * @since 2.0.0
+ * @since 0.0.1
  */
 final class Section {
     /**

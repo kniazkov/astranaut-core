@@ -25,6 +25,6 @@
 /**
  * This package contains algorithms and data structures related to mapping
  *  one syntax tree to another.
- * @since 1.1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;

@@ -24,6 +24,6 @@
 
 /**
  * This package contains helper classes for the JSON deserializer.
- * @since 1.1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.utils.deserializer;

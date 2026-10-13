@@ -29,7 +29,7 @@ import java.util.Objects;
  * {@code EmptyFragment} is an implementation of {@link Fragment} representing an empty fragment.
  *  It serves as a placeholder when a node does not have an associated fragment
  *  preventing the need to return a null pointer.
- * @since 1.0
+ * @since 0.0.1
  */
 public final class EmptyFragment implements Fragment {
     /**
@@ -93,7 +93,7 @@ public final class EmptyFragment implements Fragment {
 
     /**
      * Position that points nowhere.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class EmptyPosition implements Position {
         /**

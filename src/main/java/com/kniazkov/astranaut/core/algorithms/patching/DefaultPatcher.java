@@ -31,7 +31,7 @@ import com.kniazkov.astranaut.core.base.Tree;
 /**
  * Default algorithm that applies patches, i.e. makes some changes in the syntax tree
  *  based on patterns describing such changes. Patterns are differential trees.
- * @since 1.1.5
+ * @since 0.0.1
  */
 public final class DefaultPatcher implements Patcher {
     /**

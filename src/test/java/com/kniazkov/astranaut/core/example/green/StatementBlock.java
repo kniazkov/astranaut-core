@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 
 /**
  * Node that describes the 'StatementBlock' type.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class StatementBlock implements Statement {
     /**
@@ -109,7 +109,7 @@ public final class StatementBlock implements Statement {
 
     /**
      * Type descriptor of the 'StatementBlock' node.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -187,7 +187,7 @@ public final class StatementBlock implements Statement {
 
     /**
      * Class for 'StatementBlock' node construction.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

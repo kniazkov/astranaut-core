@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core;
 
 /**
  * This class provides static information about the library, such as the version.
- * @since 1.0.6
+ * @since 0.0.1
  */
 public final class Info {
     /**

@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 
 /**
  * Node that describes the 'SimpleAssignment' type.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class SimpleAssignment implements Assignment {
     /**
@@ -122,7 +122,7 @@ public final class SimpleAssignment implements Assignment {
 
     /**
      * Type descriptor of the 'SimpleAssignment' node.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -211,7 +211,7 @@ public final class SimpleAssignment implements Assignment {
 
     /**
      * Class for 'SimpleAssignment' node construction.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

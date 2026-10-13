@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 /**
  * Factory interface for creating and managing types and builders.
- * @since 1.0
+ * @since 0.0.1
  */
 public interface Factory {
     /**

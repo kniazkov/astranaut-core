@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering {@link PatternNode} class.
- * @since 1.1.5
+ * @since 0.0.1
  */
 class PatternNodeTest {
     @Test

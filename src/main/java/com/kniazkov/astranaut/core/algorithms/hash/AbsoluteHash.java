@@ -32,7 +32,7 @@ import java.util.Map;
  *  of node itself and the data of all children of node.
  *  The main feature: if subtrees match, the absolute hashes of their roots are equal.
  *  This feature allows us to quickly compare trees and find a subtree in a tree.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class AbsoluteHash implements Hash {
     /**

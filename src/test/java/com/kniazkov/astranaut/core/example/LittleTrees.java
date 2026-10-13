@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Assertions;
 
 /**
  * Little trees for testing purposes.
- * @since 1.1.0
+ * @since 0.0.1
  */
 @SuppressWarnings({"PMD.ProhibitPublicStaticMethods", "PMD.TooManyMethods"})
 public final class LittleTrees {

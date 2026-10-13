@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * This class describes child node within type descriptor.
- * @since 1.0
+ * @since 0.0.1
  */
 public final class ChildDescriptor {
     /**
@@ -103,7 +103,7 @@ public final class ChildDescriptor {
 
     /**
      * Constructor that helps build lists of descriptors.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     public static final class Constructor {
         /**

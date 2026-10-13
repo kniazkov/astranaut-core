@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering difference node, i.e. {@link DiffNode} class.
- * @since 1.1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.TooManyMethods")
 class DiffNodeTest {
@@ -300,7 +300,7 @@ class DiffNodeTest {
 
     /**
      * Custom node for test purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNode extends NodeAndType {

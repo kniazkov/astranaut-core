@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * Tree descriptor represented as it is stored in the JSON file.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public class TreeDescriptor {
     /**

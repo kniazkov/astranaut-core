@@ -35,7 +35,7 @@ import java.util.TreeMap;
 
 /**
  * List of properties extracted from the original node.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Properties extends NodeAndType {
     /**
@@ -112,7 +112,7 @@ public final class Properties extends NodeAndType {
 
     /**
      * Builder of node containing list of properties extracted from the original node.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class PropertiesBuilder implements Builder {
         /**

@@ -27,7 +27,7 @@ import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * A mapper that builds correspondences between two trees.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public interface Mapper {
     /**

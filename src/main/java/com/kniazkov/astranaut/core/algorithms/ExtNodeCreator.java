@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Creates extended nodes ({@link ExtNode}) from 'regular' nodes ({@link Node}).
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class ExtNodeCreator {
     /**
@@ -86,7 +86,7 @@ public final class ExtNodeCreator {
 
     /**
      * Class that implements the extended node interface.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class ExtNodeImpl implements ExtNode {
         /**

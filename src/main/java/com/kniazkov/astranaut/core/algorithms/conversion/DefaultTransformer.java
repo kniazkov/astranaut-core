@@ -36,7 +36,7 @@ import java.util.Optional;
 /**
  * Transforms a tree to another tree using a list of converters.
  *  Conversion proceeds recursively from the leaves to the root; child nodes may be replaced.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public class DefaultTransformer implements Transformer {
     /**

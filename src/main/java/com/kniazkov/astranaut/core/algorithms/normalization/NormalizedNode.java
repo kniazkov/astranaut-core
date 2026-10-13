@@ -37,7 +37,7 @@ import java.util.Map;
  * Represents a normalized node.
  *  A normalized node is a node without properties. All properties of the original node
  *  are extracted into separate child nodes.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class NormalizedNode extends NodeAndType implements PrototypeBasedNode {
     /**
@@ -168,7 +168,7 @@ public final class NormalizedNode extends NodeAndType implements PrototypeBasedN
 
     /**
      * Builds a normalizer node.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class NormalizerNodeBuilder implements Builder {
         /**

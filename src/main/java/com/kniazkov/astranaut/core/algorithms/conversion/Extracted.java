@@ -34,7 +34,7 @@ import java.util.TreeMap;
  * Stores extracted nodes and associated data mapped to numbers.
  *  Extraction occurs during pattern matching with a subtree. A number may correspond to
  *  either a list of nodes or a string value.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Extracted {
     /**

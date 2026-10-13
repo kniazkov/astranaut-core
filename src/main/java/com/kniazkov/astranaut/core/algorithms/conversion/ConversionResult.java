@@ -28,7 +28,7 @@ import com.kniazkov.astranaut.core.base.Node;
 /**
  * Represents the result of a conversion operation, containing the converted node, the index
  *  of the first consumed node, the number of nodes consumed during the conversion.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class ConversionResult {
     /**

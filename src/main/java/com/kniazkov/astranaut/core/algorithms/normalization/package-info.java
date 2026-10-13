@@ -29,7 +29,7 @@
  *  a non-empty map), into an unlabeled tree. In the resulting tree, all properties are
  *  individually moved to special leaf nodes. Each leaf node's type represents the property name,
  *  and its data represents the property value.
- * @since 2.0.0
+ * @since 0.0.1
  */
 
 package com.kniazkov.astranaut.core.algorithms.normalization;

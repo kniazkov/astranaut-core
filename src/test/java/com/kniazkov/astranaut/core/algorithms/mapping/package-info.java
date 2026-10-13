@@ -24,6 +24,6 @@
 
 /**
  * This package contains tests covering mapping algorithms.
- * @since 1.1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;

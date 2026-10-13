@@ -25,6 +25,6 @@
 /**
  * This package contains structures and algorithms for converting a syntax tree
  *  to some other syntax tree.
- * @since 1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.conversion;

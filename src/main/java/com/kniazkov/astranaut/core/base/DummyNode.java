@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Special placeholder node that represents a problematic or default node instance.
- * @since 1.0
+ * @since 0.0.1
  */
 public final class DummyNode implements Node {
     /**
@@ -79,7 +79,7 @@ public final class DummyNode implements Node {
 
     /**
      * The fake builder that only returns static reference.
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class BuilderImpl implements Builder {
         @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
@@ -110,7 +110,7 @@ public final class DummyNode implements Node {
 
     /**
      * The type of dummy node.
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         @Override

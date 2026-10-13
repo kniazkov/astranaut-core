@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering {@link DraftNode} class.
- * @since 1.1.0
+ * @since 0.0.1
  */
 class DraftNodeTest {
     @Test

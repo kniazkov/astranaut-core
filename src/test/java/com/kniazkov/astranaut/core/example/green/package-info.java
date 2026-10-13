@@ -26,6 +26,6 @@
  * This package contains typical nodes that can be generated from DSL code.
  *  "Green" nodes are usually applicable to describe some syntactic constructs
  *  from several programming languages.
- * @since 1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.example.green;

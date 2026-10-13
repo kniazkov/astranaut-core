@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * This test suite tests the {@link Tree} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class TreeTest {
     @Test
@@ -71,7 +71,7 @@ class TreeTest {
 
     /**
      * Node implementation for testing purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNode implements Node {
@@ -122,7 +122,7 @@ class TreeTest {
 
     /**
      * Type implementation for testing purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestType implements Type {

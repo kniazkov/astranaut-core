@@ -29,7 +29,7 @@ package com.kniazkov.astranaut.core.base;
  *  and can be computed by traversing the tree using methods from the basic {@link Node} interface.
  *  To keep the basic interface as lightweight as possible, these supplementary methods
  *  have been moved here.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public interface ExtNode extends PrototypeBasedNode {
     /**

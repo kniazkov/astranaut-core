@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Algorithm for measuring the depth of syntax trees.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class DepthCalculator {
     /**

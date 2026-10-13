@@ -30,7 +30,7 @@ import java.util.Objects;
 
 /**
  * Insertion descriptor like {@link Insertion}, but working with extended nodes.
- * @since 2.0.0
+ * @since 0.0.1
  */
 final class ExtInsertion {
     /**

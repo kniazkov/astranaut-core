@@ -26,7 +26,7 @@ package com.kniazkov.astranaut.core.base;
 /**
  * A node that represents an action that can be performed on another node.
  *  This type of nodes is necessary for the construction of difference trees.
- * @since 1.1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public interface Action extends DiffTreeItem, PatternItem {

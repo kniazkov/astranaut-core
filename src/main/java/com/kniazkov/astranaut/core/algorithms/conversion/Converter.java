@@ -32,7 +32,7 @@ import java.util.Optional;
 /**
  * Interface for converters that check one rule described in DSL
  *  and convert a sequence of child nodes of a given parent node into a single target node.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public interface Converter {
     /**

@@ -38,7 +38,7 @@ import java.util.NoSuchElementException;
  *  where a single root node has all characters as its children.
  *  This structure provides a foundation for further processing, such as node reduction
  *  based on specific rules.
- * @since 2.0.0
+ * @since 0.0.1
  */
 final class StringSourceIterator implements Iterator<Char> {
     /**

@@ -42,7 +42,7 @@ import java.util.Set;
 
 /**
  * The matcher matches syntax tree and patterns.
- * @since 1.1.5
+ * @since 0.0.1
  */
 class Matcher {
     /**

@@ -26,7 +26,7 @@ package com.kniazkov.astranaut.core.example.green;
 
 /**
  * Node that describes the 'Assignment' type.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public interface Assignment extends Expression {
     /**

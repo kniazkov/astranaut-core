@@ -27,7 +27,7 @@ import java.util.Objects;
 
 /**
  * Default implementation of the {@link Position} interface that fits in most cases.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class DefaultPosition implements Position {
     /**

@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * Node descriptor represented as it is stored in the JSON file.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public class NodeDescriptor {
     /**
@@ -87,7 +87,7 @@ public class NodeDescriptor {
 
     /**
      * Converter that converts descriptors into nodes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class Converter {
         /**

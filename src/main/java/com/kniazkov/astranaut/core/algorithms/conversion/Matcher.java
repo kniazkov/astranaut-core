@@ -28,7 +28,7 @@ import com.kniazkov.astranaut.core.base.Node;
 /**
  * Checks if the node matches some structure and extracts the data and/or children
  *  if they are used in the target [sub]tree.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public interface Matcher {
     /**

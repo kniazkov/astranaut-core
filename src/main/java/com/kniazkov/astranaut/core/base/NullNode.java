@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Singleton node representing intentional absence of a meaningful node value.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class NullNode extends NodeAndType {
     /**

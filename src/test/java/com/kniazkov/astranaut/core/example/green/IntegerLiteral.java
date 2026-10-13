@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 /**
  * Node that describes the 'IntegerLiteral' type.
- * @since 1.0
+ * @since 0.0.1
  */
 public final class IntegerLiteral implements Expression {
     /**
@@ -95,7 +95,7 @@ public final class IntegerLiteral implements Expression {
     /**
      * Type descriptor of the 'Addition' node.
      *
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -157,7 +157,7 @@ public final class IntegerLiteral implements Expression {
     /**
      * Class for 'IntegerLiteral' node construction.
      *
-     * @since 1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

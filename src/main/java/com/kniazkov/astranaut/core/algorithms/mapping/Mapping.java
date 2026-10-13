@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * A mapping from one syntactic tree ('left') to another ('right'), i.e.,
  *  set of correspondences between the nodes of one tree and the nodes of another tree.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public interface Mapping {
     /**

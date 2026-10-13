@@ -24,6 +24,6 @@
 
 /**
  * This package contains tests covering patching algorithms.
- * @since 1.1.5
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.patching;

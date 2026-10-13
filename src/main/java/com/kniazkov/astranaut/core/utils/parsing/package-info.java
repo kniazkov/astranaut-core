@@ -25,6 +25,6 @@
 /**
  * This package contains everything related to source code parsing.
  *  It contains only basic classes, final parsers from specific languages are not here.
- * @since 2.0.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.utils.parsing;

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering {@link Position} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class PositionTest {
     @Test

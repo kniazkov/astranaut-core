@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 
 /**
  * Node that describes the 'Return' type.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class Return implements Statement {
     /**
@@ -110,7 +110,7 @@ public final class Return implements Statement {
 
     /**
      * Type descriptor of the 'Return' node.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -195,7 +195,7 @@ public final class Return implements Statement {
 
     /**
      * Class for 'Return' node construction.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

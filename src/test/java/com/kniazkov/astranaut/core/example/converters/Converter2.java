@@ -34,7 +34,7 @@ import java.util.Optional;
 
 /**
  * Converter that converts a node to an 'IntegerLiteral' node.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Converter2 implements Converter {
     /**

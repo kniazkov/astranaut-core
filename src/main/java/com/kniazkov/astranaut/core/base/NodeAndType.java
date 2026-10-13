@@ -38,7 +38,7 @@ import java.util.Map;
  *  "saving" of one object instantiation when creating such nodes.
  *  Properties are empty by default; subclasses may override {@code getProperties()}
  *  with an immutable map or one whose changes cannot affect internal node state.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public abstract class NodeAndType implements Node, Type {
     @Override

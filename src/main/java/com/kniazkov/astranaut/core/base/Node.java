@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  *  of classes based on it.
  *  The interface is designed to be immutable, which ensures thread safety and
  *  consistency, as well as simplifying the debugging process.
- * @since 1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.ExcessivePublicCount")
 public interface Node {
@@ -217,7 +217,7 @@ public interface Node {
 
     /**
      * Iterator that enumerates the children of a node.
-     * @since 1.1.5
+     * @since 0.0.1
      */
     final class ChildrenIterator implements ListIterator<Node> {
         /**
@@ -302,7 +302,7 @@ public interface Node {
      *  minimal overhead and optimal performance for operations involving child
      *  nodes. Using the List interface for child nodes is frequent in our codebase
      *  due to its convenience and flexibility in handling node collections.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     @SuppressWarnings({"PMD.GodClass", "PMD.TooManyMethods"})
     class ChildrenList implements List<Node> {

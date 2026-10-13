@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 /**
  * Transforms a tree to another tree using some strategy.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public interface Transformer {
     /**

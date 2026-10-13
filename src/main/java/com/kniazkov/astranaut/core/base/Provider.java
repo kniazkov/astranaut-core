@@ -28,7 +28,7 @@ package com.kniazkov.astranaut.core.base;
  *  based on the target programming language.
  *  Language names are case-insensitive (e.g., "Java", "java", "JAVA" are treated the same).
  *  If no specific implementation is found, default fallbacks are returned.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public interface Provider {
     /**
