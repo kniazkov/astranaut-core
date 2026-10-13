@@ -34,7 +34,7 @@ package com.kniazkov.astranaut.core.base;
  *  (i.e., the source code from which this syntax tree was derived) to another, unrelated
  *  syntax tree. One possible application of such a mechanism is the detection and automatic
  *  correction of errors in source code.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Pattern extends Tree {
     /**

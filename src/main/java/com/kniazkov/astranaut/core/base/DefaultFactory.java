@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Default implementation of the {@link Factory} interface that fits in most cases.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public class DefaultFactory implements Factory {
     /**

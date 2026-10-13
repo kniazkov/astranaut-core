@@ -25,6 +25,6 @@
 /**
  * This package tests the basic structures describing syntax trees and their subtypes,
  *  as well as some auxiliary classes that facilitate the construction of these basic structures.
- * @since 2.0.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.base;

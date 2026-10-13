@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Testing {@link NodeAllocator} class.
- * @since 1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.TooManyMethods")
 class NodeAllocatorTest {
@@ -454,7 +454,7 @@ class NodeAllocatorTest {
 
     /**
      * Node descriptor for testing.
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class NodeDescriptor {
         /**

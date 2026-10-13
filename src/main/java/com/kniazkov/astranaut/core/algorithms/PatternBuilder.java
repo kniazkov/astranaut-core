@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Pattern builder.
  *
- * @since 1.1.5
+ * @since 0.0.1
  */
 public final class PatternBuilder {
     /**
@@ -128,7 +128,7 @@ public final class PatternBuilder {
     /**
      * Some additional information about each node needed to make holes.
      *  So far there's only a parent node here, but we may need something else.
-     * @since 1.1.5
+     * @since 0.0.1
      */
     private static final class NodeInfo {
         /**

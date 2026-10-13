@@ -24,6 +24,6 @@
 
 /**
  * This package contains tests covering normalization algorithms.
- * @since 2.0.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.normalization;

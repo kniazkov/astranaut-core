@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * An interface representing a character parser that extends both {@link Source} and
  *  {@link Iterable}.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public interface CharParser extends Source, Iterable<Char> {
     /**

@@ -27,7 +27,7 @@ import com.kniazkov.astranaut.core.utils.FilesReader;
 
 /**
  * A {@link CharParser} implementation that reads characters from a file.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class FileSource extends StringSource {
     /**

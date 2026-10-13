@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Custom builder for test purposes.
  *  This returns errors of different types, allowing you to test different test cases.
- * @since 2.0.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.TestClassWithoutTestCases")
 public final class TestBuilder implements Builder {

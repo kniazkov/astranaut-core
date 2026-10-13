@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 /**
  * Various test cases for the test builder.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public enum TestBuilderCase {
     /**

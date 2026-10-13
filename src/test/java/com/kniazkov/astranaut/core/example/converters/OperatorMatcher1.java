@@ -29,7 +29,7 @@ import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Matcher that checks for a match with a multiply operator.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class OperatorMatcher1 implements Matcher {
     /**

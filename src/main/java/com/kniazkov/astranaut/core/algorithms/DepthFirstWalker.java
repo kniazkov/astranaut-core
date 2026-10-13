@@ -30,7 +30,7 @@ import java.util.Optional;
 
 /**
  * Performs a depth-first traversal of the syntax tree.
- * @since 1.1.5
+ * @since 0.0.1
  */
 public class DepthFirstWalker {
     /**
@@ -136,7 +136,7 @@ public class DepthFirstWalker {
 
     /**
      * Payload interface for the traversal algorithm.
-     * @since 1.1.5
+     * @since 0.0.1
      */
     public interface Visitor {
         /**

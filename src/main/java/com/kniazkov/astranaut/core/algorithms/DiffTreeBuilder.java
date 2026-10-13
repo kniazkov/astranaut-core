@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * Builder of difference syntax tree, that is, one that stores changes between two trees.
- * @since 1.1.5
+ * @since 0.0.1
  */
 public final class DiffTreeBuilder {
     /**
@@ -207,7 +207,7 @@ public final class DiffTreeBuilder {
 
     /**
      * Some additional information about each node needed to insert, replace, or delete nodes.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     private static final class NodeInfo {
         /**

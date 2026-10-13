@@ -36,7 +36,7 @@ import java.util.Set;
 /**
  * Top-down mapping algorithm.
  *  Compares root nodes first and then children in depth.
- * @since 1.1.0
+ * @since 0.0.1
  */
 @SuppressWarnings({"PMD.TooManyMethods", "PMD.GodClass"})
 final class TopDownAlgorithm {

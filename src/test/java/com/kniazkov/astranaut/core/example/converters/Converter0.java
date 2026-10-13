@@ -34,7 +34,7 @@ import java.util.Optional;
 
 /**
  * A converter that converts a sequence of nodes into an "Addition" node.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Converter0 implements Converter {
     /**

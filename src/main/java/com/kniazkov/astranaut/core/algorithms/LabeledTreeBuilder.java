@@ -37,7 +37,7 @@ import java.util.TreeMap;
 
 /**
  * This algorithm labels the selected nodes of the tree with some property.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public class LabeledTreeBuilder {
     /**
@@ -76,7 +76,7 @@ public class LabeledTreeBuilder {
 
     /**
      * A node created from the original node, however, with one modified property.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class LabeledNode implements PrototypeBasedNode {
         /**

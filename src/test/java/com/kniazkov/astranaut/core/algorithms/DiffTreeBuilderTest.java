@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Testing {@link DiffTreeBuilder} class.
- * @since 1.1.0
+ * @since 0.0.1
  */
 class DiffTreeBuilderTest {
     /**

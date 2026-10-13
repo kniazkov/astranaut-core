@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * Node representing one character of the source text.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Char implements Node {
     /**
@@ -91,7 +91,7 @@ public final class Char implements Node {
 
     /**
      * Type implementation describing character nodes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class CharType implements Type {
 
@@ -108,7 +108,7 @@ public final class Char implements Node {
 
     /**
      * Builder for character construction.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

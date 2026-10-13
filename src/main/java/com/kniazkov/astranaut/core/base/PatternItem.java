@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 /**
  * An element of a pattern.
- * @since 1.1.5
+ * @since 0.0.1
  */
 public interface PatternItem extends Node {
 }

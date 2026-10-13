@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 
 /**
  * Node that describes the 'ExpressionStatement' type.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class ExpressionStatement implements Statement {
     /**
@@ -116,7 +116,7 @@ public final class ExpressionStatement implements Statement {
     /**
      * Type descriptor of the 'ExpressionStatement' node.
      *
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -202,7 +202,7 @@ public final class ExpressionStatement implements Statement {
     /**
      * Class for 'ExpressionStatement' node construction.
      *
-     * @since 1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

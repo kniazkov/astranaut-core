@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * Implementation of the Source interface that stores source code as a set of strings.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public class StringSource implements CharParser {
     /**

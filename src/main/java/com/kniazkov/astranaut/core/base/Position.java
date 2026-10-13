@@ -31,7 +31,7 @@ import java.util.List;
  *  It provides methods to retrieve the source, row, and column of the position.
  *  Positions are comparable based on their source, row, and column. If positions
  *  have different sources, they are considered incomparable.
- * @since 1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public interface Position extends Comparable<Position> {

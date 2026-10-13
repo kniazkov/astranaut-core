@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * Property extracted from the original node.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Property extends NodeAndType {
     /**
@@ -86,7 +86,7 @@ public final class Property extends NodeAndType {
 
     /**
      * Builder of the property with the specified name.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class PropertyBuilder implements Builder {
         /**

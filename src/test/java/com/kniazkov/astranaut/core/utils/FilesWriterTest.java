@@ -31,7 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Test for {@link FilesWriter} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class FilesWriterTest {
     @Test

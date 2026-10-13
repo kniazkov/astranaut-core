@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link DotGenerator} class.
- * @since 1.0.2
+ * @since 0.0.1
  */
 class DotRenderTest {
     /**

@@ -41,7 +41,7 @@ import java.util.Set;
  *  purposes and for displaying trees obtained from third-party parsers in the ASTranaut
  *  format.<br/>
  *  DraftNode is designed to be immutable.
- * @since 1.0
+ * @since 0.0.1
  */
 public final class DraftNode extends NodeAndType {
     /**
@@ -252,7 +252,7 @@ public final class DraftNode extends NodeAndType {
 
     /**
      * The constructor class for draft node.
-     * @since 1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

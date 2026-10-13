@@ -25,6 +25,6 @@
 /**
  * This package contains algorithms and data structures related to patching, i.e., changing
  *  syntax trees using patterns (difference trees).
- * @since 1.1.5
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.patching;

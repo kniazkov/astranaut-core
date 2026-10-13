@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 /**
  * Result of top-down mapping algorithm.
- * @since 2.0.0
+ * @since 0.0.1
  */
 final class TopDownMapping implements Mapping {
     /**

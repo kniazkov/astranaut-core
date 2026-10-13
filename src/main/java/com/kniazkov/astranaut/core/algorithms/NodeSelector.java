@@ -31,7 +31,7 @@ import java.util.Set;
 
 /**
  * An algorithm that selects nodes from a tree based on some criteria.
- * @since 1.1.4
+ * @since 0.0.1
  */
 public final class NodeSelector {
     /**
@@ -61,7 +61,7 @@ public final class NodeSelector {
     /**
      * Node selection criteria.
      *
-     * @since 1.1.4
+     * @since 0.0.1
      */
     public interface Criteria {
         /**
@@ -76,7 +76,7 @@ public final class NodeSelector {
 
     /**
      * Walker that traverses the syntax tree and selects nodes.
-     * @since 1.1.4
+     * @since 0.0.1
      */
     private static final class Walker {
         /**

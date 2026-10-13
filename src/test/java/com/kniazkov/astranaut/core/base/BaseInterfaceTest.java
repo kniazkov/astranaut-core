@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering base interfaces, i.e. {@link Node}, {@link Type} and {@link Builder}.
- * @since 1.1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.TooManyMethods")
 class BaseInterfaceTest {

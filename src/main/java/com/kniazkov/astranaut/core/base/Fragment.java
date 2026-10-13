@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Describes a fragment of source code.
- * @since 1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public interface Fragment {

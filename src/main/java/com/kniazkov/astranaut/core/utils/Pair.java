@@ -27,7 +27,7 @@ package com.kniazkov.astranaut.core.utils;
  * Simple pair in case someone needs to use (key, val) objects without creating a map.
  * @param <K> The key type
  * @param <V> The value type
- * @since 1.0
+ * @since 0.0.1
  */
 public final class Pair<K, V> {
     /**

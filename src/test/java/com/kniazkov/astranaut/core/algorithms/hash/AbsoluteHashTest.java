@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link AbsoluteHash} class.
- * @since 1.0
+ * @since 0.0.1
  */
 class AbsoluteHashTest {
     @Test

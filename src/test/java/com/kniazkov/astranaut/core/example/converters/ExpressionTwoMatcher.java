@@ -30,7 +30,7 @@ import com.kniazkov.astranaut.core.base.Node;
 /**
  * Matcher that checks for a match with an expression.
  *  If matched, saves the result to hole numbered 2.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class ExpressionTwoMatcher implements Matcher {
     /**

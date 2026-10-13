@@ -34,7 +34,7 @@ import java.util.Optional;
 
 /**
  * A converter that converts a sequence of nodes into {@link NullNode}.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class WhitespaceConverter implements Converter {
     /**

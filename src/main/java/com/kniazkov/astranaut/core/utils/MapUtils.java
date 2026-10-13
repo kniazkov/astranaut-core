@@ -31,7 +31,7 @@ import java.util.Map;
  * Helper class for building maps.
  * @param <K> Key type
  * @param <V> Value type
- * @since 2.0.0
+ * @since 0.0.1
  */
 public class MapUtils<K, V> {
     /**

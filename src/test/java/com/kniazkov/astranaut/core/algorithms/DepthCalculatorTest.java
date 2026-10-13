@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Testing {@link DepthCalculator} class.
- * @since 1.1.0
+ * @since 0.0.1
  */
 class DepthCalculatorTest {
     @Test

@@ -24,6 +24,6 @@
 
 /**
  * This package contains tests for helper classes.
- * @since 1.0.2
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.utils;

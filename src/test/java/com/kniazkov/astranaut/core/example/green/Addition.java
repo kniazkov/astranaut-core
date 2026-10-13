@@ -44,7 +44,7 @@ import java.util.stream.Stream;
  * ->
  * left@Expression, right@Expression
  *
- * @since 1.0
+ * @since 0.0.1
  */
 public final class Addition implements BinaryExpression {
     /**
@@ -120,7 +120,7 @@ public final class Addition implements BinaryExpression {
 
     /**
      * Type descriptor of the 'Addition' node.
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -198,7 +198,7 @@ public final class Addition implements BinaryExpression {
 
     /**
      * Class for 'Addition' node construction.
-     * @since 1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

@@ -29,7 +29,7 @@ import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Matcher that matches nodes representing whitespaces.
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class WhitespaceMatcher implements Matcher {
     /**

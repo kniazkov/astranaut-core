@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 /**
  * Represents a source code file.
- * @since 1.0
+ * @since 0.0.1
  */
 public interface Source {
     /**

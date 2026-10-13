@@ -25,6 +25,6 @@
 /**
  * This package contains algorithms that calculate the hash of a node.
  *  Hash is a number that uniquely identifies a node by some criteria.
- * @since 1.1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.algorithms.hash;

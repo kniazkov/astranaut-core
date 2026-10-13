@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link Section} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class SectionTest {
     @Test

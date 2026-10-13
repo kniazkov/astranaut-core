@@ -35,7 +35,7 @@ import java.util.Set;
 
 /**
  * List of actions to be added to the tree to produce a difference tree.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public class ActionList {
     /**

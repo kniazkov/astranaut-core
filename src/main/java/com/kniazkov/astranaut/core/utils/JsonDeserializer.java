@@ -33,7 +33,7 @@ import java.util.Optional;
 
 /**
  * Converts a string that contains a JSON object to a tree.
- * @since 1.0.2
+ * @since 0.0.1
  */
 public final class JsonDeserializer {
     /**

@@ -24,6 +24,6 @@
 
 /**
  * This package contains matchers and converters that can be generated from DSL code.
- * @since 2.0.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.example.converters;

@@ -52,7 +52,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Testing {@link Patcher} class.
- * @since 1.1.5
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.TooManyMethods")
 class PatcherTest {

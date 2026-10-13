@@ -43,7 +43,7 @@ import java.util.TreeMap;
  *  to be set as the list of child nodes. Therefore, techniques such as this algorithm
  *  are needed to allocate these nodes to the correct "slots" if necessary.
  *  This algorithm is well-suited for most cases.
- * @since 1.0
+ * @since 0.0.1
  */
 public class NodeAllocator {
     /**
@@ -229,7 +229,7 @@ public class NodeAllocator {
 
     /**
      * The set of types with a relationship of possible position for a node of each such type.
-     * @since 1.0
+     * @since 0.0.1
      */
     private final class PositionSet {
         /**

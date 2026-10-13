@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 
 /**
  * Node that describes the 'ExpressionList' type.
- * @since 1.0
+ * @since 0.0.1
  */
 public final class ExpressionList implements Node {
     /**
@@ -100,7 +100,7 @@ public final class ExpressionList implements Node {
     /**
      * Type descriptor of the 'ExpressionList' node.
      *
-     * @since 1.0
+     * @since 0.0.1
      */
     private static final class TypeImpl implements Type {
         /**
@@ -169,7 +169,7 @@ public final class ExpressionList implements Node {
     /**
      * Class for 'Addition' node construction.
      *
-     * @since 1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**

@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * A special pattern node that can substitute for any node of a suitable type.
- * @since 1.1.5
+ * @since 0.0.1
  */
 public final class Hole extends NodeAndType implements PatternItem, PrototypeBasedNode {
     /**

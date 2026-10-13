@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering {@link Char} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class CharTest {
     @Test

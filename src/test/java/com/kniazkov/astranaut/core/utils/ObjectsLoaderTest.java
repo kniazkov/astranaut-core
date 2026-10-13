@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link ObjectsLoader} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class ObjectsLoaderTest {
     @Test

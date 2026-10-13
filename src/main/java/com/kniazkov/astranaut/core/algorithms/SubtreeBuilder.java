@@ -37,7 +37,7 @@ import java.util.Set;
 
 /**
  * Algorithm that produces a subtree from the original tree.
- * @since 1.1.4
+ * @since 0.0.1
  */
 public class SubtreeBuilder {
     /**
@@ -135,7 +135,7 @@ public class SubtreeBuilder {
 
     /**
      * An algorithm that selects nodes based on some criteria.
-     * @since 1.1.4
+     * @since 0.0.1
      */
     public interface Algorithm {
         /**
@@ -149,7 +149,7 @@ public class SubtreeBuilder {
 
     /**
      * A node created from the original node, but which has only children from the specified set.
-     * @since 1.1.4
+     * @since 0.0.1
      */
     private static final class SubNode implements PrototypeBasedNode {
         /**

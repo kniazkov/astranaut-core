@@ -32,7 +32,7 @@ import java.util.Objects;
  *  Since this fragment corresponds to only one character, both the start and end positions
  *  are the same.
  *
- * @since 2.0.0
+ * @since 0.0.1
  */
 class CharFragment implements Fragment {
     /**

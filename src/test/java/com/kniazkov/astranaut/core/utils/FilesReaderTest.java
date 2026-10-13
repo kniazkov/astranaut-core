@@ -31,7 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Test for {@link FilesReader} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class FilesReaderTest {
     @Test
@@ -75,7 +75,7 @@ class FilesReaderTest {
 
     /**
      * Custom exception for testing purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class CustomException extends Exception {
         private static final long serialVersionUID = -1;

@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.example.green;
 
 /**
  * Node that describes the 'AssignableExpression' type.
- * @since 1.0.5
+ * @since 0.0.1
  */
 public interface AssignableExpression extends Expression {
 }

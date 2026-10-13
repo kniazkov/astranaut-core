@@ -27,7 +27,7 @@ import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Node that describes the 'Expression' type.
- * @since 1.0
+ * @since 0.0.1
  */
 public interface Expression extends Node {
 }

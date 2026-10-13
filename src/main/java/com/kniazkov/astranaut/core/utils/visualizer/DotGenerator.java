@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * Generates graph description in DOT format from a tree.
- * @since 1.0.2
+ * @since 0.0.1
  */
 public class DotGenerator {
     /**

@@ -26,7 +26,7 @@ package com.kniazkov.astranaut.core.utils;
 /**
  * An object containing a variable whose value is currently unknown but will be known later.
  * @param <T> The type of the variable
- * @since 2.0.0
+ * @since 0.0.1
  */
 public final class Promise<T> {
     /**
@@ -53,7 +53,7 @@ public final class Promise<T> {
     /**
      * Callback that is called when the value of the variable is set.
      * @param <T> The type of the variable
-     * @since 2.0.0
+     * @since 0.0.1
      */
     public interface Callback<T> {
         /**

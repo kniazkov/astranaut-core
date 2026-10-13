@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering actions, i.e. {@link Action} interface and inherited classes.
- * @since 1.1.0
+ * @since 0.0.1
  */
 class ActionTest {
     /**

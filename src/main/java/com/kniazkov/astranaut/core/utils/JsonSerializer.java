@@ -34,7 +34,7 @@ import java.nio.file.InvalidPathException;
 
 /**
  * Converts a tree to a string that contains JSON object.
- * @since 1.0.2
+ * @since 0.0.1
  */
 public final class JsonSerializer {
     /**

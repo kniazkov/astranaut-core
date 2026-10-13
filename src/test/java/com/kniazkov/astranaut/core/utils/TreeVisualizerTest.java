@@ -41,7 +41,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Test for {@link TreeVisualizer} class.
- * @since 1.0.2
+ * @since 0.0.1
  */
 class TreeVisualizerTest {
     @Test
@@ -189,7 +189,7 @@ class TreeVisualizerTest {
 
     /**
      * Colored node for test purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class ColoredNode extends NodeAndType {
         @Override

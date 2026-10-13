@@ -41,7 +41,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Test for {@link JsonSerializer} class.
- * @since 1.0.2
+ * @since 0.0.1
  */
 class JsonSerializerTest {
     /**
@@ -182,7 +182,7 @@ class JsonSerializerTest {
     /**
      * Some node which has a type where language is specified.
      *
-     * @since 1.1.0
+     * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNodeWithTypeWithLanguage extends NodeAndType {

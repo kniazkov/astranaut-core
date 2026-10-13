@@ -24,6 +24,6 @@
 
 /**
  * This package contains example nodes.
- * @since 1.0
+ * @since 0.0.1
  */
 package com.kniazkov.astranaut.core.example;

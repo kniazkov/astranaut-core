@@ -29,7 +29,7 @@ import java.util.TreeMap;
 
 /**
  * Data obtained through the matching process.
- * @since 2.0.0
+ * @since 0.0.1
  */
 final class Matched extends ActionList {
     /**

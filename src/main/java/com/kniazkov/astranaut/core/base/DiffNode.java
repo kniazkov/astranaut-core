@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Node containing child nodes, as well as actions on these nodes.
- * @since 1.1.0
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.GodClass")
 public final class DiffNode extends NodeAndType implements DiffTreeItem, PrototypeBasedNode {
@@ -309,7 +309,7 @@ public final class DiffNode extends NodeAndType implements DiffTreeItem, Prototy
 
     /**
      * Selector that selects some branch from a difference tree item: before or after the changes.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     private interface BranchSelector {
         /**

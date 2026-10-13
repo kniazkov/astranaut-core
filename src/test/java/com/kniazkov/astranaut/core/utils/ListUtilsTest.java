@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link ListUtils} class.
- * @since 1.0.2
+ * @since 0.0.1
  */
 class ListUtilsTest {
     @Test

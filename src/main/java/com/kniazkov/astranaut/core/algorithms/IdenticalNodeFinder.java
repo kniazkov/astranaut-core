@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * A class which finds and returns identical nodes in a tree.
  *  Nodes are listed if they have data and their hashes match.
- * @since 1.1.5
+ * @since 0.0.1
  */
 public class IdenticalNodeFinder {
     /**

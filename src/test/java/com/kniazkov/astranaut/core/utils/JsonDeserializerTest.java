@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link JsonDeserializer} class.
- * @since 1.0.2
+ * @since 0.0.1
  */
 @SuppressWarnings("PMD.TooManyMethods")
 class JsonDeserializerTest {
@@ -332,7 +332,7 @@ class JsonDeserializerTest {
 
     /**
      * Builder that doesn't accept children, for testing purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class BuilderDoesNotAcceptChildren implements Builder {
         /**
@@ -376,7 +376,7 @@ class JsonDeserializerTest {
 
     /**
      * Invalid builder for test purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class InvalidBuilder implements Builder {
         @Override
@@ -407,7 +407,7 @@ class JsonDeserializerTest {
 
     /**
      * Provider for test purposes.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private abstract static class TestProvider implements Provider {
         @Override

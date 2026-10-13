@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests covering {@link DefaultFragment} class.
- * @since 2.0.0
+ * @since 0.0.1
  */
 class DefaultFragmentTest {
     /**
@@ -147,7 +147,7 @@ class DefaultFragmentTest {
 
     /**
      * A fake node for test purposes, it only returns a fragment.
-     * @since 2.0.0
+     * @since 0.0.1
      */
     private static final class FakeNode extends NodeAndType {
         /**

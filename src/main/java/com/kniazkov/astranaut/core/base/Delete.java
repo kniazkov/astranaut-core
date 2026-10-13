@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 /**
  * Action that deletes a child element.
- * @since 1.1.0
+ * @since 0.0.1
  */
 public final class Delete implements Action {
     /**
@@ -101,7 +101,7 @@ public final class Delete implements Action {
 
     /**
      * Type of 'Delete' action.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     private static final class DeleteType implements Type {
         /**
@@ -177,7 +177,7 @@ public final class Delete implements Action {
 
     /**
      * Class for 'Delete' action construction.
-     * @since 1.1.0
+     * @since 0.0.1
      */
     public static final class Constructor implements Builder {
         /**
