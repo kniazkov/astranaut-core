@@ -1,64 +1,54 @@
 # Building ASTranaut Core
 
 Requires JDK 21+ and Maven 3.6.3+. Run `mvn clean verify` from the repository root.
-The reactor first compiles/tests `quality-rules`, then builds/tests/analyzes the library.
-The public library is `com.kniazkov:astranaut-core:0.0.1`. Its sources are in
-`src`; Java packages are now `com.kniazkov.astranaut.core.*`.
+This is a single-module library: `com.kniazkov:astranaut-core:0.0.1`.
+Sources and tests live in `src/`; the library, sources and Javadoc JARs are built
+in `target/`. Java packages start with `com.kniazkov.astranaut.core`.
+Filtered VERSION.txt resources and manifest entries retain version metadata.
 
-The library JAR, sources JAR and Javadoc JAR are in `target`.
-The parent POM and `astranaut-quality-rules` are supporting artifacts of the same
-reactor; consumers only need the library dependency. Checks are plugin dependencies,
-never runtime dependencies of the library.
-The imported helper has BSD-3-Clause notices and regression tests; core keeps its MIT
-license and strict style policy. Intentionally malformed checker fixtures are not
-subject to the core style policy. VERSION.txt resources and manifest entries retain
-version metadata; wall-clock timestamps and VCS revision injection were removed for
-reproducible artifacts.
+## Shared build and quality checks
 
-## Quality contract
+The published `com.kniazkov:astranaut-parent:0.0.1` supplies Java 21 defaults,
+plugin versions, quality checks and the release profile. Maven downloads it and
+`com.kniazkov:astranaut-quality-rules:0.0.1` from Central; no sibling checkout or
+local installation of build tooling is needed. The checker JAR is a plugin
+dependency and is not a runtime dependency of this library.
 
-- Checkstyle: explicit legacy configuration, production and test Java; the 20
-  custom checks are maintained locally under `quality-rules`.
-- PMD 7: explicit rules migrated from Qulice 0.22.0, including custom XPath rules.
-- Dependency Plugin: rejects unused compile and undeclared dependencies. Runtime
-  logging providers are explicitly runtime-scoped rather than globally suppressed.
-- Duplicate Finder: rejects class/resource collisions in compile/runtime classpaths.
-- Enforcer: JDK/Maven minimums, explicit release plugin versions, no direct SNAPSHOT
-  dependencies for release builds.
-- JUnit Jupiter and JaCoCo: all tests execute; HTML/XML coverage is available under
-  each module's `target/site/jacoco`. No remote coverage token is required.
+- Checkstyle checks production and test Java, including the 20 custom checks.
+- PMD 7 applies the migrated rules, including custom XPath rules.
+- Dependency Plugin rejects unused compile and undeclared dependencies.
+- Duplicate Finder rejects compile/runtime class and resource collisions.
+- Enforcer checks Java/Maven minimums, explicit release plugin versions and
+  direct SNAPSHOT dependencies for release builds.
+- JUnit Jupiter runs the tests; JaCoCo writes HTML/XML coverage to
+  `target/site/jacoco`. No remote service or token is required, and no minimum
+  coverage threshold is enforced.
+- Source and Javadoc JARs are generated, with Javadoc errors failing the build.
 
-See [the migration ledger](build-migration.md) for the old rules and replacements.
-Run `mvn clean install` and then `python3 scripts/check-build-gates.py` to verify
-that representative violations fail the Maven gates and inspect the built artifact.
-CI also saves reports when a check fails. No automatic source formatter rewrites files.
+Check implementations, configurations and their regression/rejection tests are
+maintained in [astranaut-build](https://github.com/kniazkov/astranaut-build).
+See its [policy ledger](https://github.com/kniazkov/astranaut-build/blob/master/docs/legacy-policy.md)
+for the old rules and replacements. To change the shared policy, release a new
+build version there, then update this project's parent version.
+
+CI runs `mvn clean verify` on Java 21 and saves test, coverage and analysis reports,
+including when verification fails. It resolves dependencies without restoring the
+old Maven cache, which could contain locally installed pre-extraction checkers.
+No automatic source formatter rewrites files.
 
 ## Maven Central release
 
-The release profile follows `kniazkov/json`: GPG plugin 3.2.7 and Sonatype Central
-publishing plugin 0.11.0, server ID `central`, `autoPublish=false`,
-`waitUntil=validated`. No credentials or keys are stored in the repository.
+The inherited release profile follows `kniazkov/json`: GPG plugin 3.2.7 and
+Sonatype Central publishing plugin 0.11.0, server ID `central`,
+`autoPublish=false`, `waitUntil=validated`.
 
-1. Configure your Central user token in your local Maven `settings.xml` under server
-   ID `central`, and make your signing key available to GPG.
+1. Configure your Central user token in Maven `settings.xml` under server ID
+   `central`, and make your signing key available to GPG.
 2. Verify the version (including `Info.VERSION`) and release SCM tag, run tests,
    and create the release tag after review.
-3. Run `mvn -Prelease clean deploy`. The reactor signs and uploads the parent POM,
-   helper artifact and library, with sources and Javadoc.
+3. Run `mvn -Prelease clean deploy`. This signs and uploads only the core POM
+   and library artifacts, including sources and Javadoc. The shared parent and
+   checks have their own release lifecycle.
 4. Inspect the validated deployment in Central Portal and publish it manually.
 
-Ordinary `verify`/`install` needs no credentials, GPG key or external publishing service.
-A migration PR never publishes a release.
-
-## Repository layout
-
-Library sources and tests live in the root `src/`, and library artifacts in root
-`target/`. The root POM orchestrates the build. `build-support/library/pom.xml` is
-only a reactor descriptor pointing to those directories, so locally compiled
-Checkstyle rules are available before library verification. `quality-rules` is
-build tooling, not part of the library. Use `-pl :astranaut-core` to select the
-library after installing the helper.
-
-All library Java packages now start with `com.kniazkov.astranaut.core`; consumers
-must update their imports. Project copyright is 2026. Original BSD copyright
-notices on imported Qulice code/configuration are retained.
+Ordinary `verify`/`install` needs no credentials or GPG key.

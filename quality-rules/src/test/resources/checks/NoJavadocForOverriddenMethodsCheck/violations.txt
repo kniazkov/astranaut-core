@@ -1,3 +1,0 @@
-11:Overridden methods should not have Javadoc
-18:Overridden methods should not have Javadoc
-23:Overridden methods should not have Javadoc

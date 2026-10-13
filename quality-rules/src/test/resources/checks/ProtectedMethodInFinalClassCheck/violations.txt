@@ -1,4 +1,0 @@
-9:Final class should not contain protected methods
-11:Final class should not contain protected methods
-14:Final class should not contain protected methods
-22:Protected method is overriding default scoped method
