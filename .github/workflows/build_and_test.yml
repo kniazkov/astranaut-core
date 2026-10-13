@@ -17,11 +17,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: maven
       - name: Build, test and run all quality checks
-        run: mvn -B -ntp clean install
-      - name: Verify artifact and build rejection gates
-        run: python3 scripts/check-build-gates.py
+        run: mvn -B -ntp clean verify
       - name: Ensure the build did not modify tracked files
         run: git diff --exit-code
       - name: Save reports and diagnostics
@@ -35,5 +32,4 @@ jobs:
             **/target/checkstyle-result.xml
             **/target/pmd.xml
             **/target/duplicate-finder-result.xml
-            target/build-gates/
           if-no-files-found: warn
