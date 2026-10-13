@@ -23,15 +23,20 @@
  */
 package com.kniazkov.astranaut.core;
 
+import java.util.Optional;
+
 /**
  * This class provides static information about the library, such as the version.
  * @since 0.0.1
  */
 public final class Info {
     /**
-     * The core version.
+     * The core version from the JAR manifest, or {@code unknown} when running
+     *  from classes without manifest metadata.
      */
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = Optional
+        .ofNullable(Info.class.getPackage().getImplementationVersion())
+        .orElse("unknown");
 
     /**
      * Private constructor.
