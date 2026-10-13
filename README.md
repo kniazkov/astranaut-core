@@ -1,7 +1,6 @@
 # Astranaut Core — The Heart of the Tree
 
-![Build and test](https://github.com/cqfn/astranaut-core/workflows/Build%20and%20test/badge.svg)
-[![Codecov](https://codecov.io/gh/cqfn/astranaut-core/branch/master/graph/badge.svg)](https://codecov.io/gh/cqfn/astranaut-core)
+![Build and test](https://github.com/kniazkov/astranaut-core/workflows/Build%20and%20test/badge.svg)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/unified-ast//astranaut-core/blob/master/LICENSE.txt)
 ___
 
@@ -22,7 +21,7 @@ So if you're working with anything Astranaut produces, you're working with Core 
 
 # Requirements
 
-* Java 1.8
+* Java 21 or newer (bytecode targets Java 21)
 * Maven 3.6.3+ (to build)
 
 # How to Add Astranaut Core to Your Project
@@ -34,14 +33,14 @@ Just add this to your `pom.xml`:
 ~~~xml
 <dependencies>
   <dependency>
-    <groupId>org.cqfn</groupId>
+    <groupId>com.kniazkov</groupId>
     <artifactId>astranaut-core</artifactId>
-    <version><!-- latest version here --></version>
+    <version>0.0.1</version>
   </dependency>
 </dependencies>
 ~~~
 
-You can find the latest release number [here](https://github.com/cqfn/astranaut-core/tags). 
+You can find the latest release number [here](https://github.com/kniazkov/astranaut-core/tags). 
 
 # The Basics: Interfaces & Classes  
 This is where the tree magic starts.  
@@ -482,7 +481,7 @@ Takes a `Tree` and **spits out a picture** (PNG/SVG). Perfect for:
 
 Example:
 
-![SIMPLE AST](src/main/documents/simple_ast.png)
+![SIMPLE AST](core/src/main/documents/simple_ast.png)
 
 ## **JsonSerializer & JsonDeserializer – JSON ↔ Tree Superpowers**  
 
@@ -733,3 +732,10 @@ Most use cases are covered by the default impl.
 * Andrei Grishchenko, @GingerYouth
 
 See our [Contributing policy](CONTRIBUTING.md).
+
+# Building and releasing
+
+See [the build guide](docs/build.md) for independent quality checks, coverage,
+and the manually confirmed Maven Central publication process. The library artifact
+is `com.kniazkov:astranaut-core:0.0.1`; Java packages keep their existing names.
+

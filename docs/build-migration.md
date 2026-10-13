@@ -205,3 +205,63 @@ The following inventory records the old policy, not a new default ruleset.
 - `ProhibitFilesCreateFileInTests`
 - `ReturnEmptyCollectionRatherThanNull`
 - `JUnit5TestShouldBePackagePrivate`
+
+## PMD 7 replacements
+
+Mappings preserve the intent; analyzer upgrades can change individual diagnostics.
+
+| Legacy rule | Replacement |
+|---|---|
+| `AvoidPrefixingMethodParameters` | FormalParameterNamingConventions |
+| `AvoidUsingShortType` | XPath AvoidUsingShortType |
+| `BadComparison` | ComparisonWithNaN |
+| `BooleanInstantiation` | PrimitiveWrapperInstantiation |
+| `ByteInstantiation` | PrimitiveWrapperInstantiation |
+| `CloneThrowsCloneNotSupportedException` | Checkstyle NoClone |
+| `DoNotCallSystemExit` | DoNotTerminateVM |
+| `DontImportJavaLang` | UnnecessaryImport |
+| `DuplicateImports` | UnnecessaryImport |
+| `EmptyFinallyBlock` | EmptyControlStatement |
+| `EmptyIfStmt` | EmptyControlStatement |
+| `EmptyInitializer` | EmptyControlStatement |
+| `EmptyStatementBlock` | EmptyControlStatement |
+| `EmptyStatementNotInLoop` | UnnecessarySemicolon |
+| `EmptySwitchStatements` | EmptyControlStatement |
+| `EmptySynchronizedBlock` | EmptyControlStatement |
+| `EmptyTryBlock` | EmptyControlStatement |
+| `EmptyWhileStmt` | EmptyControlStatement |
+| `ExcessiveClassLength` | Checkstyle FileLength |
+| `ExcessiveMethodLength` | Checkstyle MethodLength |
+| `ForLoopsMustUseBraces` | ControlStatementBraces |
+| `IfElseStmtsMustUseBraces` | ControlStatementBraces |
+| `IfStmtsMustUseBraces` | ControlStatementBraces |
+| `ImportFromSamePackage` | UnnecessaryImport |
+| `IntegerInstantiation` | PrimitiveWrapperInstantiation |
+| `InvalidSlf4jMessageFormat` | InvalidLogMessageFormat |
+| `JUnit5TestShouldBePackagePrivate` | JUnit5TestShouldBePackagePrivate |
+| `LoggerIsNotStaticFinal` | ProperLogger |
+| `LongInstantiation` | PrimitiveWrapperInstantiation |
+| `MIsLeadingVariableName` | FieldNamingConventions |
+| `MissingBreakInSwitch` | ImplicitSwitchFallThrough |
+| `ModifiedCyclomaticComplexity` | CyclomaticComplexity |
+| `NcssConstructorCount` | NcssCount |
+| `NcssMethodCount` | NcssCount |
+| `NcssTypeCount` | NcssCount |
+| `ReturnEmptyArrayRatherThanNull` | ReturnEmptyCollectionRatherThanNull |
+| `ReturnEmptyCollectionRatherThanNull` | ReturnEmptyCollectionRatherThanNull |
+| `ShortInstantiation` | PrimitiveWrapperInstantiation |
+| `SimplifyBooleanAssertion` | SimplifiableTestAssertion |
+| `SimplifyStartsWith` | XPath SimplifyStartsWith |
+| `StdCyclomaticComplexity` | CyclomaticComplexity |
+| `SuspiciousConstantFieldName` | FieldNamingConventions |
+| `UnnecessaryLocalRule` | UnnecessaryLocalBeforeReturn |
+| `UnnecessaryWrapperObjectCreation` | PrimitiveWrapperInstantiation |
+| `UnsynchronizedStaticDateFormatter` | UnsynchronizedStaticFormatter |
+| `UnusedImports` | UnnecessaryImport |
+| `UseAssertEqualsInsteadOfAssertTrue` | SimplifiableTestAssertion |
+| `UseAssertNullInsteadOfAssertTrue` | SimplifiableTestAssertion |
+| `UseAssertSameInsteadOfAssertTrue` | SimplifiableTestAssertion |
+| `UseAssertTrueInsteadOfAssertEquals` | SimplifiableTestAssertion |
+| `UseStringIsEmptyRule` | XPath UseStringIsEmptyRule |
+| `VariableNamingConventions` | FieldNamingConventions,LocalVariableNamingConventions,FormalParameterNamingConventions |
+| `WhileLoopsMustUseBraces` | ControlStatementBraces |

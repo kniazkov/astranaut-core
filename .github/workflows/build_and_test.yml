@@ -2,27 +2,38 @@ name: Build and test
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-
+  verify:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v3
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-        cache: maven
-    - name: Maven Build and Verify
-      run: mvn -B clean verify
-    - uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./target/site/jacoco/jacoco.xml
-        fail_ci_if_error: true
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build, test and run all quality checks
+        run: mvn -B -ntp clean install
+      - name: Verify artifact and build rejection gates
+        run: python3 scripts/check-build-gates.py
+      - name: Ensure the build did not modify tracked files
+        run: git diff --exit-code
+      - name: Save reports and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-reports
+          path: |
+            **/target/surefire-reports/
+            **/target/site/jacoco/
+            **/target/checkstyle-result.xml
+            **/target/pmd.xml
+            **/target/duplicate-finder-result.xml
+            target/build-gates/
+          if-no-files-found: warn

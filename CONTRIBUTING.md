@@ -9,7 +9,8 @@ some very simple rules:
 * Fork this repository to your own account;
 * Make your changes and make sure the verification is passed;
   Verification includes the execution of unit testing, as well as checking by a static code analyzer.
-  We use [Qulice](https://www.qulice.com/) as such an analyzer;
+  Run `mvn clean verify` on Java 21 from the repository root.
+  See [the build guide](docs/build.md) for Checkstyle, PMD and dependency checks;
 * If you are changing the API or complement DSL syntax, be sure to describe these changes
   in the documentation (at least, fix README.md);
 * Commit your work and push to a new branch on your fork;
