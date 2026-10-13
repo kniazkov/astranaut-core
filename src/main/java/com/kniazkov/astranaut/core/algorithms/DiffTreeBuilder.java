@@ -23,8 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.kniazkov.astranaut.core.algorithms.mapping.Mapper;
 import com.kniazkov.astranaut.core.algorithms.mapping.Mapping;
 import com.kniazkov.astranaut.core.base.DiffNode;
@@ -33,6 +31,8 @@ import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Builder of difference syntax tree, that is, one that stores changes between two trees.

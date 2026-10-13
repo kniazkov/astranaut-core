@@ -23,15 +23,15 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
+import com.kniazkov.astranaut.core.base.ExtNode;
+import com.kniazkov.astranaut.core.base.Insertion;
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import com.kniazkov.astranaut.core.base.ExtNode;
-import com.kniazkov.astranaut.core.base.Insertion;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Result of top-down mapping algorithm.

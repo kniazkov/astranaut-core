@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms.conversion;
 
-import java.util.List;
-import java.util.Optional;
 import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.utils.ObjectsLoader;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Interface for converters that check one rule described in DSL

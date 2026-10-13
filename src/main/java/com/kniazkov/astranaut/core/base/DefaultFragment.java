@@ -23,8 +23,8 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Objects;
 import com.kniazkov.astranaut.core.utils.Pair;
+import java.util.Objects;
 
 /**
  * Default implementation of the {@link Fragment} interface that fits in most cases.

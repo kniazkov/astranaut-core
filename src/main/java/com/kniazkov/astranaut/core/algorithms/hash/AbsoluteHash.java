@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.algorithms.hash;
 
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.HashMap;
 import java.util.Map;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Computes the absolute hash of a node, that is, a hash that is computed from both the data

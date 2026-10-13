@@ -23,9 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
 import com.kniazkov.astranaut.core.algorithms.PatternBuilder;
 import com.kniazkov.astranaut.core.algorithms.mapping.TopDownMapper;
@@ -37,6 +34,9 @@ import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

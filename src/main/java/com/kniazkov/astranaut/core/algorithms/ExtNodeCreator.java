@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.Map;
 import com.kniazkov.astranaut.core.algorithms.hash.AbsoluteHash;
 import com.kniazkov.astranaut.core.base.ExtNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
+import java.util.Map;
 
 /**
  * Creates extended nodes ({@link ExtNode}) from 'regular' nodes ({@link Node}).

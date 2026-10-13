@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.Arrays;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.utils.Pair;
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

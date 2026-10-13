@@ -23,6 +23,10 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import com.kniazkov.astranaut.core.algorithms.LabeledTreeBuilder;
+import com.kniazkov.astranaut.core.example.LittleTrees;
+import com.kniazkov.astranaut.core.example.green.Addition;
+import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,10 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import com.kniazkov.astranaut.core.algorithms.LabeledTreeBuilder;
-import com.kniazkov.astranaut.core.example.LittleTrees;
-import com.kniazkov.astranaut.core.example.green.Addition;
-import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -23,11 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import com.kniazkov.astranaut.core.algorithms.DepthFirstWalker;
 import com.kniazkov.astranaut.core.base.Action;
 import com.kniazkov.astranaut.core.base.ActionList;
@@ -39,6 +34,11 @@ import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.Replace;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The matcher matches syntax tree and patterns.

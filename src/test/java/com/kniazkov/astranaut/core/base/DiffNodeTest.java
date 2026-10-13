@@ -23,13 +23,13 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
 import com.kniazkov.astranaut.core.utils.FilesReader;
 import com.kniazkov.astranaut.core.utils.JsonDeserializer;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

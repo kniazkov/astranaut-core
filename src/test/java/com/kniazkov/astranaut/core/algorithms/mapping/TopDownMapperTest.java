@@ -23,12 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
 import com.kniazkov.astranaut.core.base.DefaultFactory;
 import com.kniazkov.astranaut.core.base.DiffTree;
@@ -41,6 +35,12 @@ import com.kniazkov.astranaut.core.base.Transformer;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.FilesReader;
 import com.kniazkov.astranaut.core.utils.JsonDeserializer;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -23,6 +23,8 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
+import com.kniazkov.astranaut.core.utils.Promise;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
-import com.kniazkov.astranaut.core.utils.Promise;
 
 /**
  * List of actions to be added to the tree to produce a difference tree.

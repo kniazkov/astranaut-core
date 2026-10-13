@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.utils.parsing;
 
+import com.kniazkov.astranaut.core.base.Char;
+import com.kniazkov.astranaut.core.base.Position;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.kniazkov.astranaut.core.base.Char;
-import com.kniazkov.astranaut.core.base.Position;
 
 /**
  * Implementation of the Source interface that stores source code as a set of strings.

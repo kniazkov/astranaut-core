@@ -23,11 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
 import com.kniazkov.astranaut.core.algorithms.PatternBuilder;
 import com.kniazkov.astranaut.core.algorithms.mapping.Mapper;
@@ -47,6 +42,11 @@ import com.kniazkov.astranaut.core.example.green.ExpressionStatement;
 import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
 import com.kniazkov.astranaut.core.example.green.SimpleAssignment;
 import com.kniazkov.astranaut.core.example.green.Variable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

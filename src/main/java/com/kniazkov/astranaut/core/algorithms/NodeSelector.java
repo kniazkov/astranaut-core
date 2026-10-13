@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * An algorithm that selects nodes from a tree based on some criteria.

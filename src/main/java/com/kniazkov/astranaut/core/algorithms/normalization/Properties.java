@@ -23,15 +23,15 @@
  */
 package com.kniazkov.astranaut.core.algorithms.normalization;
 
+import com.kniazkov.astranaut.core.base.Builder;
+import com.kniazkov.astranaut.core.base.Fragment;
+import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeAndType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import com.kniazkov.astranaut.core.base.Builder;
-import com.kniazkov.astranaut.core.base.Fragment;
-import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.NodeAndType;
 
 /**
  * List of properties extracted from the original node.

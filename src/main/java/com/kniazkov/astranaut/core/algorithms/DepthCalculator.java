@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.HashMap;
 import java.util.Map;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Algorithm for measuring the depth of syntax trees.

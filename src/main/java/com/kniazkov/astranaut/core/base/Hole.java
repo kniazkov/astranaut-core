@@ -23,8 +23,8 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Map;
 import com.kniazkov.astranaut.core.utils.MapUtils;
+import java.util.Map;
 
 /**
  * A special pattern node that can substitute for any node of a suitable type.

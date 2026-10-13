@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.utils.Pair;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creator of a new tree with a modified subtree.

@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
+import com.kniazkov.astranaut.core.base.ActionList;
 import java.util.Map;
 import java.util.TreeMap;
-import com.kniazkov.astranaut.core.base.ActionList;
 
 /**
  * Data obtained through the matching process.

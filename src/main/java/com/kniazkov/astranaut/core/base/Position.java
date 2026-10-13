@@ -23,8 +23,8 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.List;
 import com.kniazkov.astranaut.core.utils.Pair;
+import java.util.List;
 
 /**
  * Represents a position in source code.

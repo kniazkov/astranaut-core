@@ -23,11 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms.conversion;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.DraftNode;
@@ -44,6 +39,11 @@ import com.kniazkov.astranaut.core.example.converters.Converter2;
 import com.kniazkov.astranaut.core.example.converters.Converter3;
 import com.kniazkov.astranaut.core.example.converters.WhitespaceConverter;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

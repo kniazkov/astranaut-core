@@ -23,8 +23,6 @@
  */
 package com.kniazkov.astranaut.core.example;
 
-import java.util.Arrays;
-import java.util.Collections;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
 import com.kniazkov.astranaut.core.algorithms.PatternBuilder;
 import com.kniazkov.astranaut.core.base.Builder;
@@ -40,6 +38,8 @@ import com.kniazkov.astranaut.core.example.green.Return;
 import com.kniazkov.astranaut.core.example.green.SimpleAssignment;
 import com.kniazkov.astranaut.core.example.green.StatementBlock;
 import com.kniazkov.astranaut.core.example.green.Variable;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 
 /**

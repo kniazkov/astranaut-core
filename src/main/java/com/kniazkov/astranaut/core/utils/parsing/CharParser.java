@@ -23,13 +23,13 @@
  */
 package com.kniazkov.astranaut.core.utils.parsing;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Source;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An interface representing a character parser that extends both {@link Source} and

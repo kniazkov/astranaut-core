@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * A class which finds and returns identical nodes in a tree.

@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms.normalization;
 
-import java.util.List;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeAndType;
+import java.util.List;
 
 /**
  * Property extracted from the original node.

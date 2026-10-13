@@ -23,17 +23,17 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
+import com.kniazkov.astranaut.core.base.Tree;
+import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
-import com.kniazkov.astranaut.core.base.Tree;
-import com.kniazkov.astranaut.core.base.Type;
-import com.kniazkov.astranaut.core.utils.Pair;
 
 /**
  * This algorithm labels the selected nodes of the tree with some property.

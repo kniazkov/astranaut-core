@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.Arrays;
 import java.util.Collections;
-import com.kniazkov.astranaut.core.utils.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

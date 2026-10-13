@@ -23,13 +23,13 @@
  */
 package com.kniazkov.astranaut.core.utils.parsing;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.DefaultPosition;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Position;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An iterator that splits the source code into individual {@link Node} elements,

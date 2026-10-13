@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import com.kniazkov.json.Json;
-import com.kniazkov.json.JsonException;
 import com.kniazkov.astranaut.core.base.EmptyTree;
 import com.kniazkov.astranaut.core.base.Provider;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.deserializer.TreeDescriptor;
+import com.kniazkov.json.Json;
+import com.kniazkov.json.JsonException;
 
 /**
  * Converts a string that contains a JSON object to a tree.

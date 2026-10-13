@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import java.io.File;
-import java.io.IOException;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.visualizer.DotGenerator;
 import com.kniazkov.astranaut.core.utils.visualizer.ImageRender;
 import com.kniazkov.astranaut.core.utils.visualizer.WrongFileExtension;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Visualizer of trees.

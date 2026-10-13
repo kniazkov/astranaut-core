@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
+import com.kniazkov.astranaut.core.base.ExtNode;
+import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import com.kniazkov.astranaut.core.base.ExtNode;
-import com.kniazkov.astranaut.core.utils.Pair;
 
 /**
  * Auxiliary structure for mapping child nodes. Contains a set of sections, i.e, subset of

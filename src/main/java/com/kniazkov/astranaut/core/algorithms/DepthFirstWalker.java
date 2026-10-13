@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Performs a depth-first traversal of the syntax tree.

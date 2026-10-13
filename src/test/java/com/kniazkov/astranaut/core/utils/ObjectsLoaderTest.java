@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.kniazkov.astranaut.core.algorithms.conversion.Converter;
 import com.kniazkov.astranaut.core.algorithms.conversion.Matcher;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

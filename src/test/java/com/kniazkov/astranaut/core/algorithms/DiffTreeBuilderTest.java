@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.Collections;
 import com.kniazkov.astranaut.core.algorithms.hash.AbsoluteHash;
 import com.kniazkov.astranaut.core.algorithms.hash.Hash;
 import com.kniazkov.astranaut.core.algorithms.mapping.TopDownMapper;
@@ -33,6 +32,7 @@ import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.example.LittleTrees;
+import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

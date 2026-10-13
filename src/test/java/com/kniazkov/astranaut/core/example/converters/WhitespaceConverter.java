@@ -23,14 +23,14 @@
  */
 package com.kniazkov.astranaut.core.example.converters;
 
-import java.util.List;
-import java.util.Optional;
 import com.kniazkov.astranaut.core.algorithms.conversion.ConversionResult;
 import com.kniazkov.astranaut.core.algorithms.conversion.Converter;
 import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NullNode;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A converter that converts a sequence of nodes into {@link NullNode}.

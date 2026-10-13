@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.algorithms.conversion;
 
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * Stores extracted nodes and associated data mapped to numbers.

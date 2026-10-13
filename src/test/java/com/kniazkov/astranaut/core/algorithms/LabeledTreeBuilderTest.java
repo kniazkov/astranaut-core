@@ -23,12 +23,12 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.Collections;
-import java.util.Optional;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.example.LittleTrees;
+import java.util.Collections;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

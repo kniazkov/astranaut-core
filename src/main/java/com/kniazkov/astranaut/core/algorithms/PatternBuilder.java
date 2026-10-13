@@ -23,13 +23,13 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Pattern builder.

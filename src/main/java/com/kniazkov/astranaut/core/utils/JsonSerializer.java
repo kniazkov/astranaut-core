@@ -23,14 +23,14 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import com.kniazkov.json.JsonArray;
-import com.kniazkov.json.JsonObject;
-import java.io.IOException;
-import java.nio.file.InvalidPathException;
 import com.kniazkov.astranaut.core.base.Hole;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.json.JsonArray;
+import com.kniazkov.json.JsonObject;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
 
 /**
  * Converts a tree to a string that contains JSON object.

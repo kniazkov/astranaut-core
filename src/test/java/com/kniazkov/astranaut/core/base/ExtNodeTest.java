@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import com.kniazkov.astranaut.core.algorithms.ExtNodeCreator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import com.kniazkov.astranaut.core.algorithms.ExtNodeCreator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

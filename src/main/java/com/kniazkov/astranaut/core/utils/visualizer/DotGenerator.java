@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.utils.visualizer;
 
-import java.util.Map;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.Map;
 
 /**
  * Generates graph description in DOT format from a tree.

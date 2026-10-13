@@ -23,11 +23,6 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Map;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.CoreException;
 import com.kniazkov.astranaut.core.base.DraftNode;
@@ -35,6 +30,11 @@ import com.kniazkov.astranaut.core.base.EmptyTree;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeAndType;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

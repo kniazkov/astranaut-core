@@ -23,14 +23,14 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.visualizer.DotGenerator;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

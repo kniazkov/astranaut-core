@@ -23,9 +23,6 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.DummyNode;
@@ -41,6 +38,9 @@ import com.kniazkov.astranaut.core.example.LittleTrees;
 import com.kniazkov.astranaut.core.example.green.Addition;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
 import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

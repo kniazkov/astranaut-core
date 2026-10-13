@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import java.util.Set;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.Node;
+import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

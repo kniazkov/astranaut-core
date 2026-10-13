@@ -23,11 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
+import com.kniazkov.astranaut.core.base.Insertion;
+import com.kniazkov.astranaut.core.base.Node;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.kniazkov.astranaut.core.base.Insertion;
-import com.kniazkov.astranaut.core.base.Node;
 
 /**
  * A mapping from one syntactic tree ('left') to another ('right'), i.e.,

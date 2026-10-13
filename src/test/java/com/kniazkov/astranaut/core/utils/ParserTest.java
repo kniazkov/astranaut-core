@@ -23,10 +23,6 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
 import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.DefaultFragment;
 import com.kniazkov.astranaut.core.base.DefaultPosition;
@@ -36,6 +32,10 @@ import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.parsing.FileSource;
 import com.kniazkov.astranaut.core.utils.parsing.StringSource;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

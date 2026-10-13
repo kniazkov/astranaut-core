@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.utils.parsing;
 
-import java.util.Objects;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Position;
+import java.util.Objects;
 
 /**
  * Represents a fragment that consists of a single character in the source code.

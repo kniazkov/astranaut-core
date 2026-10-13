@@ -23,8 +23,6 @@
  */
 package com.kniazkov.astranaut.core.utils.deserializer;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.kniazkov.astranaut.core.algorithms.PatternBuilder;
 import com.kniazkov.astranaut.core.base.ActionList;
 import com.kniazkov.astranaut.core.base.DiffTree;
@@ -33,6 +31,8 @@ import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Provider;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tree descriptor represented as it is stored in the JSON file.

@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
-import java.util.Objects;
 import com.kniazkov.astranaut.core.base.ExtNode;
 import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
+import java.util.Objects;
 
 /**
  * Insertion descriptor like {@link Insertion}, but working with extended nodes.

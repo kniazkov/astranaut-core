@@ -23,15 +23,15 @@
  */
 package com.kniazkov.astranaut.core.algorithms.conversion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NullNode;
 import com.kniazkov.astranaut.core.base.Transformer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Transforms a tree to another tree using a list of converters.

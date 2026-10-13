@@ -23,9 +23,6 @@
  */
 package com.kniazkov.astranaut.core.utils.deserializer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import com.kniazkov.astranaut.core.base.ActionList;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Delete;
@@ -35,6 +32,9 @@ import com.kniazkov.astranaut.core.base.Insert;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Replace;
 import com.kniazkov.astranaut.core.utils.Promise;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Node descriptor represented as it is stored in the JSON file.
