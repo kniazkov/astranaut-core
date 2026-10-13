@@ -4,7 +4,10 @@ Requires JDK 21+ and Maven 3.6.3+. Run `mvn clean verify` from the repository ro
 This is a single-module library: `com.kniazkov:astranaut-core:0.0.1`.
 Sources and tests live in `src/`; the library, sources and Javadoc JARs are built
 in `target/`. Java packages start with `com.kniazkov.astranaut.core`.
-Filtered VERSION.txt resources and manifest entries retain version metadata.
+Maven writes the project version to the JAR manifest as `Implementation-Version`.
+`Info.VERSION` reads this value at runtime; it is `unknown` when running directly
+from classes without manifest metadata (for example, in an IDE). The version is
+maintained only in `pom.xml`.
 
 ## Shared build and quality checks
 
@@ -44,7 +47,7 @@ Sonatype Central publishing plugin 0.11.0, server ID `central`,
 
 1. Configure your Central user token in Maven `settings.xml` under server ID
    `central`, and make your signing key available to GPG.
-2. Verify the version (including `Info.VERSION`) and release SCM tag, run tests,
+2. Verify the project version in `pom.xml` and release SCM tag, run tests,
    and create the release tag after review.
 3. Run `mvn -Prelease clean deploy`. This signs and uploads only the core POM
    and library artifacts, including sources and Javadoc. The shared parent and
