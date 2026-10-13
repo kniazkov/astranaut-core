@@ -357,36 +357,36 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
     <!--
         Our custom checkers.
         -->
-    <module name="com.kniazkov.astranaut.checkstyle.BracketsStructureCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.CurlyBracketsStructureCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.EmptyLinesCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.StringLiteralsConcatenationCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.MultilineJavadocTagsCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.NoJavadocForOverriddenMethodsCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.MethodBodyCommentsCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.MethodsOrderCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.JavadocLocationCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.ConstantUsageCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.NonStaticMethodCheck">
+    <module name="com.kniazkov.astranaut.core.checkstyle.BracketsStructureCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.CurlyBracketsStructureCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.EmptyLinesCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.StringLiteralsConcatenationCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.MultilineJavadocTagsCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.NoJavadocForOverriddenMethodsCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.MethodBodyCommentsCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.MethodsOrderCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.JavadocLocationCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.ConstantUsageCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.NonStaticMethodCheck">
       <property name="excludeFileNamePattern" value=".*(Test|IT|ITCase)\.java"/>
     </module>
-    <module name="com.kniazkov.astranaut.checkstyle.ProtectedMethodInFinalClassCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.FinalSemicolonInTryWithResourcesCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.JavadocEmptyLineCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.DiamondOperatorCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.JavadocParameterOrderCheck"/>
-    <module name="com.kniazkov.astranaut.checkstyle.JavadocTagsCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.ProtectedMethodInFinalClassCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.FinalSemicolonInTryWithResourcesCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.JavadocEmptyLineCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.DiamondOperatorCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.JavadocParameterOrderCheck"/>
+    <module name="com.kniazkov.astranaut.core.checkstyle.JavadocTagsCheck"/>
   </module>
   <!--
     Our custom checkers.
     -->
-  <module name="com.kniazkov.astranaut.checkstyle.ImportCohesionCheck">
+  <module name="com.kniazkov.astranaut.core.checkstyle.ImportCohesionCheck">
     <property name="fileExtensions" value="java"/>
   </module>
-  <module name="com.kniazkov.astranaut.checkstyle.CascadeIndentationCheck">
+  <module name="com.kniazkov.astranaut.core.checkstyle.CascadeIndentationCheck">
     <property name="fileExtensions" value="java"/>
   </module>
-  <module name="com.kniazkov.astranaut.checkstyle.ConditionalRegexpMultilineCheck">
+  <module name="com.kniazkov.astranaut.core.checkstyle.ConditionalRegexpMultilineCheck">
     <property name="condition" value="^import java\.util\.ArrayList;$"/>
     <property name="format" value="new ArrayList(?:&lt;.*?&gt;)?\(\)"/>
     <property name="message" value="ArrayList should be initialized with a size parameter"/>

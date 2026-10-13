@@ -2,7 +2,7 @@
  *
  * Empty javadoc line at the beginning.
  */
-package com.kniazkov.astranaut.checkstyle;
+package com.kniazkov.astranaut.core.checkstyle;
 
 /**
  *

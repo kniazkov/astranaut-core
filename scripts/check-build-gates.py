@@ -17,7 +17,7 @@ def rejects(name, file, transform, goals, diagnostic):
     original = file.read_bytes()
     try:
         file.write_text(transform(original.decode()), encoding='utf-8')
-        result = subprocess.run([MAVEN, '-B', '-ntp', '-pl', 'core', *goals],
+        result = subprocess.run([MAVEN, '-B', '-ntp', '-pl', ':astranaut-core', *goals],
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         (LOGS / f'{name}.log').write_bytes(result.stdout)
         output = result.stdout.decode(errors='replace')
@@ -28,28 +28,28 @@ def rejects(name, file, transform, goals, diagnostic):
         file.write_bytes(original)
 
 
-jar = ROOT / 'core/target/astranaut-core-0.0.1.jar'
+jar = ROOT / 'target/astranaut-core-0.0.1.jar'
 with zipfile.ZipFile(jar) as archive:
-    info = archive.read('org/cqfn/astranaut/core/Info.class')
+    info = archive.read('com/kniazkov/astranaut/core/Info.class')
     assert int.from_bytes(info[6:8], 'big') == 65, 'Expected Java 21 bytecode'
     assert b'0.0.1' in info
-    assert archive.read('org/cqfn/astranaut/core/VERSION.txt').strip() == b'0.0.1'
+    assert archive.read('com/kniazkov/astranaut/core/VERSION.txt').strip() == b'0.0.1'
     assert not any('checkstyle' in name or 'qulice' in name for name in archive.namelist())
     props = archive.read('META-INF/maven/com.kniazkov/astranaut-core/pom.properties')
     assert b'version=0.0.1' in props
 for classifier in ('sources', 'javadoc'):
     assert (jar.parent / f'astranaut-core-0.0.1-{classifier}.jar').is_file()
-report = ET.parse(ROOT / 'core/target/site/jacoco/jacoco.xml')
+report = ET.parse(ROOT / 'target/site/jacoco/jacoco.xml')
 assert any(int(c.attrib['covered']) > 0 for c in report.findall('counter'))
 print('PASS: artifact coordinates, Java 21, attached documentation and coverage', flush=True)
 
-source = ROOT / 'core/src/main/java/org/cqfn/astranaut/core/Info.java'
+source = ROOT / 'src/main/java/com/kniazkov/astranaut/core/Info.java'
 rejects('checkstyle', source, lambda s: s.replace('public final class Info {', 'public final class Info {  '),
         ['checkstyle:check'], 'Line has trailing spaces')
 rejects('pmd', source, lambda s: s.replace('public final class Info {',
         'public final class Info {\n    public static void forbidden() { }'),
         ['pmd:check', '-Dpmd.analysisCache=false'], 'ProhibitPublicStaticMethods')
-rejects('dependencies', ROOT / 'core/pom.xml', lambda s: s.replace('<dependencies>',
+rejects('dependencies', ROOT / 'build-support/library/pom.xml', lambda s: s.replace('<dependencies>',
         '<dependencies><dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId>'
         '<version>1.17.1</version></dependency>', 1),
         ['dependency:analyze-only'], 'Unused declared dependencies')
@@ -64,11 +64,11 @@ dependencies = ''.join(
     + str(LOGS / f'{label}.jar') + '</systemPath></dependency>'
     for label in ('alpha', 'bravo')
 )
-rejects('duplicates', ROOT / 'core/pom.xml',
+rejects('duplicates', ROOT / 'build-support/library/pom.xml',
         lambda s: s.replace('<dependencies>', '<dependencies>' + dependencies, 1),
         ['duplicate-finder:check'], 'Found duplicate')
 
-probe = ROOT / 'core/src/test/java/BuildGateFailureTest.java'
+probe = ROOT / 'src/test/java/BuildGateFailureTest.java'
 assert not probe.exists()
 probe.write_text('class BuildGateFailureTest { @org.junit.jupiter.api.Test '
                  'void rejectsFailure() { org.junit.jupiter.api.Assertions.fail("build-gate-probe"); } }\n')

@@ -37,7 +37,7 @@
   </scm>
   <modules>
     <module>quality-rules</module>
-    <module>core</module>
+    <module>build-support/library</module>
   </modules>
   <properties>
     <maven.compiler.release>21</maven.compiler.release>

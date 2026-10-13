@@ -31,7 +31,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 <module name="Checker">
   <module name="TreeWalker">
-    <module name="com.kniazkov.astranaut.checkstyle.NonStaticMethodCheck">
+    <module name="com.kniazkov.astranaut.core.checkstyle.NonStaticMethodCheck">
       <property name="excludeFileNamePattern" value=".*(Test|IT|ITCase)\.java"/>
     </module>
   </module>

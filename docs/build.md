@@ -1,11 +1,11 @@
 # Building ASTranaut Core
 
 Requires JDK 21+ and Maven 3.6.3+. Run `mvn clean verify` from the repository root.
-The reactor first compiles/tests `quality-rules`, then builds/tests/analyzes `core`.
+The reactor first compiles/tests `quality-rules`, then builds/tests/analyzes the library.
 The public library is `com.kniazkov:astranaut-core:0.0.1`. Its sources are in
-`core/src`; Java packages remain `org.cqfn.astranaut.core.*`.
+`src`; Java packages are now `com.kniazkov.astranaut.core.*`.
 
-The library JAR, sources JAR and Javadoc JAR are in `core/target`.
+The library JAR, sources JAR and Javadoc JAR are in `target`.
 The parent POM and `astranaut-quality-rules` are supporting artifacts of the same
 reactor; consumers only need the library dependency. Checks are plugin dependencies,
 never runtime dependencies of the library.
@@ -49,3 +49,16 @@ publishing plugin 0.11.0, server ID `central`, `autoPublish=false`,
 
 Ordinary `verify`/`install` needs no credentials, GPG key or external publishing service.
 A migration PR never publishes a release.
+
+## Repository layout
+
+Library sources and tests live in the root `src/`, and library artifacts in root
+`target/`. The root POM orchestrates the build. `build-support/library/pom.xml` is
+only a reactor descriptor pointing to those directories, so locally compiled
+Checkstyle rules are available before library verification. `quality-rules` is
+build tooling, not part of the library. Use `-pl :astranaut-core` to select the
+library after installing the helper.
+
+All library Java packages now start with `com.kniazkov.astranaut.core`; consumers
+must update their imports. Project copyright is 2026. Original BSD copyright
+notices on imported Qulice code/configuration are retained.

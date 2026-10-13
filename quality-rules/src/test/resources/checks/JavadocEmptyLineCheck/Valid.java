@@ -1,7 +1,7 @@
 /*
  * There is no empty Javadoc line at the beginning
  */
-package com.kniazkov.astranaut.checkstyle;
+package com.kniazkov.astranaut.core.checkstyle;
 
 /**
  * This is not a real Java class. It won't be compiled ever. It is used

@@ -481,7 +481,7 @@ Takes a `Tree` and **spits out a picture** (PNG/SVG). Perfect for:
 
 Example:
 
-![SIMPLE AST](core/src/main/documents/simple_ast.png)
+![SIMPLE AST](src/main/documents/simple_ast.png)
 
 ## **JsonSerializer & JsonDeserializer – JSON ↔ Tree Superpowers**  
 

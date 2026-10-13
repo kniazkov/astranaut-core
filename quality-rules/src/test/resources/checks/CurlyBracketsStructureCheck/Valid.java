@@ -1,4 +1,4 @@
-package com.kniazkov.astranaut.checkstyle.ChecksTest.CurlyBracketsStructureCheck;
+package com.kniazkov.astranaut.core.checkstyle.ChecksTest.CurlyBracketsStructureCheck;
 
 /**
  * This is not a real Java class. It won't be compiled ever. It is used

@@ -1,4 +1,4 @@
-package com.kniazkov.astranaut.checkstyle.ChecksTest.ProtectedMethodInFinalClassCheck;
+package com.kniazkov.astranaut.core.checkstyle.ChecksTest.ProtectedMethodInFinalClassCheck;
 
 import java.util.concurrent.Callable;
 
