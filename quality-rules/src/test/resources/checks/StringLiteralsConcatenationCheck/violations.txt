@@ -1,0 +1,5 @@
+8:Concatenation of string literals prohibited
+14:Concatenation of string literals prohibited
+18:Concatenation of string literals prohibited
+23:Concatenation of string literals prohibited
+29:Concatenation of string literals prohibited
