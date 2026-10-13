@@ -29,6 +29,7 @@ import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.deserializer.TreeDescriptor;
 import com.kniazkov.json.Json;
 import com.kniazkov.json.JsonException;
+import java.util.Optional;
 
 /**
  * Converts a string that contains a JSON object to a tree.
@@ -62,9 +63,9 @@ public final class JsonDeserializer {
     public Tree convert() {
         Tree result = EmptyTree.INSTANCE;
         try {
-            final TreeDescriptor tree = Json.parse(this.source, TreeDescriptor.class);
-            if (tree != null) {
-                result = tree.convert(this.provider);
+            final Optional<TreeDescriptor> tree = Json.parse(this.source, TreeDescriptor.class);
+            if (tree.isPresent()) {
+                result = tree.get().convert(this.provider);
             }
         } catch (final JsonException ignored) {
         }
