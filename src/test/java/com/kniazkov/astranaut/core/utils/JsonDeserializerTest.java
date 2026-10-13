@@ -86,6 +86,24 @@ class JsonDeserializerTest {
     };
 
     @Test
+    void deserializeJsonNull() {
+        final JsonDeserializer deserializer = new JsonDeserializer(
+            "null",
+            JsonDeserializerTest.PROVIDER
+        );
+        Assertions.assertSame(EmptyTree.INSTANCE, deserializer.convert());
+    }
+
+    @Test
+    void deserializeMalformedJson() {
+        final JsonDeserializer deserializer = new JsonDeserializer(
+            "~",
+            JsonDeserializerTest.PROVIDER
+        );
+        Assertions.assertSame(EmptyTree.INSTANCE, deserializer.convert());
+    }
+
+    @Test
     void testDeserialization() {
         final String source = this.getFileContent(JsonDeserializerTest.SIMPLE_TREE_NAME);
         final Map<String, Type> types = new TreeMap<>();
