@@ -77,7 +77,7 @@ class FilesReaderTest {
      * Custom exception for testing purposes.
      * @since 2.0.0
      */
-    private static class CustomException extends Exception {
+    private static final class CustomException extends Exception {
         private static final long serialVersionUID = -1;
     }
 }

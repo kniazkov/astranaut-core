@@ -194,7 +194,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
     <module name="FinalClass"/>
     <module name="InterfaceIsType"/>
     <module name="HideUtilityClassConstructor"/>
-    <module name="DesignForExtension"/>
+    <module name="DesignForExtension">
+      <property name="ignoredAnnotations" value="Override"/>
+    </module>
     <module name="MutableException"/>
     <module name="ThrowsCount"/>
     <module name="InnerTypeLast"/>

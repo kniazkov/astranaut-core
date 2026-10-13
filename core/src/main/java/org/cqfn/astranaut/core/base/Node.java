@@ -137,7 +137,7 @@ public interface Node {
      * Performs some action for each child node.
      * @param action An action
      */
-    default void forEachChild(Consumer<Node> action) {
+    default void forEachChild(final Consumer<Node> action) {
         final int count = this.getChildCount();
         for (int index = 0; index < count; index = index + 1) {
             action.accept(this.getChild(index));
@@ -150,7 +150,8 @@ public interface Node {
      * @param other Other node
      * @return Comparison result, {@code true} if the nodes are equal
      */
-    default boolean deepCompare(Node other) {
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
+    default boolean deepCompare(final Node other) {
         boolean equals;
         if (this == other) {
             equals = true;
@@ -218,7 +219,7 @@ public interface Node {
      * Iterator that enumerates the children of a node.
      * @since 1.1.5
      */
-    class ChildrenIterator implements ListIterator<Node> {
+    final class ChildrenIterator implements ListIterator<Node> {
         /**
          * Node.
          */
@@ -303,7 +304,7 @@ public interface Node {
      *  due to its convenience and flexibility in handling node collections.
      * @since 2.0.0
      */
-    @SuppressWarnings("PMD.TooManyMethods")
+    @SuppressWarnings({"PMD.GodClass", "PMD.TooManyMethods"})
     class ChildrenList implements List<Node> {
         /**
          * Node that is wrapped by this class.
@@ -323,11 +324,13 @@ public interface Node {
             return this.node.getChildCount();
         }
 
+        @SuppressWarnings("PMD.UseCollectionIsEmpty")
         @Override
         public boolean isEmpty() {
             return this.size() == 0;
         }
 
+        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         @Override
         public boolean contains(final Object obj) {
             final int count = this.node.getChildCount();
@@ -437,6 +440,7 @@ public interface Node {
             throw new UnsupportedOperationException();
         }
 
+        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         @Override
         public int indexOf(final Object obj) {
             int result = -1;
@@ -452,6 +456,7 @@ public interface Node {
             return result;
         }
 
+        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         @Override
         public int lastIndexOf(final Object obj) {
             int result = -1;

@@ -53,14 +53,14 @@ public final class FilesReader {
      * @throws IOException If the file can't be read
      */
     public String readAsString() throws IOException {
-        final InputStream stream = Files.newInputStream(this.path);
         final StringBuilder builder = new StringBuilder();
-        for (int chr = stream.read(); chr != -1; chr = stream.read()) {
-            if (chr != '\r') {
-                builder.append((char) chr);
+        try (InputStream stream = Files.newInputStream(this.path)) {
+            for (int chr = stream.read(); chr != -1; chr = stream.read()) {
+                if (chr != '\r') {
+                    builder.append((char) chr);
+                }
             }
         }
-        stream.close();
         return builder.toString();
     }
 

@@ -270,6 +270,7 @@ class ConversionTest {
      * Node that returns "bad" builder for testing purposes.
      * @since 2.0.0
      */
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNode extends NodeAndType {
         /**
          * Predefined list of child nodes.

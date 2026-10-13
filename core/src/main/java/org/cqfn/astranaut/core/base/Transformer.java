@@ -36,7 +36,7 @@ public interface Transformer {
      * @return A new {@link Tree} representing the result of the transformation,
      *  never {@code null}
      */
-    default Tree transform(Tree tree) {
+    default Tree transform(final Tree tree) {
         return new Tree(this.transform(tree.getRoot()));
     }
 

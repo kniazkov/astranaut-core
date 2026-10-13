@@ -33,6 +33,7 @@ import java.util.Map;
  * Node containing child nodes, as well as actions on these nodes.
  * @since 1.1.0
  */
+@SuppressWarnings("PMD.GodClass")
 public final class DiffNode extends NodeAndType implements DiffTreeItem, PrototypeBasedNode {
     /**
      * The parent node with action.
@@ -138,6 +139,7 @@ public final class DiffNode extends NodeAndType implements DiffTreeItem, Prototy
      * @param after Node after which to insert
      * @return Result of operation, @return {@code true} if action was added
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public boolean insertNodeAfter(final Node node, final Node after) {
         boolean result = false;
         if (after == null) {

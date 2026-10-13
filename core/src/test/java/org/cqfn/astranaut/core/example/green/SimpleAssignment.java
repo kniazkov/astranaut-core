@@ -124,7 +124,7 @@ public final class SimpleAssignment implements Assignment {
      * Type descriptor of the 'SimpleAssignment' node.
      * @since 1.1.0
      */
-    private static class TypeImpl implements Type {
+    private static final class TypeImpl implements Type {
         /**
          * The 'SimpleAssignment' string.
          */

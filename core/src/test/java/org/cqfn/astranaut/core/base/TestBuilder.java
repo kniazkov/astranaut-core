@@ -30,6 +30,7 @@ import java.util.List;
  *  This returns errors of different types, allowing you to test different test cases.
  * @since 2.0.0
  */
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 public final class TestBuilder implements Builder {
     /**
      * Test case.

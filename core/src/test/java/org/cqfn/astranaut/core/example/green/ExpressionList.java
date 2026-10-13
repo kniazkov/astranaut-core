@@ -102,7 +102,7 @@ public final class ExpressionList implements Node {
      *
      * @since 1.0
      */
-    private static class TypeImpl implements Type {
+    private static final class TypeImpl implements Type {
         /**
          * The 'ExpressionList' string.
          */

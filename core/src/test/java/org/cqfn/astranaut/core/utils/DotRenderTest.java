@@ -47,7 +47,8 @@ class DotRenderTest {
     @Test
     void testSingleNode() throws IOException {
         final Node root = this.createNode("SingleNode");
-        final String expected = new FilesReader(DIR.concat("testSingleNode.dot")).readAsString();
+        final String expected =
+            new FilesReader(DotRenderTest.DIR.concat("testSingleNode.dot")).readAsString();
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }

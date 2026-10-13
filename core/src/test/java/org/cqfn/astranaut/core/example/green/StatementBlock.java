@@ -111,7 +111,7 @@ public final class StatementBlock implements Statement {
      * Type descriptor of the 'StatementBlock' node.
      * @since 1.1.0
      */
-    private static class TypeImpl implements Type {
+    private static final class TypeImpl implements Type {
         /**
          * The 'StatementBlock' string.
          */

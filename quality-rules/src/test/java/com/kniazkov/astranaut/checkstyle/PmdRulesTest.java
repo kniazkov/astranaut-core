@@ -14,6 +14,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 class PmdRulesTest {
     static Stream<Arguments> cases() {
         return Stream.of(
+            Arguments.of("UnitTestAssertionsShouldIncludeMessage", "class Sample { void helper(){org.junit.jupiter.api.Assertions.assertTrue(true);} }", "class Sample { void helper(){org.junit.Assert.assertTrue(true);} }"),
+            Arguments.of("UnitTestContainsTooManyAsserts", "class Sample { @org.junit.jupiter.api.Test void testRun(){org.junit.jupiter.api.Assertions.assertTrue(true);org.junit.jupiter.api.Assertions.assertFalse(false);} }", "class Sample { @org.junit.Test public void testRun(){org.junit.Assert.assertTrue(true);org.junit.Assert.assertFalse(false);} }"),
+            Arguments.of("UnnecessaryFullyQualifiedName", "class Sample { static int val; int read(){return Sample.val;} }", "import java.util.List; class Sample { java.util.List<String> values; }"),
             Arguments.of("ConstructorShouldDoInitialization", "class Sample { int val; Sample() { this.val=1; } }", "class Sample { int val=1; Sample() {} }"),
             Arguments.of("OnlyOneConstructorShouldDoInitialization", "class Sample { int val; Sample(){this(1);} Sample(int val){this.val=val;} }", "class Sample { int val; Sample(){this.val=1;} Sample(int val){this.val=val;} }"),
             Arguments.of("ConstructorOnlyInitializesOrCallOtherConstructors", "class Sample { int val; Sample(){this.val=1;} }", "class Sample { Sample(){System.out.println(1);} }"),

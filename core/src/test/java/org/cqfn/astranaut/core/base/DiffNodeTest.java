@@ -302,6 +302,7 @@ class DiffNodeTest {
      * Custom node for test purposes.
      * @since 2.0.0
      */
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNode extends NodeAndType {
         /**
          * Test case.

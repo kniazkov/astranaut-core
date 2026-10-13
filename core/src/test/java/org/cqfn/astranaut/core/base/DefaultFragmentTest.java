@@ -38,6 +38,7 @@ class DefaultFragmentTest {
      */
     private static final Source SOURCE = (start, end) -> "";
 
+    @SuppressWarnings("PMD.SimplifiableTestAssertion")
     @Test
     void testBaseInterface() {
         final Position begin = new DefaultPosition(DefaultFragmentTest.SOURCE, 1, 1);

@@ -74,7 +74,7 @@ public class DotGenerator {
      * @param tree The tree to be converted
      */
     public DotGenerator(final Tree tree) {
-        this.builder = new StringBuilder();
+        this.builder = new StringBuilder(256);
         this.tree = tree;
         this.index = 0;
     }
@@ -118,8 +118,7 @@ public class DotGenerator {
      */
     private void appendStart() {
         this.builder
-            .append("digraph Tree {\n")
-            .append("  node [shape=box style=rounded];\n");
+            .append("digraph Tree {\n  node [shape=box style=rounded];\n");
     }
 
     /**
@@ -138,12 +137,11 @@ public class DotGenerator {
      */
     private void appendNode(final String type, final String data,
         final Map<String, String> properties) {
-        this.builder.append(DotGenerator.NODE).append(this.index).append(" [");
-        this.builder.append("label=<").append(type);
+        this.builder.append(DotGenerator.NODE).append(this.index).append(" [label=<").append(type);
         if (!data.isEmpty()) {
-            this.builder.append("<br/><font color=\"blue\">");
-            this.builder.append(DotGenerator.encodeHtml(DotGenerator.truncate(data)));
-            this.builder.append("</font>");
+            this.builder.append("<br/><font color=\"blue\">")
+                .append(DotGenerator.encodeHtml(DotGenerator.truncate(data)))
+                .append("</font>");
         }
         this.builder.append('>');
         if (properties.containsKey(DotGenerator.PROP_COLOR)) {
@@ -176,13 +174,11 @@ public class DotGenerator {
         this.builder
             .append(DotGenerator.NODE)
             .append(parent)
-            .append(" -> ")
-            .append("node_")
+            .append(" -> node_")
             .append(child)
             .append(" [label=\" ")
             .append(label)
-            .append("\"]")
-            .append(";\n");
+            .append("\"];\n");
     }
 
     /**

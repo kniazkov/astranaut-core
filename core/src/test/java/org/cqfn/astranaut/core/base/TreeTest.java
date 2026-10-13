@@ -73,6 +73,7 @@ class TreeTest {
      * Node implementation for testing purposes.
      * @since 2.0.0
      */
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestNode implements Node {
         /**
          * The type of the node.
@@ -123,6 +124,7 @@ class TreeTest {
      * Type implementation for testing purposes.
      * @since 2.0.0
      */
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestType implements Type {
         /**
          * The name of the type.

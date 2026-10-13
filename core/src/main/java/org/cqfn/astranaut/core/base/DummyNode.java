@@ -112,7 +112,7 @@ public final class DummyNode implements Node {
      * The type of dummy node.
      * @since 1.0
      */
-    private static class TypeImpl implements Type {
+    private static final class TypeImpl implements Type {
         @Override
         public String getName() {
             return "\u2205";

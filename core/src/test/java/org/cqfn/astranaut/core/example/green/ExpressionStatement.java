@@ -118,7 +118,7 @@ public final class ExpressionStatement implements Statement {
      *
      * @since 1.0
      */
-    private static class TypeImpl implements Type {
+    private static final class TypeImpl implements Type {
         /**
          * The 'ExpressionStatement' string.
          */

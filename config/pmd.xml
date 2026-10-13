@@ -1,4 +1,33 @@
 <?xml version="1.0"?>
+<!--
+Copyright (c) 2011-2022 Qulice.com
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met: 1) Redistributions of source code must retain the above
+copyright notice, this list of conditions and the following
+disclaimer. 2) Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided
+with the distribution. 3) Neither the name of the Qulice.com nor
+the names of its contributors may be used to endorse or promote
+products derived from this software without specific prior written
+permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
 <ruleset name="ASTranaut" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
   <description>Explicit legacy Qulice 0.22.0 rule selection, migrated to PMD 7.</description>
   <rule ref="category/java/bestpractices.xml/AbstractClassWithoutAbstractMethod"/>
@@ -66,9 +95,9 @@
   <rule ref="category/java/errorprone.xml/ConstructorCallsOverridableMethod"/>
   <rule ref="category/java/codestyle.xml/ControlStatementBraces"/>
   <rule ref="category/java/design.xml/CouplingBetweenObjects"/>
-  <rule ref="category/java/design.xml/CyclomaticComplexity"/>
+  <rule ref="category/java/design.xml/CyclomaticComplexity"><properties><property name="methodReportLevel"><value><![CDATA[11]]></value></property><property name="classReportLevel"><value><![CDATA[80]]></value></property></properties></rule>
   <rule ref="category/java/design.xml/DataClass"/>
-  <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitchStmt"/>
+  <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitch"/>
   <rule ref="category/java/errorprone.xml/DoNotCallGarbageCollectionExplicitly"/>
   <rule ref="category/java/design.xml/DoNotExtendJavaLangError"/>
   <rule ref="category/java/errorprone.xml/DoNotExtendJavaLangThrowable"/>
@@ -111,14 +140,14 @@
   <rule ref="category/java/performance.xml/InsufficientStringBufferDeclaration"/>
   <rule ref="category/java/errorprone.xml/InvalidLogMessageFormat"/>
   <rule ref="category/java/bestpractices.xml/JUnit4SuitesShouldUseSuiteAnnotation"/>
-  <rule ref="category/java/bestpractices.xml/JUnit4TestShouldUseAfterAnnotation"/>
-  <rule ref="category/java/bestpractices.xml/JUnit4TestShouldUseBeforeAnnotation"/>
-  <rule ref="category/java/bestpractices.xml/JUnit4TestShouldUseTestAnnotation"/>
+  <rule ref="category/java/bestpractices.xml/UnitTestShouldUseAfterAnnotation"/>
+  <rule ref="category/java/bestpractices.xml/UnitTestShouldUseBeforeAnnotation"/>
+  <rule ref="category/java/bestpractices.xml/UnitTestShouldUseTestAnnotation"/>
   <rule ref="category/java/bestpractices.xml/JUnit5TestShouldBePackagePrivate"/>
-  <rule ref="category/java/bestpractices.xml/JUnitAssertionsShouldIncludeMessage"/>
+  <rule ref="category/java/bestpractices.xml/UnitTestAssertionsShouldIncludeMessage"><properties><property name="violationSuppressXPath"><value><![CDATA[self::MethodCall[TypeExpression[pmd-java:typeIs('org.junit.jupiter.api.Assertions')]]]]></value></property></properties></rule>
   <rule ref="category/java/errorprone.xml/JUnitSpelling"/>
   <rule ref="category/java/errorprone.xml/JUnitStaticSuite"/>
-  <rule ref="category/java/bestpractices.xml/JUnitTestContainsTooManyAsserts"/>
+  <rule ref="category/java/bestpractices.xml/UnitTestContainsTooManyAsserts"><properties><property name="violationSuppressXPath"><value><![CDATA[ancestor-or-self::MethodDeclaration[pmd-java:hasAnnotation('org.junit.jupiter.api.Test') or pmd-java:hasAnnotation('org.junit.jupiter.params.ParameterizedTest')]]]></value></property></properties></rule>
   <rule ref="category/java/bestpractices.xml/JUnitUseExpected"/>
   <rule ref="category/java/errorprone.xml/JumbledIncrementer"/>
   <rule ref="category/java/codestyle.xml/LocalHomeNamingConvention"/>
@@ -127,7 +156,7 @@
   <rule ref="category/java/codestyle.xml/LocalVariableNamingConventions"/>
   <rule ref="category/java/design.xml/LogicInversion"/>
   <rule ref="category/java/codestyle.xml/LongVariable"/>
-  <rule ref="category/java/bestpractices.xml/LooseCoupling"/>
+  <rule ref="category/java/bestpractices.xml/LooseCoupling"><properties><property name="allowedTypes"><value><![CDATA[com.kniazkov.json.JsonObject,com.kniazkov.json.JsonArray]]></value></property></properties></rule>
   <rule ref="category/java/codestyle.xml/MDBAndSessionBeanNamingConvention"/>
   <rule ref="category/java/codestyle.xml/MethodArgumentCouldBeFinal"/>
   <rule ref="category/java/codestyle.xml/MethodNamingConventions"/>
@@ -140,7 +169,7 @@
   <rule ref="category/java/design.xml/NPathComplexity"/>
   <rule ref="category/java/design.xml/NcssCount"/>
   <rule ref="category/java/codestyle.xml/NoPackage"/>
-  <rule ref="category/java/errorprone.xml/NonCaseLabelInSwitchStatement"/>
+  <rule ref="category/java/errorprone.xml/NonCaseLabelInSwitch"/>
   <rule ref="category/java/errorprone.xml/NonStaticInitializer"/>
   <rule ref="category/java/multithreading.xml/NonThreadSafeSingleton"/>
   <rule ref="category/java/errorprone.xml/NullAssignment"/>
@@ -180,10 +209,10 @@
   <rule ref="category/java/errorprone.xml/SuspiciousHashcodeMethodName"/>
   <rule ref="category/java/errorprone.xml/SuspiciousOctalEscape"/>
   <rule ref="category/java/design.xml/SwitchDensity"/>
-  <rule ref="category/java/bestpractices.xml/SwitchStmtsShouldHaveDefault"/>
+  <rule ref="category/java/bestpractices.xml/NonExhaustiveSwitch"/>
   <rule ref="category/java/bestpractices.xml/SystemPrintln"/>
   <rule ref="category/java/errorprone.xml/TestClassWithoutTestCases"/>
-  <rule ref="category/java/performance.xml/TooFewBranchesForASwitchStatement"/>
+  <rule ref="category/java/performance.xml/TooFewBranchesForSwitch"/>
   <rule ref="category/java/design.xml/TooManyFields"/>
   <rule ref="category/java/design.xml/TooManyMethods"/>
   <rule ref="category/java/codestyle.xml/TooManyStaticImports"/>
@@ -195,7 +224,7 @@
   <rule ref="category/java/errorprone.xml/UnnecessaryCaseChange"/>
   <rule ref="category/java/codestyle.xml/UnnecessaryConstructor"/>
   <rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary"/>
-  <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName"/>
+  <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName"><properties><property name="reportStaticMethods"><value><![CDATA[false]]></value></property><property name="reportStaticFields"><value><![CDATA[false]]></value></property></properties></rule>
   <rule ref="category/java/codestyle.xml/UnnecessaryImport"/>
   <rule ref="category/java/codestyle.xml/UnnecessaryLocalBeforeReturn"/>
   <rule ref="category/java/codestyle.xml/UnnecessaryModifier"/>

@@ -58,9 +58,9 @@ public final class FilesWriter {
         if (dir != null) {
             Files.createDirectories(dir);
         }
-        final OutputStream stream = Files.newOutputStream(this.path);
-        stream.write(str.getBytes(StandardCharsets.UTF_8));
-        stream.close();
+        try (OutputStream stream = Files.newOutputStream(this.path)) {
+            stream.write(str.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     /**

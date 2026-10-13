@@ -85,6 +85,7 @@ public class NodeAllocator {
      * @param destination The array in which each node is placed at a suitable position
      * @param source The source list of nodes
      * @return Mapping result, {@code true} if such a mapping is possible (array was filled)
+     * @throws IllegalArgumentException If the destination array is too small
      */
     public boolean allocate(final Node[] destination, final List<Node> source) {
         boolean result = false;

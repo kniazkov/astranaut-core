@@ -36,6 +36,8 @@ import java.util.Map;
  *  To simplify this, we can use a special class such as {@code NodeAndType} as a template,
  *  which represents both the node and the type simultaneously. This approach allows for the
  *  "saving" of one object instantiation when creating such nodes.
+ *  Properties are empty by default; subclasses may override {@code getProperties()}
+ *  with an immutable map or one whose changes cannot affect internal node state.
  * @since 2.0.0
  */
 public abstract class NodeAndType implements Node, Type {
@@ -44,12 +46,7 @@ public abstract class NodeAndType implements Node, Type {
         return this;
     }
 
-    /**
-     * Returns an empty map by default. Subclasses may override this method to provide
-     *  specific properties for the node. When overriding this method, ensure that the returned
-     *  map is immutable or that modifications do not affect the internal state of the node.
-     * @return An immutable map of properties
-     */
+    @Override
     public Map<String, String> getProperties() {
         this.getClass();
         return Collections.emptyMap();

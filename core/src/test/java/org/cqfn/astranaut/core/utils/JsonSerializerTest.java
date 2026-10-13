@@ -184,7 +184,8 @@ class JsonSerializerTest {
      *
      * @since 1.1.0
      */
-    private static class TestNodeWithTypeWithLanguage extends NodeAndType {
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
+    private static final class TestNodeWithTypeWithLanguage extends NodeAndType {
 
         @Override
         public String getName() {

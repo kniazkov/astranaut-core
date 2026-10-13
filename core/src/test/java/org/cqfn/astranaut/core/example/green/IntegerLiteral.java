@@ -97,7 +97,7 @@ public final class IntegerLiteral implements Expression {
      *
      * @since 1.0
      */
-    private static class TypeImpl implements Type {
+    private static final class TypeImpl implements Type {
         /**
          * The name.
          */

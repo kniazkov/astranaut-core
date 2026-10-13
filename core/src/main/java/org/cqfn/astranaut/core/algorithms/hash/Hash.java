@@ -48,7 +48,7 @@ public interface Hash {
      * @param tree Tree to calculate the hash for.
      * @return Hash value of the tree, derived from its root node.
      */
-    default int calculate(Tree tree) {
+    default int calculate(final Tree tree) {
         return this.calculate(tree.getRoot());
     }
 }

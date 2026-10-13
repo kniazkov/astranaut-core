@@ -35,6 +35,7 @@ import org.cqfn.astranaut.core.base.Transformer;
 
 /**
  * Transforms a tree to another tree using a list of converters.
+ *  Conversion proceeds recursively from the leaves to the root; child nodes may be replaced.
  * @since 2.0.0
  */
 public class DefaultTransformer implements Transformer {
@@ -58,14 +59,7 @@ public class DefaultTransformer implements Transformer {
         this.factory = factory;
     }
 
-    /**
-     * Transforms a node by applying converters to it.
-     *  Thus, some child nodes in this node can be modified.
-     *  The procedure runs first recursively itself for all child nodes, so the leaf nodes of
-     *  the tree are processed first.
-     * @param original Original node
-     * @return A new node, i.e., the result of the transformation
-     */
+    @Override
     public Node transform(final Node original) {
         final List<Node> list = new ArrayList<>(original.getChildrenList());
         final int count = list.size();

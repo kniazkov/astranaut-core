@@ -53,3 +53,27 @@ rejects('dependencies', ROOT / 'core/pom.xml', lambda s: s.replace('<dependencie
         '<dependencies><dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId>'
         '<version>1.17.1</version></dependency>', 1),
         ['dependency:analyze-only'], 'Unused declared dependencies')
+
+# Two local dependencies containing different bytes at the same classpath resource.
+for label in ('alpha', 'bravo'):
+    with zipfile.ZipFile(LOGS / f'{label}.jar', 'w') as archive:
+        archive.writestr('build-gate-collision.txt', label)
+dependencies = ''.join(
+    '<dependency><groupId>build.gate</groupId><artifactId>' + label
+    + '</artifactId><version>1</version><scope>system</scope><systemPath>'
+    + str(LOGS / f'{label}.jar') + '</systemPath></dependency>'
+    for label in ('alpha', 'bravo')
+)
+rejects('duplicates', ROOT / 'core/pom.xml',
+        lambda s: s.replace('<dependencies>', '<dependencies>' + dependencies, 1),
+        ['duplicate-finder:check'], 'Found duplicate')
+
+probe = ROOT / 'core/src/test/java/BuildGateFailureTest.java'
+assert not probe.exists()
+probe.write_text('class BuildGateFailureTest { @org.junit.jupiter.api.Test '
+                 'void rejectsFailure() { org.junit.jupiter.api.Assertions.fail("build-gate-probe"); } }\n')
+try:
+    rejects('tests', probe, lambda s: s,
+            ['test', '-Dtest=BuildGateFailureTest'], 'build-gate-probe')
+finally:
+    probe.unlink()

@@ -187,6 +187,7 @@ class ParserTest {
         Assertions.assertEquals("\n\na\nb\nc\n", fragment.getCode());
     }
 
+    @SuppressWarnings("PMD.SimplifiableTestAssertion")
     @Test
     void charFragmentComparison() {
         final StringSource source = new StringSource("qwerty");

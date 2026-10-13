@@ -265,3 +265,30 @@ Mappings preserve the intent; analyzer upgrades can change individual diagnostic
 | `UseStringIsEmptyRule` | XPath UseStringIsEmptyRule |
 | `VariableNamingConventions` | FieldNamingConventions,LocalVariableNamingConventions,FormalParameterNamingConventions |
 | `WhileLoopsMustUseBraces` | ControlStatementBraces |
+
+## Explicit compatibility choices and reviewed findings
+
+- PMD 7 detects JUnit 5 in the former JUnit-only assertion-message and single-assert
+  rules. These two rules retain enforcement for older frameworks, with a narrow
+  XPath exemption for Jupiter test methods and Jupiter assertion calls. Existing multi-assert Jupiter tests
+  are retained; tests are not skipped.
+- `UnnecessaryFullyQualifiedName` still checks type qualifications. Its new static
+  member checks are disabled because they contradict the retained explicit-static-
+  access policy. `LooseCoupling` allows the JSON library's `JsonObject`/`JsonArray`,
+  whose JSON-specific operations are not exposed by Map/List.
+- CyclomaticComplexity reports methods at 11, matching Checkstyle's maximum 10.
+  `DesignForExtension` accepts `@Override` implementations while continuing to
+  check new overridable methods. No extensible public class is made final.
+- Local PMD suppressions preserve deliberate node identity comparisons, direct
+  testing of `equals` (assertEquals could short-circuit identical references), the
+  implementation of `List.isEmpty` itself, and helper classes named Test* which
+  are not tests. GodClass is explicitly deferred for DiffNode and ChildrenList:
+  restructuring the model and List adapter belongs in a separate functional PR.
+- Actual findings fixed: streams close on exceptional paths, static access in
+  DotRenderTest, missing override/final modifiers, Javadoc exception contract,
+  and redundant StringBuilder appends. The failure-path FilesWriter test uses a
+  directory target instead of OS permissions, including when running as root.
+- The helper is derived from Qulice 0.22.0 under its BSD license, shipped in its
+  JAR. All 20 active custom Checkstyle checks have accept/reject regression fixtures;
+  all 10 migrated XPath checks have accept/reject Java fixtures. Imported fixture
+  EmptyLinesCheck/Valid.java needed a missing semicolon for the modern parser.
