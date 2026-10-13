@@ -25,6 +25,8 @@ package com.kniazkov.astranaut.core.base;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Singleton node representing intentional absence of a meaningful node value.
@@ -63,13 +65,13 @@ public final class NullNode extends NodeAndType {
     }
 
     @Override
-    public List<ChildDescriptor> getChildTypes() {
-        return Collections.emptyList();
+    public Optional<List<ChildDescriptor>> getChildDescriptors() {
+        return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
     }
 
     @Override
-    public List<String> getHierarchy() {
-        return Collections.emptyList();
+    public Set<AbstractType> getBaseTypes() {
+        return Set.of();
     }
 
     @Override

@@ -24,17 +24,21 @@
 
 package com.kniazkov.astranaut.core.example.green;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
+import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,43 +115,18 @@ public final class StatementBlock implements Statement {
      * Type descriptor of the 'StatementBlock' node.
      * @since 0.0.1
      */
-    private static final class TypeImpl implements Type {
+    private static final class TypeImpl extends NamedType implements Type {
         /**
          * The 'StatementBlock' string.
          */
         private static final String STATEMENT_BLOCK = "StatementBlock";
 
         /**
-         * The 'Statement' string.
-         */
-        private static final String STATEMENT = "Statement";
-
-        /**
          * The list of child types.
          */
         private static final List<ChildDescriptor> CHILDREN =
             Collections.singletonList(
-                new ChildDescriptor(
-                    TypeImpl.STATEMENT,
-                    false
-                )
-            );
-
-        /**
-         * The 'ProgramItem' string.
-         */
-        private static final String PROGRAM_ITEM = "ProgramItem";
-
-        /**
-         * Hierarchy.
-         */
-        private static final List<String> HIERARCHY =
-            Collections.unmodifiableList(
-                Arrays.asList(
-                    TypeImpl.STATEMENT_BLOCK,
-                    TypeImpl.STATEMENT,
-                    TypeImpl.PROGRAM_ITEM
-                )
+                new ChildDescriptor(Statement.TYPE, Cardinality.REPEATED)
             );
 
         /**
@@ -157,7 +136,7 @@ public final class StatementBlock implements Statement {
             new String[][] {
                 {"color", "green"},
                 {"language", "common"},
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            }).collect(Collectors.toUnmodifiableMap(data -> data[0], data -> data[1]));
 
         @Override
         public String getName() {
@@ -165,13 +144,13 @@ public final class StatementBlock implements Statement {
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return TypeImpl.CHILDREN;
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return Optional.of(ChildDescriptor.copySchema(TypeImpl.CHILDREN));
         }
 
         @Override
-        public List<String> getHierarchy() {
-            return TypeImpl.HIERARCHY;
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of(Statement.TYPE);
         }
 
         @Override

@@ -24,6 +24,7 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Builder;
+import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
@@ -74,9 +75,14 @@ public class NodeAllocator {
     /**
      * Constructor.
      * @param descriptors The list of child descriptors.
+     * @throws IllegalArgumentException If descriptors repeat or tags are duplicated
      */
+    @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
     public NodeAllocator(final List<ChildDescriptor> descriptors) {
-        this.descriptors = descriptors;
+        this.descriptors = ChildDescriptor.copySchema(descriptors);
+        if (descriptors.stream().anyMatch(item -> item.getCardinality() == Cardinality.REPEATED)) {
+            throw new IllegalArgumentException("Repeated allocation is not supported yet");
+        }
     }
 
     /**
@@ -286,7 +292,7 @@ public class NodeAllocator {
                 result = name;
             } else {
                 for (final String group : this.positions.keySet()) {
-                    if (type.belongsToGroup(group)) {
+                    if (node.belongsToGroup(group)) {
                         result = group;
                         this.removeFirstPosition(group);
                         break;
@@ -321,11 +327,11 @@ public class NodeAllocator {
                 int index = 0;
                 for (final ChildDescriptor descriptor : NodeAllocator.this.descriptors) {
                     boolean allowed = true;
-                    if (!this.optional && descriptor.isOptional()) {
+                    if (!this.optional && descriptor.getCardinality() == Cardinality.OPTIONAL) {
                         allowed = false;
                     }
                     if (allowed) {
-                        final String type = descriptor.getType();
+                        final String type = descriptor.getType().getName();
                         final List<Integer> indexes = this.positions.computeIfAbsent(
                             type, x -> new ArrayList<>(2)
                         );

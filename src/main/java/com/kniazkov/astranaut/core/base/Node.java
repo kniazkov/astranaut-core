@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -91,6 +93,29 @@ public interface Node {
     Node getChild(int index);
 
     /**
+     * Looks up an explicitly named child independently of the type schema.
+     * @param tag Child tag
+     * @return Child, or empty for an unknown tag or absent optional child
+     */
+    default Optional<Node> getChild(final String tag) {
+        Objects.requireNonNull(tag);
+        return Optional.empty();
+    }
+
+    /**
+     * Returns the tag of a child occurrence, independently of the type schema.
+     * The same child object may occur under different tags. A returned tag must
+     * resolve through getChild(tag) to the child at this index.
+     * @param index Index in the compact ordered child list
+     * @return Tag, or empty for an untagged occurrence
+     * @throws IndexOutOfBoundsException If the index is outside the child list
+     */
+    default Optional<String> getChildTag(final int index) {
+        Objects.checkIndex(index, this.getChildCount());
+        return Optional.empty();
+    }
+
+    /**
      * Returns the name of the type.
      * @return The name
      */
@@ -114,7 +139,7 @@ public interface Node {
      * @return Checking result, {@code true} if the type belongs to the group
      */
     default boolean belongsToGroup(final String type) {
-        return this.getType().belongsToGroup(type);
+        return new TypeHierarchy(this.getType()).contains(type);
     }
 
     /**

@@ -23,65 +23,28 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 /**
- * A type of abstract syntax tree node.
+ * An instantiable node type. Definitions and exposed state are immutable.
  * @since 0.0.1
  */
-public interface Type {
+public interface Type extends AbstractType {
     /**
-     * Retrieves the name of the node type.
-     * @return The type name
+     * Returns the complete ordered child schema, without traversing base types.
+     * An absent schema is unknown; a present empty schema describes a leaf.
+     * Implementations must expose an immutable, validated snapshot, for example
+     * using {@link ChildDescriptor#copySchema(List)}.
+     * @return Optional immutable child schema
      */
-    String getName();
-
-    /**
-     * Returns the list of child types that the node type can have.
-     *  Child types are represented by descriptors that specify the allowed types
-     *  and their constraints. This information is used during node creation to validate
-     *  the correctness of the created node.
-     * @return Unmodifiable list of child descriptors
-     */
-    default List<ChildDescriptor> getChildTypes() {
-        return Collections.emptyList();
+    default Optional<List<ChildDescriptor>> getChildDescriptors() {
+        return Optional.empty();
     }
 
     /**
-     * Returns the hierarchy of type names that the node type belongs to.
-     *  The hierarchy includes the name of the type itself followed by the names of its
-     *  parent types. Parent types are listed from the immediate parent to the furthest ancestor.
-     * @return Unmodifiable list of type names in the hierarchy
-     */
-    default List<String> getHierarchy() {
-        return Collections.singletonList(this.getName());
-    }
-
-    /**
-     * Checks whether the type belongs to group.
-     * @param type The type name
-     * @return Checking result, {@code true} if the type belongs to the group
-     */
-    default boolean belongsToGroup(final String type) {
-        return this.getHierarchy().contains(type);
-    }
-
-    /**
-     * Returns an immutable set of properties.
-     *  The presence of specific properties depends on the specific implementation
-     *  and may vary. By default, there are no custom properties.
-     * @return Immutable map of properties where keys are property names
-     *  and values are property values
-     */
-    default Map<String, String> getProperties() {
-        return Collections.emptyMap();
-    }
-
-    /**
-     * Creates a new builder who builds a node of this type.
-     * @return A builder.
+     * Creates an independent builder for this concrete type.
+     * @return Builder
      */
     Builder createBuilder();
 }

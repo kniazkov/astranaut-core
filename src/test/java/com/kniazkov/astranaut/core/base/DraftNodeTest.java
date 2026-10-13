@@ -38,6 +38,26 @@ import org.junit.jupiter.api.Test;
  */
 class DraftNodeTest {
     @Test
+    void snapshotsBuilderStateAndRejectsNullChildrenAtomically() {
+        final DraftNode.Constructor builder = new DraftNode.Constructor();
+        builder.setName("Parent");
+        builder.setData("before");
+        final Node child = DraftNode.create("Child");
+        builder.setChildrenList(List.of(child, child));
+        final DraftNode first = builder.createNode();
+        final List<Node> invalid = new java.util.ArrayList<>(1);
+        invalid.add(null);
+        Assertions.assertThrows(NullPointerException.class, () -> builder.setChildrenList(invalid));
+        Assertions.assertEquals(2, builder.createNode().getChildCount());
+        builder.setData("after");
+        builder.setChildrenList(List.of());
+        Assertions.assertEquals("before", first.getData());
+        Assertions.assertEquals(2, first.getChildCount());
+        Assertions.assertSame(first.getChild(0), first.getChild(1));
+        Assertions.assertEquals(0, builder.createNode().getChildCount());
+    }
+
+    @Test
     void createAndSerialize() {
         final String[] cases = {
             "X",
@@ -113,9 +133,9 @@ class DraftNodeTest {
         final Node node = DraftNode.create("A");
         final Type type = node.getType();
         Assertions.assertEquals("A", type.getName());
-        Assertions.assertEquals(0, type.getChildTypes().size());
-        Assertions.assertEquals(1, type.getHierarchy().size());
-        Assertions.assertEquals("A", type.getHierarchy().get(0));
+        Assertions.assertTrue(type.getChildDescriptors().isEmpty());
+        Assertions.assertTrue(type.getBaseTypes().isEmpty());
+        Assertions.assertEquals("A", type.getName());
         final Builder builder = type.createBuilder();
         final Node clone = builder.createNode();
         Assertions.assertTrue(node.deepCompare(clone));

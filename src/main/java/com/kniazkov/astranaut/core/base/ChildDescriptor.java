@@ -24,62 +24,112 @@
 package com.kniazkov.astranaut.core.base;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * This class describes child node within type descriptor.
+ * Immutable child constraint: allowed type, optional tag and cardinality.
  * @since 0.0.1
  */
 public final class ChildDescriptor {
     /**
-     * The name of the child type.
+     * Allowed type, including its subtypes.
      */
-    private final String type;
+    private final AbstractType type;
 
     /**
-     * Flag that states that the child is optional, that is, one that can be in the list
-     *  of child nodes but is not required.
+     * Optional unique tag.
      */
-    private final boolean optional;
+    private final Optional<String> tag;
 
     /**
-     * Constructor.
-     * @param type The name of the child type
-     * @param optional Flag that states that the child is optional
+     * Allowed number of children.
      */
-    public ChildDescriptor(final String type, final  boolean optional) {
-        this.type = type;
-        this.optional = optional;
+    private final Cardinality cardinality;
+
+    /**
+     * Creates an untagged required descriptor.
+     * @param type Allowed type
+     */
+    public ChildDescriptor(final AbstractType type) {
+        this(type, Optional.empty(), Cardinality.REQUIRED);
     }
 
     /**
-     * Additional constructor.
-     * @param type The name of the child type
+     * Creates an untagged descriptor.
+     * @param type Allowed type
+     * @param cardinality Allowed number of children
      */
-    public ChildDescriptor(final String type) {
-        this(type, false);
+    public ChildDescriptor(final AbstractType type, final Cardinality cardinality) {
+        this(type, Optional.empty(), cardinality);
     }
 
     /**
-     * Returns the name of the child type.
-     * @return The name
+     * Creates a descriptor.
+     * @param type Allowed type
+     * @param tag Optional unique tag
+     * @param cardinality Allowed number of children
+     * @throws IllegalArgumentException If a repeated descriptor has a tag
      */
-    public String getType() {
+    @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
+    public ChildDescriptor(final AbstractType type, final Optional<String> tag,
+        final Cardinality cardinality) {
+        this.type = Objects.requireNonNull(type);
+        this.tag = Objects.requireNonNull(tag);
+        this.cardinality = Objects.requireNonNull(cardinality);
+        if (cardinality == Cardinality.REPEATED && tag.isPresent()) {
+            throw new IllegalArgumentException("Repeated children cannot have a tag");
+        }
+    }
+
+    /**
+     * Returns the allowed type.
+     * @return Allowed abstract or concrete type
+     */
+    public AbstractType getType() {
         return this.type;
     }
 
     /**
-     * Returns the flag that states that the child is optional.
-     * @return The optional flag
+     * Returns the optional tag.
+     * @return Tag
      */
-    public boolean isOptional() {
-        return this.optional;
+    public Optional<String> getTag() {
+        return this.tag;
     }
 
     /**
-     * Creates constructor that helps build lists of descriptors.
-     * @return Constructor that helps build lists of descriptors
+     * Returns the cardinality.
+     * @return Cardinality
+     */
+    public Cardinality getCardinality() {
+        return this.cardinality;
+    }
+
+    /**
+     * Creates a validated immutable schema snapshot.
+     * @param descriptors Complete ordered schema
+     * @return Snapshot with unique tags
+     * @throws IllegalArgumentException If tags are duplicated
+     */
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+    public static List<ChildDescriptor> copySchema(final List<ChildDescriptor> descriptors) {
+        final List<ChildDescriptor> result = List.copyOf(descriptors);
+        final Set<String> tags = new HashSet<>();
+        for (final ChildDescriptor descriptor : result) {
+            if (descriptor.tag.isPresent() && !tags.add(descriptor.tag.orElseThrow())) {
+                throw new IllegalArgumentException("Duplicate child tag");
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Creates a schema builder.
+     * @return Mutable builder
      */
     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static Constructor create() {
@@ -88,26 +138,25 @@ public final class ChildDescriptor {
 
     @Override
     public String toString() {
-        final String result;
-        if (this.optional) {
-            result = new StringBuilder()
-                .append('[')
-                .append(this.type)
-                .append(']')
-                .toString();
-        } else {
-            result = this.type;
-        }
-        return result;
+        final String name = String.format(
+            "%s%s",
+            this.tag.map(value -> String.format("%s@", value)).orElse(""),
+            this.type.getName()
+        );
+        return switch (this.cardinality) {
+            case REQUIRED -> name;
+            case OPTIONAL -> String.format("[%s]", name);
+            case REPEATED -> String.format("%s*", name);
+        };
     }
 
     /**
-     * Constructor that helps build lists of descriptors.
+     * Mutable builder producing independent schema snapshots.
      * @since 0.0.1
      */
     public static final class Constructor {
         /**
-         * Internal list.
+         * Descriptors accumulated so far.
          */
         private final List<ChildDescriptor> list;
 
@@ -119,32 +168,48 @@ public final class ChildDescriptor {
         }
 
         /**
-         * Adds a descriptor for a node that must be in the list of child nodes.
-         * @param type Type name of child node
-         * @return The constructor itself for the continuation of the chain
+         * Adds an untagged required child.
+         * @param type Allowed type
+         * @return This builder
          */
-        public Constructor required(final String type) {
-            this.list.add(new ChildDescriptor(type, false));
+        public Constructor required(final AbstractType type) {
+            return this.add(new ChildDescriptor(type));
+        }
+
+        /**
+         * Adds an untagged optional child.
+         * @param type Allowed type
+         * @return This builder
+         */
+        public Constructor optional(final AbstractType type) {
+            return this.add(new ChildDescriptor(type, Optional.empty(), Cardinality.OPTIONAL));
+        }
+
+        /**
+         * Adds an untagged repeated child.
+         * @param type Allowed type
+         * @return This builder
+         */
+        public Constructor repeated(final AbstractType type) {
+            return this.add(new ChildDescriptor(type, Optional.empty(), Cardinality.REPEATED));
+        }
+
+        /**
+         * Adds an explicitly constructed descriptor.
+         * @param descriptor Child descriptor
+         * @return This builder
+         */
+        public Constructor add(final ChildDescriptor descriptor) {
+            this.list.add(Objects.requireNonNull(descriptor));
             return this;
         }
 
         /**
-         * Adds a descriptor for an optional node, that is, one that can be in the list
-         *  of child nodes but is not required.
-         * @param type Type name of child node
-         * @return The constructor itself for the continuation of the chain
-         */
-        public Constructor optional(final String type) {
-            this.list.add(new ChildDescriptor(type, true));
-            return this;
-        }
-
-        /**
-         * Constructs a list of descriptors.
-         * @return Unmodifiable list of descriptors.
+         * Builds a validated immutable snapshot.
+         * @return Complete schema
          */
         public List<ChildDescriptor> build() {
-            return Collections.unmodifiableList(this.list);
+            return ChildDescriptor.copySchema(this.list);
         }
     }
 }

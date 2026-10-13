@@ -23,16 +23,19 @@
  */
 package com.kniazkov.astranaut.core.example.green;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,27 +100,11 @@ public final class IntegerLiteral implements Expression {
      *
      * @since 0.0.1
      */
-    private static final class TypeImpl implements Type {
+    private static final class TypeImpl extends NamedType implements Type {
         /**
          * The name.
          */
         private static final String NAME = "IntegerLiteral";
-
-        /**
-         * The 'Expression' string.
-         */
-        private static final String EXPRESSION = "Expression";
-
-        /**
-         * Hierarchy.
-         */
-        private static final List<String> HIERARCHY =
-            Collections.unmodifiableList(
-                Arrays.asList(
-                    TypeImpl.NAME,
-                    TypeImpl.EXPRESSION
-                )
-            );
 
         /**
          * Properties.
@@ -126,7 +113,7 @@ public final class IntegerLiteral implements Expression {
             new String[][] {
                 {"color", "green"},
                 {"language", "common"},
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            }).collect(Collectors.toUnmodifiableMap(data -> data[0], data -> data[1]));
 
         @Override
         public String getName() {
@@ -134,13 +121,13 @@ public final class IntegerLiteral implements Expression {
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return Collections.emptyList();
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
         }
 
         @Override
-        public List<String> getHierarchy() {
-            return TypeImpl.HIERARCHY;
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of(Expression.TYPE);
         }
 
         @Override
