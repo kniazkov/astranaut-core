@@ -165,10 +165,15 @@ Let’s talk **`Builder`**—the only *proper* way to create nodes when you’re
    - **Data** if exists (as a `String`—returns `false` if invalid).  
    - **Child nodes** if any (also returns `false` if the list is illegal).  
 3. **Check `isValid()`** (because mistakes happen).  
-4. **Call `createNode()`** → *Boom!* New node.  
-   - (Or `IllegalStateException` if you skipped `isValid()` and the builder’s unhappy.)  
+4. **Call `build()`** → *Boom!* New node.
+   - (Or `ConstructionException` with a reason if the builder is incomplete or invalid.)
 
-**Bonus:** Calling `createNode()` again gives you a **fresh copy**—same specs, new object.  
+Calling `build()` again produces a valid snapshot. Later builder edits never change earlier nodes.
+
+The current core API supports atomic edits by child tag or insertion index. See
+[the builder contract](docs/builders.md) for partial states, removals, schema allocation
+and the distinction between `setChild` and `setChildren`. The external generator will
+be migrated separately.
 
 ### **The Golden Rule**  
 > *"If a node exists, it’s correct."*  
@@ -416,7 +421,7 @@ builder.setData("condition");
 builder.addChild(conditionNode);  
 builder.addChild(thenBranchNode);  
 
-Node ifNode = builder.createNode();  
+Node ifNode = builder.build();
 ```  
 
 ### **Why It Exists**  
@@ -681,7 +686,7 @@ PatternBuilder builder = new PatternBuilder(tree);
 builder.makeHole(nodeToReplace, 1); // Hole #1  
 builder.makeHole(anotherNode, 2);   // Hole #2  
 
-Pattern pattern = builder.build();  
+Pattern pattern = builder.build();
 ```  
 
 **TL;DR**  
