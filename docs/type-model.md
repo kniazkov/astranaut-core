@@ -121,8 +121,8 @@ a shared child, concurrent reads and wildcard Optional getters.
 `getHierarchy()` and `getChildTypes()` are replaced by `getBaseTypes()` and
 `getChildDescriptors()`. Nodes expose `isSubtypeOf(AbstractType)` as a convenience
 for `node.getType().isSubtypeOf(type)`. Hierarchy queries and allocator type matching
-accept descriptors; the former string-based group query has been removed. Type names
-remain the identity keys inside graph traversal and the identifiers in serialization.
+accept descriptors; the former string-based group query has been removed. Graph traversal uses sets of descriptors and their equals/hashCode contract.
+Names remain the identifiers in serialization and the basis of type equality.
 
 This stage does not claim that all legacy algorithms already implement the final
 architecture. The Optional root and remaining immutable node-model migration in
