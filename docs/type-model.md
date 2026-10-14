@@ -44,10 +44,12 @@ of `Object.equals` or `Object.hashCode`.
 must themselves be immutable. Properties are **own properties only**; there is no
 automatic merging of inherited properties.
 
-The existing `NodeAndType` convenience base now creates a **separate** descriptor.
-A node cannot also serve as its descriptor: name-based type identity and structural
-node identity are different contracts. Its subclasses must keep definitions and
-builder factories stable. Its historical name is retained for this migration step.
+Nodes implement `Node` and return independent `Type` descriptors. A descriptor
+must not retain a node instance or its subtree: its builder factory depends only
+on the type definition. Fixed types can share a static descriptor; dynamic types
+store the required definition data in a separate descriptor. Node properties do
+not automatically become type properties. Prototype wrappers retain the prototype
+type properties; per-node overrides, such as a hole's display color, stay on the node.
 
 ## Child schemas
 
