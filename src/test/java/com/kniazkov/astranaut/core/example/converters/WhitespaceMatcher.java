@@ -25,6 +25,7 @@ package com.kniazkov.astranaut.core.example.converters;
 
 import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.algorithms.conversion.Matcher;
+import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.Node;
 
 /**
@@ -46,6 +47,6 @@ public final class WhitespaceMatcher implements Matcher {
     @Override
     public boolean match(final Node node, final Extracted extracted) {
         final String data = node.getData();
-        return node.belongsToGroup("Char") && data.length() == 1 && data.charAt(0) == ' ';
+        return node.isSubtypeOf(Char.TYPE) && data.length() == 1 && data.charAt(0) == ' ';
     }
 }

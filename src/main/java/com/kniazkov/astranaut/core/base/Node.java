@@ -130,16 +130,16 @@ public interface Node {
      * @return Local hash of the node
      */
     default int getLocalHash() {
-        return this.getTypeName().hashCode() * 31 + this.getData().hashCode();
+        return this.getType().hashCode() * 31 + this.getData().hashCode();
     }
 
     /**
-     * Checks whether the node type belongs to group.
-     * @param type The type name
-     * @return Checking result, {@code true} if the type belongs to the group
+     * Checks whether this node has the requested type or one of its subtypes.
+     * @param type Requested abstract or concrete type
+     * @return Whether the node type is a subtype of the requested type
      */
-    default boolean belongsToGroup(final String type) {
-        return new TypeHierarchy(this.getType()).contains(type);
+    default boolean isSubtypeOf(final AbstractType type) {
+        return this.getType().isSubtypeOf(type);
     }
 
     /**
@@ -183,7 +183,7 @@ public interface Node {
         } else {
             final int count = this.getChildCount();
             equals = count == other.getChildCount()
-                && this.getTypeName().equals(other.getTypeName())
+                && this.getType().equals(other.getType())
                 && this.getData().equals(other.getData())
                 && this.getProperties().equals(other.getProperties());
             for (int index = 0; equals && index < count; index = index + 1) {

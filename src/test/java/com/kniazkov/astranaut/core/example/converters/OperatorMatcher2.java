@@ -25,7 +25,9 @@ package com.kniazkov.astranaut.core.example.converters;
 
 import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.algorithms.conversion.Matcher;
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
 
 /**
  * Matcher that checks for a match with a plus operator.
@@ -38,9 +40,9 @@ public final class OperatorMatcher2 implements Matcher {
     public static final Matcher INSTANCE = new OperatorMatcher2();
 
     /**
-     * Expected type name.
+     * Expected type.
      */
-    private static final String TYPE_NAME = "Operator";
+    private static final AbstractType TYPE = new SimpleAbstractType("Operator");
 
     /**
      * Expected data.
@@ -55,7 +57,7 @@ public final class OperatorMatcher2 implements Matcher {
 
     @Override
     public boolean match(final Node node, final Extracted extracted) {
-        return node.belongsToGroup(OperatorMatcher2.TYPE_NAME)
+        return node.isSubtypeOf(OperatorMatcher2.TYPE)
             && node.getData().equals(OperatorMatcher2.DATA);
     }
 }

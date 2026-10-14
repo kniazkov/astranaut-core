@@ -23,6 +23,7 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
@@ -30,9 +31,11 @@ import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -65,12 +68,12 @@ public class NodeAllocator {
     /**
      * Number of unused cells of each type.
      */
-    private Map<String, Integer> unused;
+    private Map<AbstractType, Integer> unused;
 
     /**
      * The appropriate types from the descriptors for each node.
      */
-    private Map<Node, String> suitable;
+    private Map<Node, AbstractType> suitable;
 
     /**
      * Constructor.
@@ -143,22 +146,23 @@ public class NodeAllocator {
     }
 
     /**
-     * Counts the number of nodes of each type and calculates the suitable type names.
+     * Counts the number of nodes of each type and calculates the suitable type descriptors.
      * @param nodes The list of nodes
      * @return Calculation result, {@code true} if structures have been filled
      */
     private boolean calculate(final List<Node> nodes) {
         boolean result = true;
-        this.unused = new TreeMap<>();
+        this.unused = new HashMap<>();
         this.suitable = new HashMap<>();
         final PositionSet set = new PositionSet(true);
         set.init();
         for (final Node node : nodes) {
-            final String type = set.findSuitableBaseType(node);
-            if (type.isEmpty()) {
+            final Optional<AbstractType> match = set.findSuitableBaseType(node);
+            if (match.isEmpty()) {
                 result = false;
                 break;
             }
+            final AbstractType type = match.orElseThrow();
             final Integer count = this.unused.computeIfAbsent(type, x -> 0);
             this.unused.put(type, count + 1);
             this.suitable.put(node, type);
@@ -176,7 +180,7 @@ public class NodeAllocator {
         int count = source.length;
         for (int index = 0; index < source.length; index = index + 1) {
             final Node node = source[index];
-            final String type = this.suitable.get(node);
+            final AbstractType type = this.suitable.get(node);
             if (this.unused.get(type) == 1) {
                 count = count - 1;
                 List<Integer> positions = this.required.getPositionsByType(type);
@@ -208,7 +212,7 @@ public class NodeAllocator {
         boolean result = true;
         for (final Node node : source) {
             if (!(node instanceof DummyNode)) {
-                final String type = this.suitable.get(node);
+                final AbstractType type = this.suitable.get(node);
                 final List<Integer> allowed = this.possible.getPositionsByType(type);
                 if (allowed == null) {
                     result = false;
@@ -245,9 +249,9 @@ public class NodeAllocator {
         private final boolean optional;
 
         /**
-         * The set of positions arranged by type name.
+         * The set of positions arranged by type.
          */
-        private Map<String, List<Integer>> positions;
+        private Map<AbstractType, List<Integer>> positions;
 
         /**
          * The number of positions.
@@ -271,11 +275,11 @@ public class NodeAllocator {
         }
 
         /**
-         * Returns list of positions by type name.
-         * @param type The type name
+         * Returns list of positions by type.
+         * @param type The type descriptor
          * @return The list of positions
          */
-        public List<Integer> getPositionsByType(final String type) {
+        public List<Integer> getPositionsByType(final AbstractType type) {
             this.init();
             return this.positions.get(type);
         }
@@ -283,18 +287,17 @@ public class NodeAllocator {
         /**
          * Looks for suitable base type that can be mapped.
          * @param node The node
-         * @return Base type or an empty string if node can't be mapped
+         * @return Base type, or empty if the node cannot be mapped
          */
-        public String findSuitableBaseType(final Node node) {
-            String result = "";
+        public Optional<AbstractType> findSuitableBaseType(final Node node) {
+            Optional<AbstractType> result = Optional.empty();
             final Type type = node.getType();
-            final String name = type.getName();
-            if (this.positions.containsKey(name)) {
-                result = name;
+            if (this.positions.containsKey(type)) {
+                result = Optional.of(type);
             } else {
-                for (final String group : this.positions.keySet()) {
-                    if (node.belongsToGroup(group)) {
-                        result = group;
+                for (final AbstractType group : this.positions.keySet()) {
+                    if (node.isSubtypeOf(group)) {
+                        result = Optional.of(group);
                         this.removeFirstPosition(group);
                         break;
                     }
@@ -305,10 +308,10 @@ public class NodeAllocator {
 
         /**
          * Removes position from the set.
-         * @param type The type name
+         * @param type The type descriptor
          * @param index The position index
          */
-        public void removePosition(final String type, final Integer index) {
+        public void removePosition(final AbstractType type, final Integer index) {
             final List<Integer> list = this.positions.get(type);
             if (list != null && list.remove(index)) {
                 this.count = this.count - 1;
@@ -323,7 +326,7 @@ public class NodeAllocator {
          */
         public void init() {
             if (this.positions == null) {
-                this.positions = new TreeMap<>();
+                this.positions = new TreeMap<>(Comparator.comparing(AbstractType::getName));
                 this.count = 0;
                 int index = 0;
                 for (final ChildDescriptor descriptor : NodeAllocator.this.descriptors) {
@@ -332,7 +335,7 @@ public class NodeAllocator {
                         allowed = false;
                     }
                     if (allowed) {
-                        final String type = descriptor.getType().getName();
+                        final AbstractType type = descriptor.getType();
                         final List<Integer> indexes = this.positions.computeIfAbsent(
                             type, x -> new ArrayList<>(2)
                         );
@@ -346,9 +349,9 @@ public class NodeAllocator {
 
         /**
          * Removes first position from the set for the specified type.
-         * @param type The type name
+         * @param type The type descriptor
          */
-        private void removeFirstPosition(final String type) {
+        private void removeFirstPosition(final AbstractType type) {
             final List<Integer> list = this.positions.get(type);
             list.remove(0);
             if (list.isEmpty()) {

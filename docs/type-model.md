@@ -119,8 +119,10 @@ a shared child, concurrent reads and wildcard Optional getters.
 ## Migration boundaries
 
 `getHierarchy()` and `getChildTypes()` are replaced by `getBaseTypes()` and
-`getChildDescriptors()`. `belongsToGroup(String)` remains a node convenience method,
-implemented using the new graph-based subtype test.
+`getChildDescriptors()`. Nodes expose `isSubtypeOf(AbstractType)` as a convenience
+for `node.getType().isSubtypeOf(type)`. Hierarchy queries and allocator type matching
+accept descriptors; the former string-based group query has been removed. Type names
+remain the identity keys inside graph traversal and the identifiers in serialization.
 
 This stage does not claim that all legacy algorithms already implement the final
 architecture. The Optional root and remaining immutable node-model migration in

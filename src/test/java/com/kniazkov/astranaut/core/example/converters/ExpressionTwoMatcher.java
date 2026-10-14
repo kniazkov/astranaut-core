@@ -26,6 +26,7 @@ package com.kniazkov.astranaut.core.example.converters;
 import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.algorithms.conversion.Matcher;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.example.green.Expression;
 
 /**
  * Matcher that checks for a match with an expression.
@@ -37,11 +38,6 @@ public final class ExpressionTwoMatcher implements Matcher {
      * The instance.
      */
     public static final Matcher INSTANCE = new ExpressionTwoMatcher();
-
-    /**
-     * Expected type name.
-     */
-    private static final String TYPE_NAME = "Expression";
 
     /**
      * Hole number where to save.
@@ -56,7 +52,7 @@ public final class ExpressionTwoMatcher implements Matcher {
 
     @Override
     public boolean match(final Node node, final Extracted extracted) {
-        final boolean result = node.belongsToGroup(ExpressionTwoMatcher.TYPE_NAME);
+        final boolean result = node.isSubtypeOf(Expression.TYPE);
         if (result) {
             extracted.addNode(ExpressionTwoMatcher.HOLE_NUMBER, node);
         }

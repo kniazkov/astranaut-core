@@ -68,11 +68,11 @@ class TypeHierarchyTest {
         final AbstractType right = this.derived(TypeHierarchyTest.RIGHT, root);
         final AbstractType bottom = this.derived("Bottom", left, right);
         final TypeHierarchy hierarchy = new TypeHierarchy(bottom);
-        Assertions.assertFalse(hierarchy.contains("Missing"));
-        Assertions.assertTrue(hierarchy.contains(root.getName()));
-        Assertions.assertTrue(hierarchy.contains(left.getName()));
-        Assertions.assertTrue(hierarchy.contains(right.getName()));
-        Assertions.assertTrue(hierarchy.contains(bottom.getName()));
+        Assertions.assertFalse(hierarchy.contains(new SimpleAbstractType("Missing")));
+        Assertions.assertTrue(hierarchy.contains(root));
+        Assertions.assertTrue(hierarchy.contains(left));
+        Assertions.assertTrue(hierarchy.contains(right));
+        Assertions.assertTrue(hierarchy.contains(bottom));
     }
 
     @Test
@@ -136,8 +136,8 @@ class TypeHierarchyTest {
         Assertions.assertTrue(hierarchy.commonBase(new SimpleAbstractType("Other")).isEmpty());
         Assertions.assertEquals(Optional.of(root), hierarchy.commonBase(right));
         Assertions.assertEquals(Optional.of(left), hierarchy.commonBase(left));
-        Assertions.assertFalse(hierarchy.contains(right.getName()));
-        Assertions.assertTrue(hierarchy.contains(root.getName()));
+        Assertions.assertFalse(hierarchy.contains(right));
+        Assertions.assertTrue(hierarchy.contains(root));
         Assertions.assertEquals(Optional.of(root), hierarchy.commonBase(right));
     }
 

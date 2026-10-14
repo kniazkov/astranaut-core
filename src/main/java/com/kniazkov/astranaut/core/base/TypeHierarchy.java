@@ -52,11 +52,11 @@ final class TypeHierarchy {
 
     /**
      * Tests reachability, stopping at the first matching name.
-     * @param target Requested type name
+     * @param target Requested abstract or concrete type
      * @return Whether reachable
      */
-    boolean contains(final String target) {
-        final String name = Objects.requireNonNull(target);
+    boolean contains(final AbstractType target) {
+        final String name = Objects.requireNonNull(target).getName();
         final Deque<AbstractType> pending = new ArrayDeque<>();
         final Set<String> visited = new HashSet<>();
         pending.add(this.start);

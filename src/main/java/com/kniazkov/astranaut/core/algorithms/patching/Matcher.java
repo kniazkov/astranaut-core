@@ -74,7 +74,7 @@ class Matcher {
         final DepthFirstWalker deep = new DepthFirstWalker(this.root);
         final PatternNode head = pattern.getRoot();
         final List<Node> preset = deep.findAll(
-            node -> node.getTypeName().equals(head.getTypeName())
+            node -> node.getType().equals(head.getType())
                 && node.getData().equals(head.getData())
         );
         final ActionList list = new ActionList();
@@ -114,7 +114,7 @@ class Matcher {
         } else {
             sample = pattern;
         }
-        boolean result = node.getTypeName().equals(sample.getTypeName());
+        boolean result = node.getType().equals(sample.getType());
         do {
             if (!result) {
                 break;

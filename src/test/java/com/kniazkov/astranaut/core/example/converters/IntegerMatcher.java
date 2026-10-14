@@ -25,7 +25,9 @@ package com.kniazkov.astranaut.core.example.converters;
 
 import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.algorithms.conversion.Matcher;
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
 
 /**
  * Matcher that matches nodes representing integer values and extracts the data.
@@ -38,9 +40,9 @@ public final class IntegerMatcher implements Matcher {
     public static final Matcher INSTANCE = new IntegerMatcher();
 
     /**
-     * Expected type name.
+     * Expected type.
      */
-    private static final String TYPE_NAME = "int";
+    private static final AbstractType TYPE = new SimpleAbstractType("int");
 
     /**
      * Hole number where to save.
@@ -55,7 +57,7 @@ public final class IntegerMatcher implements Matcher {
 
     @Override
     public boolean match(final Node node, final Extracted extracted) {
-        final boolean result = node.belongsToGroup(IntegerMatcher.TYPE_NAME);
+        final boolean result = node.isSubtypeOf(IntegerMatcher.TYPE);
         if (result) {
             extracted.addData(IntegerMatcher.HOLE_NUMBER, node.getData());
         }

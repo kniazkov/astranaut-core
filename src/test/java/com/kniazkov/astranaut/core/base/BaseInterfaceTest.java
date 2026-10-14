@@ -26,6 +26,7 @@ package com.kniazkov.astranaut.core.base;
 import com.kniazkov.astranaut.core.algorithms.LabeledTreeBuilder;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import com.kniazkov.astranaut.core.example.green.Addition;
+import com.kniazkov.astranaut.core.example.green.Expression;
 import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,9 +64,9 @@ class BaseInterfaceTest {
         Assertions.assertNotNull(type.getBaseTypes());
         Assertions.assertTrue(type.isSubtypeOf(type));
         Assertions.assertNotNull(type.getProperties());
-        final String group = "Expression";
-        Assertions.assertTrue(type.isSubtypeOf(new SimpleAbstractType(group)));
-        Assertions.assertTrue(node.belongsToGroup(group));
+        final AbstractType group = Expression.TYPE;
+        Assertions.assertTrue(type.isSubtypeOf(group));
+        Assertions.assertTrue(node.isSubtypeOf(group));
     }
 
     @Test

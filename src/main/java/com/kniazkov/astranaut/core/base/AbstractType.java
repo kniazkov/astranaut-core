@@ -24,7 +24,6 @@
 package com.kniazkov.astranaut.core.base;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,7 +63,7 @@ public interface AbstractType {
      * @return Whether this type is a subtype of the argument
      */
     default boolean isSubtypeOf(final AbstractType other) {
-        return new TypeHierarchy(this).contains(Objects.requireNonNull(other).getName());
+        return new TypeHierarchy(this).contains(other);
     }
 
     /**
