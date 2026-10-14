@@ -45,7 +45,7 @@ class TypeModelTest {
     @Test
     void identifiesTypesByNameAcrossImplementations() {
         final AbstractType first = new SimpleAbstractType(TypeModelTest.LITERAL);
-        final AbstractType second = new NamedType() {
+        final AbstractType second = new TypeWithNameBasedEquality() {
             @Override
             public String getName() {
                 return TypeModelTest.LITERAL;
@@ -187,7 +187,7 @@ class TypeModelTest {
      * Concrete descriptor independent of SimpleAbstractType.
      * @since 0.0.1
      */
-    private static final class ConcreteType extends NamedType implements Type {
+    private static final class ConcreteType extends TypeWithNameBasedEquality implements Type {
         /**
          * Name.
          */

@@ -102,7 +102,7 @@ public final class Delete implements Action {
      * Type of 'Delete' action.
      * @since 0.0.1
      */
-    private static final class DeleteType extends NamedType implements Type {
+    private static final class DeleteType extends TypeWithNameBasedEquality implements Type {
         /**
          * The 'DELETE' string.
          */

@@ -76,7 +76,7 @@ public final class NullNode implements Node {
      * Type descriptor independent of node instances.
      * @since 0.0.1
      */
-    private static final class TypeImpl extends NamedType implements Type {
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         @Override
         public String getName() {
             return "\u2400";

@@ -27,12 +27,12 @@ import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.DummyNode;
-import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.TestBuilder;
 import com.kniazkov.astranaut.core.base.TestBuilderCase;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import com.kniazkov.astranaut.core.example.converters.Converter0;
 import com.kniazkov.astranaut.core.example.converters.Converter1;
@@ -319,7 +319,7 @@ class ConversionTest {
          * Type descriptor independent of node instances.
          * @since 0.0.1
          */
-        private static final class TypeImpl extends NamedType implements Type {
+        private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
             /**
              * Immutable type definition.
              */

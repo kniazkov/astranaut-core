@@ -31,9 +31,9 @@ import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
-import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import com.kniazkov.astranaut.core.utils.ListUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,7 +153,7 @@ public final class SimpleAssignment implements Assignment {
      * Type descriptor of the 'SimpleAssignment' node.
      * @since 0.0.1
      */
-    private static final class TypeImpl extends NamedType implements Type {
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         /**
          * The 'SimpleAssignment' string.
          */

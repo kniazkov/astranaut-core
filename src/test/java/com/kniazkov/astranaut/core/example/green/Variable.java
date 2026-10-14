@@ -28,9 +28,9 @@ import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
-import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +99,7 @@ public final class Variable implements AssignableExpression {
      * Type descriptor of the 'Addition' node.
      * @since 0.0.1
      */
-    private static final class TypeImpl extends NamedType implements Type {
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         /**
          * The name.
          */

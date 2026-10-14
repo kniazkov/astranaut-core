@@ -25,10 +25,10 @@ package com.kniazkov.astranaut.core.algorithms.normalization;
 
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Fragment;
-import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -261,7 +261,7 @@ public final class NormalizedNode implements PrototypeBasedNode {
      * Type descriptor independent of node instances.
      * @since 0.0.1
      */
-    private static final class TypeImpl extends NamedType implements Type {
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         /**
          * Immutable type definition.
          */

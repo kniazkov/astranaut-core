@@ -166,7 +166,7 @@ public final class PatternNode implements PatternItem, PrototypeBasedNode {
      * Type descriptor independent of node instances.
      * @since 0.0.1
      */
-    private static final class TypeImpl extends NamedType implements Type {
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         /**
          * Immutable type definition.
          */

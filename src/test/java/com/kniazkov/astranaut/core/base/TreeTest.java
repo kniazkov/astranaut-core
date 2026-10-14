@@ -126,7 +126,7 @@ class TreeTest {
      * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    private static final class TestType extends NamedType implements Type {
+    private static final class TestType extends TypeWithNameBasedEquality implements Type {
         /**
          * The name of the type.
          */

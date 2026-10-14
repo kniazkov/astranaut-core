@@ -35,7 +35,7 @@ support deep graphs without consuming the Java call stack or maintaining a globa
 cache.
 
 Type equality and hash codes depend only on the globally unique name. Extend
-`NamedType` to reuse this implementation. A direct implementation of
+`TypeWithNameBasedEquality` to reuse this implementation. A direct implementation of
 `AbstractType` must implement the same contract, including equality across Java
 implementation classes. Java does not permit an interface default implementation
 of `Object.equals` or `Object.hashCode`.

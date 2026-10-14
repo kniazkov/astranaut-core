@@ -27,10 +27,10 @@ import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.CoreException;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.EmptyTree;
-import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -230,7 +230,7 @@ class TreeVisualizerTest {
          * Type descriptor independent of node instances.
          * @since 0.0.1
          */
-        private static final class TypeImpl extends NamedType implements Type {
+        private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
             @Override
             public String getName() {
                 return "Colored";

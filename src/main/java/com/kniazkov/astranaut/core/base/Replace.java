@@ -116,7 +116,7 @@ public final class Replace implements Action {
      * Type of 'Replace' action.
      * @since 0.0.1
      */
-    private static final class ReplaceType extends NamedType implements Type {
+    private static final class ReplaceType extends TypeWithNameBasedEquality implements Type {
         /**
          * The 'DELETE' string.
          */
