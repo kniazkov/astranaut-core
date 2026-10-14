@@ -238,13 +238,13 @@ class ConversionTest {
     void nullNode() {
         final Char.Constructor ctor = new Char.Constructor();
         ctor.setValue('a');
-        final Node first = ctor.createNode();
+        final Node first = ctor.build();
         ctor.setValue('b');
-        final Node second = ctor.createNode();
+        final Node second = ctor.build();
         ctor.setValue('c');
-        final Node third = ctor.createNode();
+        final Node third = ctor.build();
         ctor.setValue(' ');
-        final Node space = ctor.createNode();
+        final Node space = ctor.build();
         final Node root = DraftNode.create(
             ConversionTest.ROOT_NODE_NAME,
             "",

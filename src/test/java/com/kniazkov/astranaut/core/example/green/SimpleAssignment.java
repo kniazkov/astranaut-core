@@ -24,13 +24,14 @@
 
 package com.kniazkov.astranaut.core.example.green;
 
-import com.kniazkov.astranaut.core.algorithms.NodeAllocator;
 import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
+import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import com.kniazkov.astranaut.core.utils.ListUtils;
@@ -52,6 +53,16 @@ public final class SimpleAssignment implements Assignment {
      * The type.
      */
     public static final Type TYPE = new TypeImpl();
+
+    /**
+     * The left child tag.
+     */
+    private static final String LEFT_TAG = "left";
+
+    /**
+     * The right child tag.
+     */
+    private static final String RIGHT_TAG = "right";
 
     /**
      * The number of children.
@@ -122,8 +133,8 @@ public final class SimpleAssignment implements Assignment {
     @Override
     public Optional<Node> getChild(final String tag) {
         return switch (tag) {
-            case "left" -> Optional.ofNullable(this.left);
-            case "right" -> Optional.ofNullable(this.right);
+            case SimpleAssignment.LEFT_TAG -> Optional.ofNullable(this.left);
+            case SimpleAssignment.RIGHT_TAG -> Optional.ofNullable(this.right);
             default -> Optional.empty();
         };
     }
@@ -133,10 +144,10 @@ public final class SimpleAssignment implements Assignment {
         Objects.checkIndex(index, this.getChildCount());
         final List<String> tags = new ArrayList<>(2);
         if (this.left != null) {
-            tags.add("left");
+            tags.add(SimpleAssignment.LEFT_TAG);
         }
         if (this.right != null) {
-            tags.add("right");
+            tags.add(SimpleAssignment.RIGHT_TAG);
         }
         return Optional.of(tags.get(index));
     }
@@ -160,8 +171,8 @@ public final class SimpleAssignment implements Assignment {
          * The list of child types.
          */
         private static final List<ChildDescriptor> CHILDREN = ChildDescriptor.create()
-            .required(AssignableExpression.TYPE, "left")
-            .required(Expression.TYPE, "right")
+            .required(AssignableExpression.TYPE, SimpleAssignment.LEFT_TAG)
+            .required(Expression.TYPE, SimpleAssignment.RIGHT_TAG)
             .build();
 
         /**
@@ -203,36 +214,19 @@ public final class SimpleAssignment implements Assignment {
      * Class for 'SimpleAssignment' node construction.
      * @since 0.0.1
      */
-    public static final class Constructor implements Builder {
-        /**
-         * The maximum number of nodes.
-         */
-        private static final int MAX_NODE_COUNT = 2;
-
-        /**
-         * The position of the 'left' field.
-         */
-        private static final int LEFT_POS = 0;
-
-        /**
-         * The position of the 'right' field.
-         */
-        private static final int RIGHT_POS = 1;
-
+    public static final class Constructor extends SchemaBuilder {
         /**
          * The fragment associated with the node.
          */
-        private Fragment fragment = EmptyFragment.INSTANCE;
+        private Fragment fragment;
 
         /**
-         * Node with the 'left' tag.
+         * Creates an empty builder.
          */
-        private AssignableExpression left;
-
-        /**
-         * Node with the 'right' tag.
-         */
-        private Expression right;
+        public Constructor() {
+            super(SimpleAssignment.TYPE.getChildDescriptors().orElseThrow());
+            this.fragment = EmptyFragment.INSTANCE;
+        }
 
         @Override
         public void setFragment(final Fragment obj) {
@@ -249,7 +243,7 @@ public final class SimpleAssignment implements Assignment {
          * @param node The node
          */
         public void setLeft(final AssignableExpression node) {
-            this.left = node;
+            this.setChild(SimpleAssignment.LEFT_TAG, node);
         }
 
         /**
@@ -257,43 +251,29 @@ public final class SimpleAssignment implements Assignment {
          * @param node The node
          */
         public void setRight(final Expression node) {
-            this.right = node;
+            this.setChild(SimpleAssignment.RIGHT_TAG, node);
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
-            final Node[] mapping = new Node[Constructor.MAX_NODE_COUNT];
-            final NodeAllocator allocator =
-                new NodeAllocator(SimpleAssignment.TYPE.getChildDescriptors().orElseThrow());
-            final boolean result = allocator.allocate(mapping, list);
-            if (result) {
-                this.left = (AssignableExpression) mapping[Constructor.LEFT_POS];
-                this.right = (Expression) mapping[Constructor.RIGHT_POS];
-            }
-            return result;
-        }
-
-        @Override
-        public boolean isValid() {
-            return this.left != null
-                && this.right != null;
-        }
-
-        @Override
-        public SimpleAssignment createNode() {
+        public SimpleAssignment build() {
             if (!this.isValid()) {
-                throw new IllegalStateException();
+                throw new ConstructionException("Required builder state is missing");
             }
+            final AssignableExpression left = (AssignableExpression) this.getBindings()
+                .getChild(SimpleAssignment.LEFT_TAG).orElse(null);
+            final Expression right = (Expression) this.getBindings()
+                .getChild(SimpleAssignment.RIGHT_TAG)
+                .orElse(null);
             final SimpleAssignment node = new SimpleAssignment();
             node.fragment = this.fragment;
             node.children = new ListUtils<Node>()
                 .add(
-                    this.left,
-                    this.right
+                    left,
+                    right
                 )
                 .make();
-            node.left = this.left;
-            node.right = this.right;
+            node.left = left;
+            node.right = right;
             return node;
         }
     }

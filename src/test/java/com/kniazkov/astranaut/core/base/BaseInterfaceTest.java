@@ -55,7 +55,7 @@ class BaseInterfaceTest {
     void testType() {
         final Builder builder = new IntegerLiteral.Constructor();
         builder.setData("0");
-        final Node node = builder.createNode();
+        final Node node = builder.build();
         final Type type = node.getType();
         Assertions.assertNotNull(type);
         Assertions.assertEquals("IntegerLiteral", type.getName());
@@ -286,22 +286,22 @@ class BaseInterfaceTest {
         Assertions.assertFalse(first.setData(""));
         Assertions.assertTrue(first.setData("1"));
         Assertions.assertFalse(
-            first.setChildrenList(Collections.singletonList(DraftNode.create("A")))
+            first.setChildren(Collections.singletonList(DraftNode.create("A")))
         );
-        Assertions.assertTrue(first.setChildrenList(Collections.emptyList()));
+        Assertions.assertTrue(first.setChildren(Collections.emptyList()));
         Assertions.assertTrue(first.isValid());
-        final Node left = first.createNode();
+        final Node left = first.build();
         Assertions.assertNotNull(left);
         final Builder second = left.getType().createBuilder();
         Assertions.assertTrue(second.setData("2"));
-        final Node right = second.createNode();
+        final Node right = second.build();
         final Builder third = new Addition.Constructor();
         Assertions.assertTrue(third.setData(""));
         Assertions.assertFalse(third.setData("abc"));
-        Assertions.assertFalse(third.setChildrenList(Collections.singletonList(left)));
-        Assertions.assertTrue(third.setChildrenList(Arrays.asList(left, right)));
+        Assertions.assertFalse(third.setChildren(Collections.singletonList(left)));
+        Assertions.assertTrue(third.setChildren(Arrays.asList(left, right)));
         Assertions.assertTrue(third.isValid());
-        final Node addition = third.createNode();
+        final Node addition = third.build();
         Assertions.assertNotNull(addition);
     }
 

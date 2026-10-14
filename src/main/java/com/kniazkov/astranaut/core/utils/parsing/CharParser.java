@@ -60,7 +60,7 @@ public interface CharParser extends Source, Iterable<Char> {
         this.forEach(children::add);
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName("Root");
-        ctor.setChildrenList(children);
-        return new Tree(ctor.createNode());
+        ctor.setChildren(children);
+        return new Tree(ctor.build());
     }
 }

@@ -30,10 +30,9 @@ import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -166,16 +165,19 @@ public final class StatementBlock implements Statement {
      * Class for 'StatementBlock' node construction.
      * @since 0.0.1
      */
-    public static final class Constructor implements Builder {
+    public static final class Constructor extends SchemaBuilder {
         /**
          * The fragment associated with the node.
          */
-        private Fragment fragment = EmptyFragment.INSTANCE;
+        private Fragment fragment;
 
         /**
-         * List of child nodes.
+         * Creates an empty builder.
          */
-        private List<Statement> children = Collections.emptyList();
+        public Constructor() {
+            super(StatementBlock.TYPE.getChildDescriptors().orElseThrow());
+            this.fragment = EmptyFragment.INSTANCE;
+        }
 
         @Override
         public void setFragment(final Fragment obj) {
@@ -188,33 +190,11 @@ public final class StatementBlock implements Statement {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
-            boolean result = true;
-            final List<Statement> clarified = new ArrayList<>(list.size());
-            for (final Node node : list) {
-                if (node instanceof Statement) {
-                    clarified.add((Statement) node);
-                } else {
-                    result = false;
-                    break;
-                }
-            }
-            if (result) {
-                this.children = Collections.unmodifiableList(clarified);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-
-        @Override
-        public StatementBlock createNode() {
+        public StatementBlock build() {
             final StatementBlock node = new StatementBlock();
             node.fragment = this.fragment;
-            node.children = this.children;
+            node.children = this.getBindings().getChildren().stream()
+                .map(Statement.class::cast).toList();
             return node;
         }
     }

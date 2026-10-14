@@ -70,8 +70,8 @@ public final class Converter1 implements Converter {
                 break;
             }
             final Builder builder = factory.createBuilder(Converter1.NODE_NAME);
-            builder.setChildrenList(extracted.getNodes(1, 2));
-            result = Optional.of(new ConversionResult(builder.createNode(), 3));
+            builder.setChildren(extracted.getNodes(1, 2));
+            result = Optional.of(new ConversionResult(builder.build(), 3));
         } while (false);
         return result;
     }

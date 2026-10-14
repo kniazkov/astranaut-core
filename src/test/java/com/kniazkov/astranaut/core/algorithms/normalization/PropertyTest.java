@@ -50,11 +50,11 @@ class PropertyTest {
         builder.setFragment(EmptyFragment.INSTANCE);
         Assertions.assertTrue(builder.setData(after));
         Assertions.assertFalse(
-            builder.setChildrenList(Collections.singletonList(DummyNode.INSTANCE))
+            builder.setChildren(Collections.singletonList(DummyNode.INSTANCE))
         );
-        Assertions.assertTrue(builder.setChildrenList(Collections.emptyList()));
+        Assertions.assertTrue(builder.setChildren(Collections.emptyList()));
         Assertions.assertTrue(builder.isValid());
-        final Node created = builder.createNode();
+        final Node created = builder.build();
         Assertions.assertEquals(name, created.getTypeName());
         Assertions.assertEquals(after, created.getData());
     }

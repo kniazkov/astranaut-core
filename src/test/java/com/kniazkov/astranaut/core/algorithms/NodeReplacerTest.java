@@ -39,30 +39,30 @@ class NodeReplacerTest {
     @Test
     void testReplacementOfRoot() {
         final Node root =
-            this.createNode(
+            this.build(
                 "1",
                 "",
-                this.createNode(
+                this.build(
                     "11",
                     "",
-                    this.createNode(
+                    this.build(
                         "21",
                         ""
                     ),
-                    this.createNode(
+                    this.build(
                         "22",
                         ""
                     )
                 ),
-                this.createNode("12", ""),
-                this.createNode(
+                this.build("12", ""),
+                this.build(
                     "13",
                     "",
-                    this.createNode(
+                    this.build(
                         "23",
                         ""
                     ),
-                    this.createNode(
+                    this.build(
                         "24",
                         ""
                     )
@@ -77,35 +77,35 @@ class NodeReplacerTest {
     @Test
     void testReplacementOfRootChild() {
         final Node source =
-            this.createNode(
+            this.build(
                 "130",
                 "",
-                this.createNode(
+                this.build(
                     "230",
                     ""
                 ),
-                this.createNode(
+                this.build(
                     "240",
                     ""
                 )
             );
         final Node root =
-            this.createNode(
+            this.build(
                 "10",
                 "",
-                this.createNode(
+                this.build(
                     "110",
                     "",
-                    this.createNode(
+                    this.build(
                         "210",
                         ""
                     ),
-                    this.createNode(
+                    this.build(
                         "220",
                         ""
                     )
                 ),
-                this.createNode("120", ""),
+                this.build("120", ""),
                 source
             );
         final Node target = this.createTargetTree();
@@ -116,31 +116,31 @@ class NodeReplacerTest {
 
     @Test
     void testReplacementOfRootGrandChild() {
-        final Node source = this.createNode("2300", "");
+        final Node source = this.build("2300", "");
         final Node left =
-            this.createNode(
+            this.build(
             "1100",
             "",
-            this.createNode(
+            this.build(
                 "2100",
                 ""
             ),
-            this.createNode(
+            this.build(
                 "2200",
                 ""
             )
         );
-        final Node mid = this.createNode("1200", "");
-        final Node root = this.createNode(
+        final Node mid = this.build("1200", "");
+        final Node root = this.build(
             "100",
             "",
             left,
             mid,
-            this.createNode(
+            this.build(
                 "1300",
                 "",
                 source,
-                this.createNode(
+                this.build(
                     "2400",
                     ""
                 )
@@ -157,13 +157,13 @@ class NodeReplacerTest {
     @Test
     void testReplacementWithoutMatch() {
         final Node root =
-            this.createNode(
+            this.build(
                 "111",
                 "",
-                this.createNode("222", ""),
-                this.createNode("333", "")
+                this.build("222", ""),
+                this.build("333", "")
         );
-        final Node source = this.createNode("444", "");
+        final Node source = this.build("444", "");
         final Node target = this.createTargetTree();
         final Pair<Node, Integer> result = new NodeReplacer().replace(root, source, target);
         Assertions.assertEquals(DummyNode.INSTANCE, result.getKey());
@@ -171,10 +171,10 @@ class NodeReplacerTest {
     }
 
     private Node createTargetTree() {
-        return this.createNode(
+        return this.build(
             "2",
             "",
-            this.createNode(
+            this.build(
                 "14",
                 ""
             )
@@ -188,11 +188,11 @@ class NodeReplacerTest {
      * @param children The list of children
      * @return A new node
      */
-    private Node createNode(final String type, final String data, final Node... children) {
+    private Node build(final String type, final String data, final Node... children) {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName(type);
         ctor.setData(data);
-        ctor.setChildrenList(Arrays.asList(children));
-        return ctor.createNode();
+        ctor.setChildren(Arrays.asList(children));
+        return ctor.build();
     }
 }

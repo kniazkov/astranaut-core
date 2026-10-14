@@ -152,7 +152,7 @@ public final class Variable implements AssignableExpression {
         /**
          * The data.
          */
-        private String data;
+        private String data = "";
 
         @Override
         public void setFragment(final Fragment obj) {
@@ -161,12 +161,12 @@ public final class Variable implements AssignableExpression {
 
         @Override
         public boolean setData(final String str) {
-            this.data = str;
+            this.data = java.util.Objects.requireNonNull(str);
             return true;
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return list.isEmpty();
         }
 
@@ -176,7 +176,7 @@ public final class Variable implements AssignableExpression {
         }
 
         @Override
-        public Variable createNode() {
+        public Variable build() {
             final Variable node = new Variable();
             node.fragment = this.fragment;
             node.data = this.data;

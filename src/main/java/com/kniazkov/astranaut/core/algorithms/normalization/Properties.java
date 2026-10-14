@@ -139,7 +139,7 @@ public final class Properties implements Node {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             final List<Property> properties = new ArrayList<>(list.size());
             boolean result = true;
             for (final Node node : list) {
@@ -157,14 +157,36 @@ public final class Properties implements Node {
         }
 
         @Override
+        public boolean setChild(final int index, final Node child) {
+            boolean result = false;
+            if (index >= 0 && index < this.children.size() && child instanceof Property) {
+                final List<Node> updated = new ArrayList<>(this.children);
+                updated.set(index, child);
+                result = this.setChildren(updated);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean removeChild(final int index) {
+            boolean result = false;
+            if (index >= 0 && index < this.children.size()) {
+                final List<Node> updated = new ArrayList<>(this.children);
+                updated.remove(index);
+                result = this.setChildren(updated);
+            }
+            return result;
+        }
+
+        @Override
         public boolean isValid() {
             return true;
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             final Properties node = new Properties(null);
-            node.list = this.children;
+            node.list = List.copyOf(this.children);
             return node;
         }
     }

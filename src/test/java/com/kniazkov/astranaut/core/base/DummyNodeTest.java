@@ -46,9 +46,9 @@ class DummyNodeTest {
         final Builder builder = type.createBuilder();
         builder.setFragment(EmptyFragment.INSTANCE);
         Assertions.assertFalse(builder.setData("abc"));
-        Assertions.assertFalse(builder.setChildrenList(Collections.emptyList()));
+        Assertions.assertFalse(builder.setChildren(Collections.emptyList()));
         Assertions.assertFalse(builder.isValid());
-        final Node created = builder.createNode();
+        final Node created = builder.build();
         Assertions.assertSame(node, created);
     }
 }

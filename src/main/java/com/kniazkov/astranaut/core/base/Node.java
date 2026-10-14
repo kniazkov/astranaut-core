@@ -209,8 +209,8 @@ public interface Node {
         for (int index = 0; index < count; index = index + 1) {
             list.add(this.getChild(index).deepClone());
         }
-        builder.setChildrenList(list);
-        return builder.createNode();
+        builder.setChildren(list);
+        return builder.build();
     }
 
     /**

@@ -297,13 +297,13 @@ public final class DiffNode implements DiffTreeItem, PrototypeBasedNode {
                     list.add(branch);
                 }
             }
-            if (!builder.setChildrenList(list)) {
+            if (!builder.setChildren(list)) {
                 break;
             }
             if (!builder.isValid()) {
                 break;
             }
-            result = builder.createNode();
+            result = builder.build();
         } while (false);
         return result;
     }

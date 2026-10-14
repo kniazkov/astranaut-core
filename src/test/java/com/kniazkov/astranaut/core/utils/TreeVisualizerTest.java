@@ -74,7 +74,7 @@ class TreeVisualizerTest {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName("DataNode");
         ctor.setData("<va\'l&u\"e>");
-        final Tree tree = new Tree(ctor.createNode());
+        final Tree tree = new Tree(ctor.build());
         final TreeVisualizer visualizer = new TreeVisualizer(tree);
         final Path img = temp.resolve("data.png");
         Assertions.assertDoesNotThrow(
@@ -94,8 +94,8 @@ class TreeVisualizerTest {
         final DraftNode.Constructor right = new DraftNode.Constructor();
         right.setName("DoubleLiteral");
         right.setData("3");
-        addition.setChildrenList(Arrays.asList(left.createNode(), right.createNode()));
-        final Tree tree = new Tree(addition.createNode());
+        addition.setChildren(Arrays.asList(left.build(), right.build()));
+        final Tree tree = new Tree(addition.build());
         final TreeVisualizer visualizer = new TreeVisualizer(tree);
         final Path img = temp.resolve("tree.svg");
         Assertions.assertDoesNotThrow(

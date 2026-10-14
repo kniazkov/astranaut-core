@@ -112,18 +112,18 @@ class NormalizedNodeTest {
         builder.setFragment(EmptyFragment.INSTANCE);
         Assertions.assertTrue(builder.setData(""));
         Assertions.assertFalse(builder.isValid());
-        Assertions.assertThrows(IllegalStateException.class, builder::createNode);
+        Assertions.assertThrows(IllegalStateException.class, builder::build);
         final Node left = LittleTrees.createIntegerLiteral(2);
-        Assertions.assertFalse(builder.setChildrenList(Collections.emptyList()));
-        Assertions.assertFalse(builder.setChildrenList(Collections.singletonList(left)));
+        Assertions.assertFalse(builder.setChildren(Collections.emptyList()));
+        Assertions.assertFalse(builder.setChildren(Collections.singletonList(left)));
         final Node right = new NormalizedNode(LittleTrees.createIntegerLiteral(3));
-        Assertions.assertTrue(builder.setChildrenList(Arrays.asList(left, right)));
+        Assertions.assertTrue(builder.setChildren(Arrays.asList(left, right)));
         final Map<String, String> map = new TreeMap<>();
         map.put(NormalizedNodeTest.COLOR_PROPERTY, "red");
         final Properties properties = new Properties(map);
-        Assertions.assertTrue(builder.setChildrenList(Arrays.asList(properties, left, right)));
+        Assertions.assertTrue(builder.setChildren(Arrays.asList(properties, left, right)));
         Assertions.assertTrue(builder.isValid());
-        final Node created = builder.createNode();
+        final Node created = builder.build();
         Assertions.assertNotNull(created);
     }
 }

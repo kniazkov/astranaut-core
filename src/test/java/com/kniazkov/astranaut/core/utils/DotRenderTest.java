@@ -46,7 +46,7 @@ class DotRenderTest {
 
     @Test
     void testSingleNode() throws IOException {
-        final Node root = this.createNode("SingleNode");
+        final Node root = this.build("SingleNode");
         final String expected =
             new FilesReader(DotRenderTest.DIR.concat("testSingleNode.dot")).readAsString();
         final String result = this.renderDot(root);
@@ -55,7 +55,7 @@ class DotRenderTest {
 
     @Test
     void testSingleNodeWithData() throws IOException {
-        final Node root = this.createNode("Node", "data");
+        final Node root = this.build("Node", "data");
         final String expected = new FilesReader(
             DotRenderTest.DIR.concat("testSingleNodeWithData.dot")
         ).readAsString();
@@ -65,7 +65,7 @@ class DotRenderTest {
 
     @Test
     void testSingleNodeWithEscapedData() throws IOException {
-        final Node root = this.createNode("Node", "abc\r\n\tdef");
+        final Node root = this.build("Node", "abc\r\n\tdef");
         final String expected = new FilesReader(
             DotRenderTest.DIR.concat("testSingleNodeWithEscapedData.dot")
         ).readAsString();
@@ -76,10 +76,10 @@ class DotRenderTest {
     @Test
     void testNodeWithChildren() throws IOException {
         final List<Node> children = new LinkedList<>();
-        children.add(this.createNode("ChildNode0"));
-        children.add(this.createNode("ChildNode1", "value"));
-        children.add(this.createNode("ChildNode2"));
-        final Node root = this.createNode("RootNode", children);
+        children.add(this.build("ChildNode0"));
+        children.add(this.build("ChildNode1", "value"));
+        children.add(this.build("ChildNode2"));
+        final Node root = this.build("RootNode", children);
         final String expected = new FilesReader(
             DotRenderTest.DIR.concat("testNodeWithChildren.dot")
         ).readAsString();
@@ -90,16 +90,16 @@ class DotRenderTest {
     @Test
     void testNodeWithNestedChildren() throws IOException {
         final List<Node> thirdl = new LinkedList<>();
-        thirdl.add(this.createNode("Child4"));
-        final Node secondch = this.createNode("Child2", thirdl);
+        thirdl.add(this.build("Child4"));
+        final Node secondch = this.build("Child2", thirdl);
         final List<Node> secondl = new LinkedList<>();
         secondl.add(secondch);
-        secondl.add(this.createNode("Child3"));
-        final Node firstch = this.createNode("Child0", secondl);
+        secondl.add(this.build("Child3"));
+        final Node firstch = this.build("Child0", secondl);
         final List<Node> firstl = new LinkedList<>();
         firstl.add(firstch);
-        firstl.add(this.createNode("Child1"));
-        final Node root = this.createNode("Root", firstl);
+        firstl.add(this.build("Child1"));
+        final Node root = this.build("Root", firstl);
         final String expected = new FilesReader(
             DotRenderTest.DIR.concat("testNodeWithNestedChildren.dot")
         ).readAsString();
@@ -110,9 +110,9 @@ class DotRenderTest {
     @Test
     void testNodeWithNullChild() throws IOException {
         final List<Node> children = new LinkedList<>();
-        children.add(this.createNode("Child"));
+        children.add(this.build("Child"));
         children.add(DummyNode.INSTANCE);
-        final Node root = this.createNode("TestNode", children);
+        final Node root = this.build("TestNode", children);
         final String expected = new FilesReader(
             DotRenderTest.DIR.concat("testNodeWithNullChild.dot")
         ).readAsString();
@@ -134,10 +134,10 @@ class DotRenderTest {
      * @param name The type name
      * @return A new node
      */
-    private Node createNode(final String name) {
+    private Node build(final String name) {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName(name);
-        return ctor.createNode();
+        return ctor.build();
     }
 
     /**
@@ -146,11 +146,11 @@ class DotRenderTest {
      * @param data The data as string
      * @return A new node
      */
-    private Node createNode(final String name, final String data) {
+    private Node build(final String name, final String data) {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName(name);
         ctor.setData(data);
-        return ctor.createNode();
+        return ctor.build();
     }
 
     /**
@@ -159,10 +159,10 @@ class DotRenderTest {
      * @param children The list of children
      * @return A new node
      */
-    private Node createNode(final String name, final List<Node> children) {
+    private Node build(final String name, final List<Node> children) {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName(name);
-        ctor.setChildrenList(children);
-        return ctor.createNode();
+        ctor.setChildren(children);
+        return ctor.build();
     }
 }

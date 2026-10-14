@@ -56,7 +56,7 @@ public final class TestBuilder implements Builder {
     }
 
     @Override
-    public boolean setChildrenList(final List<Node> list) {
+    public boolean setChildren(final List<Node> list) {
         return this.test != TestBuilderCase.BAD_CHILDREN;
     }
 
@@ -66,7 +66,7 @@ public final class TestBuilder implements Builder {
     }
 
     @Override
-    public Node createNode() {
+    public Node build() {
         return DummyNode.INSTANCE;
     }
 }

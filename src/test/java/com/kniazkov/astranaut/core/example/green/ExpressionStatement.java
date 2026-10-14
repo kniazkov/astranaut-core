@@ -24,13 +24,14 @@
 
 package com.kniazkov.astranaut.core.example.green;
 
-import com.kniazkov.astranaut.core.algorithms.NodeAllocator;
 import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
+import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import com.kniazkov.astranaut.core.utils.ListUtils;
@@ -52,6 +53,11 @@ public final class ExpressionStatement implements Statement {
      * The type.
      */
     public static final Type TYPE = new TypeImpl();
+
+    /**
+     * The expression child tag.
+     */
+    private static final String EXPRESSION_TAG = "expression";
 
     /**
      * The number of children.
@@ -107,7 +113,7 @@ public final class ExpressionStatement implements Statement {
     @Override
     public Optional<Node> getChild(final String tag) {
         final Optional<Node> result;
-        if (Objects.requireNonNull(tag).equals("expression")) {
+        if (Objects.requireNonNull(tag).equals(ExpressionStatement.EXPRESSION_TAG)) {
             result = Optional.ofNullable(this.expression);
         } else {
             result = Optional.empty();
@@ -120,7 +126,7 @@ public final class ExpressionStatement implements Statement {
         Objects.checkIndex(index, this.getChildCount());
         final List<String> tags = new ArrayList<>(1);
         if (this.expression != null) {
-            tags.add("expression");
+            tags.add(ExpressionStatement.EXPRESSION_TAG);
         }
         return Optional.of(tags.get(index));
     }
@@ -153,7 +159,7 @@ public final class ExpressionStatement implements Statement {
          * The list of child types.
          */
         private static final List<ChildDescriptor> CHILDREN = ChildDescriptor.create()
-            .required(Expression.TYPE, "expression")
+            .required(Expression.TYPE, ExpressionStatement.EXPRESSION_TAG)
             .build();
 
         /**
@@ -196,26 +202,19 @@ public final class ExpressionStatement implements Statement {
      *
      * @since 0.0.1
      */
-    public static final class Constructor implements Builder {
-        /**
-         * The maximum number of nodes.
-         */
-        private static final int MAX_NODE_COUNT = 1;
-
-        /**
-         * The position of the 'expression' field.
-         */
-        private static final int EXPRESSION_POS = 0;
-
+    public static final class Constructor extends SchemaBuilder {
         /**
          * The fragment associated with the node.
          */
-        private Fragment fragment = EmptyFragment.INSTANCE;
+        private Fragment fragment;
 
         /**
-         * Node with the 'expression' tag.
+         * Creates an empty builder.
          */
-        private Expression expression;
+        public Constructor() {
+            super(ExpressionStatement.TYPE.getChildDescriptors().orElseThrow());
+            this.fragment = EmptyFragment.INSTANCE;
+        }
 
         @Override
         public void setFragment(final Fragment obj) {
@@ -232,39 +231,25 @@ public final class ExpressionStatement implements Statement {
          * @param node The node
          */
         public void setExpression(final Expression node) {
-            this.expression = node;
+            this.setChild(ExpressionStatement.EXPRESSION_TAG, node);
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
-            final Node[] mapping = new Node[Constructor.MAX_NODE_COUNT];
-            final NodeAllocator allocator =
-                new NodeAllocator(ExpressionStatement.TYPE.getChildDescriptors().orElseThrow());
-            final boolean result = allocator.allocate(mapping, list);
-            if (result) {
-                this.expression = (Expression) mapping[Constructor.EXPRESSION_POS];
-            }
-            return result;
-        }
-
-        @Override
-        public boolean isValid() {
-            return this.expression != null;
-        }
-
-        @Override
-        public ExpressionStatement createNode() {
+        public ExpressionStatement build() {
             if (!this.isValid()) {
-                throw new IllegalStateException();
+                throw new ConstructionException("Required builder state is missing");
             }
+            final Expression expression = (Expression) this.getBindings()
+                .getChild(ExpressionStatement.EXPRESSION_TAG)
+                .orElse(null);
             final ExpressionStatement node = new ExpressionStatement();
             node.fragment = this.fragment;
             node.children = new ListUtils<Node>()
                 .add(
-                    this.expression
+                    expression
                 )
                 .make();
-            node.expression = this.expression;
+            node.expression = expression;
             return node;
         }
     }

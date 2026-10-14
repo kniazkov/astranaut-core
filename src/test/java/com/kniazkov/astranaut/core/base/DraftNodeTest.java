@@ -43,18 +43,18 @@ class DraftNodeTest {
         builder.setName("Parent");
         builder.setData("before");
         final Node child = DraftNode.create("Child");
-        builder.setChildrenList(List.of(child, child));
-        final DraftNode first = builder.createNode();
+        builder.setChildren(List.of(child, child));
+        final DraftNode first = builder.build();
         final List<Node> invalid = new java.util.ArrayList<>(1);
         invalid.add(null);
-        Assertions.assertThrows(NullPointerException.class, () -> builder.setChildrenList(invalid));
-        Assertions.assertEquals(2, builder.createNode().getChildCount());
+        Assertions.assertThrows(NullPointerException.class, () -> builder.setChildren(invalid));
+        Assertions.assertEquals(2, builder.build().getChildCount());
         builder.setData("after");
-        builder.setChildrenList(List.of());
+        builder.setChildren(List.of());
         Assertions.assertEquals("before", first.getData());
         Assertions.assertEquals(2, first.getChildCount());
         Assertions.assertSame(first.getChild(0), first.getChild(1));
-        Assertions.assertEquals(0, builder.createNode().getChildCount());
+        Assertions.assertEquals(0, builder.build().getChildCount());
     }
 
     @Test
@@ -86,10 +86,10 @@ class DraftNodeTest {
             DraftNode.create("B"),
             DraftNode.create("C")
         );
-        ctor.setChildrenList(children);
+        ctor.setChildren(children);
         final String serialized = "Name<\"data\">(A, B, C)";
         Assertions.assertEquals(serialized, ctor.toString());
-        Assertions.assertEquals(serialized, ctor.createNode().toString());
+        Assertions.assertEquals(serialized, ctor.build().toString());
     }
 
     @Test
@@ -98,7 +98,7 @@ class DraftNodeTest {
         ctor.setName("X");
         ctor.addChild(DraftNode.create("A"));
         final String serialized = "X(A)";
-        Assertions.assertEquals(serialized, ctor.createNode().toString());
+        Assertions.assertEquals(serialized, ctor.build().toString());
     }
 
     @Test
@@ -137,14 +137,14 @@ class DraftNodeTest {
         Assertions.assertTrue(type.getBaseTypes().isEmpty());
         Assertions.assertEquals("A", type.getName());
         final Builder builder = type.createBuilder();
-        final Node clone = builder.createNode();
+        final Node clone = builder.build();
         Assertions.assertTrue(node.deepCompare(clone));
     }
 
     @Test
     void wrongConstructionTest() {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
-        Assertions.assertThrows(IllegalStateException.class, ctor::createNode);
+        Assertions.assertThrows(IllegalStateException.class, ctor::build);
     }
 
     @Test

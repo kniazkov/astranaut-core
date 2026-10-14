@@ -84,8 +84,8 @@ class JsonSerializerTest {
     void testSerializationNestedWithLanguageSpecified() {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName("Root");
-        ctor.setChildrenList(Collections.singletonList(JsonSerializerTest.TEST_NODE_LANG));
-        final Tree tree = new Tree(ctor.createNode());
+        ctor.setChildren(Collections.singletonList(JsonSerializerTest.TEST_NODE_LANG));
+        final Tree tree = new Tree(ctor.build());
         final boolean result = this.serializeAndCompare(
             tree,
             "serialization_nested_language_specified.json"
@@ -154,8 +154,8 @@ class JsonSerializerTest {
         final DraftNode.Constructor right = new DraftNode.Constructor();
         right.setName(JsonSerializerTest.INT_LITERAL);
         right.setData("3");
-        addition.setChildrenList(Arrays.asList(left.createNode(), right.createNode()));
-        return new Tree(addition.createNode());
+        addition.setChildren(Arrays.asList(left.build(), right.build()));
+        return new Tree(addition.build());
     }
 
     /**

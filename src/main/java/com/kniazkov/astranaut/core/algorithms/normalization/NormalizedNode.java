@@ -24,6 +24,7 @@
 package com.kniazkov.astranaut.core.algorithms.normalization;
 
 import com.kniazkov.astranaut.core.base.Builder;
+import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a normalized node.
@@ -84,7 +86,7 @@ public final class NormalizedNode implements PrototypeBasedNode {
         this.original = original;
         this.type = new TypeImpl(original.getType());
         this.properties = properties;
-        this.children = children;
+        this.children = List.copyOf(children);
     }
 
     @Override
@@ -181,7 +183,7 @@ public final class NormalizedNode implements PrototypeBasedNode {
         /**
          * Properties extracted from the children list.
          */
-        private Properties properties;
+        private Optional<Properties> properties;
 
         /**
          * List of normalized child nodes.
@@ -194,6 +196,7 @@ public final class NormalizedNode implements PrototypeBasedNode {
          */
         private NormalizerNodeBuilder(final Builder original) {
             this.original = original;
+            this.properties = Optional.empty();
             this.children = Collections.emptyList();
         }
 
@@ -208,7 +211,7 @@ public final class NormalizedNode implements PrototypeBasedNode {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             final List<Node> nodes;
             Properties props = null;
             int size = list.size();
@@ -231,10 +234,48 @@ public final class NormalizedNode implements PrototypeBasedNode {
                     normalized.add(new NormalizedNode(node));
                 }
             }
-            final boolean result = this.original.setChildrenList(originals);
+            final boolean result = this.original.setChildren(originals);
             if (result) {
-                this.properties = props;
+                this.properties = Optional.ofNullable(props);
                 this.children = normalized;
+            }
+            return result;
+        }
+
+        @Override
+        public boolean setChild(final int index, final Node child) {
+            java.util.Objects.requireNonNull(child);
+            boolean result = false;
+            final int offset = this.childOffset(index);
+            if (offset == -1 && this.properties.isPresent() && child instanceof Properties) {
+                this.properties = Optional.of((Properties) child);
+                result = true;
+            } else if (offset >= 0 && offset < this.children.size()) {
+                final NormalizedNode normalized = NormalizerNodeBuilder.normalize(child);
+                result = this.original.setChild(offset, normalized.original);
+                if (result) {
+                    final List<NormalizedNode> updated = new ArrayList<>(this.children);
+                    updated.set(offset, normalized);
+                    this.children = List.copyOf(updated);
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public boolean removeChild(final int index) {
+            boolean result = false;
+            final int offset = this.childOffset(index);
+            if (offset == -1 && this.properties.isPresent()) {
+                this.properties = Optional.empty();
+                result = true;
+            } else if (offset >= 0 && offset < this.children.size()) {
+                result = this.original.removeChild(offset);
+                if (result) {
+                    final List<NormalizedNode> updated = new ArrayList<>(this.children);
+                    updated.remove(offset);
+                    this.children = List.copyOf(updated);
+                }
             }
             return result;
         }
@@ -245,15 +286,45 @@ public final class NormalizedNode implements PrototypeBasedNode {
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             if (!this.isValid()) {
-                throw new IllegalStateException();
+                throw new ConstructionException("Required builder state is missing");
             }
             return new NormalizedNode(
-                this.original.createNode(),
-                this.properties,
+                this.original.build(),
+                this.properties.orElse(null),
                 this.children
             );
+        }
+
+        /**
+         * Converts a public insertion index into an original child index.
+         * @param index Public index
+         * @return Original child index; minus one denotes properties, minus two invalid
+         */
+        private int childOffset(final int index) {
+            int result = index;
+            if (index < 0) {
+                result = -2;
+            } else if (this.properties.isPresent()) {
+                result = index - 1;
+            }
+            return result;
+        }
+
+        /**
+         * Wraps an ordinary child without wrapping normalized nodes again.
+         * @param node Child
+         * @return Normalized child
+         */
+        private static NormalizedNode normalize(final Node node) {
+            final NormalizedNode result;
+            if (node instanceof NormalizedNode normalized) {
+                result = normalized;
+            } else {
+                result = new NormalizedNode(node);
+            }
+            return result;
         }
     }
 
