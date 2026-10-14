@@ -31,7 +31,7 @@ import java.util.Set;
  * Immutable descriptor for an abstract type.
  * @since 0.0.1
  */
-public final class SimpleAbstractType extends NamedType {
+public final class SimpleAbstractType extends TypeWithNameBasedEquality {
     /**
      * Type name.
      */

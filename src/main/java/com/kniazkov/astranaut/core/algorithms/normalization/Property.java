@@ -26,18 +26,19 @@ package com.kniazkov.astranaut.core.algorithms.normalization;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.NodeAndType;
+import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.util.List;
 
 /**
  * Property extracted from the original node.
  * @since 0.0.1
  */
-public final class Property extends NodeAndType {
+public final class Property implements Node {
     /**
-     * Property name.
+     * Property type.
      */
-    private final String name;
+    private final Type type;
 
     /**
      * Property value.
@@ -50,8 +51,13 @@ public final class Property extends NodeAndType {
      * @param value Property value
      */
     public Property(final String name, final String value) {
-        this.name = name;
+        this.type = new TypeImpl(name);
         this.value = value;
+    }
+
+    @Override
+    public Type getType() {
+        return this.type;
     }
 
     @Override
@@ -72,16 +78,6 @@ public final class Property extends NodeAndType {
     @Override
     public String toString() {
         return Node.toString(this);
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public Builder createBuilder() {
-        return new PropertyBuilder(this.name);
     }
 
     /**
@@ -132,6 +128,35 @@ public final class Property extends NodeAndType {
         @Override
         public Node createNode() {
             return new Property(this.name, this.value);
+        }
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
+        /**
+         * Immutable type definition.
+         */
+        private final String name;
+
+        /**
+         * Creates the descriptor.
+         * @param name Type name
+         */
+        private TypeImpl(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public Builder createBuilder() {
+            return new PropertyBuilder(this.name);
         }
     }
 }

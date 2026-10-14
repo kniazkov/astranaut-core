@@ -28,7 +28,7 @@ package com.kniazkov.astranaut.core.base;
  * Nodes must not also implement this identity: their equality is structural.
  * @since 0.0.1
  */
-public abstract class NamedType implements AbstractType {
+public abstract class TypeWithNameBasedEquality implements AbstractType {
     @Override
     public final boolean equals(final Object other) {
         return other instanceof AbstractType

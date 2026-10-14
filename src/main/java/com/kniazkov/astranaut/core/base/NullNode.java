@@ -23,25 +23,33 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Singleton node representing intentional absence of a meaningful node value.
  * @since 0.0.1
  */
-public final class NullNode extends NodeAndType {
+public final class NullNode implements Node {
     /**
      * The instance.
      */
     public static final Node INSTANCE = new NullNode();
 
     /**
+     * Shared type descriptor.
+     */
+    private static final Type TYPE = new TypeImpl();
+
+    /**
      * Private constructor.
      */
     private NullNode() {
+    }
+
+    @Override
+    public Type getType() {
+        return NullNode.TYPE;
     }
 
     @Override
@@ -60,27 +68,28 @@ public final class NullNode extends NodeAndType {
     }
 
     @Override
-    public String getName() {
-        return "\u2400";
-    }
-
-    @Override
-    public Optional<List<ChildDescriptor>> getChildDescriptors() {
-        return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
-    }
-
-    @Override
-    public Set<AbstractType> getBaseTypes() {
-        return Set.of();
-    }
-
-    @Override
-    public Builder createBuilder() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String toString() {
         return Node.toString(this);
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
+        @Override
+        public String getName() {
+            return "\u2400";
+        }
+
+        @Override
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return Optional.of(List.of());
+        }
+
+        @Override
+        public Builder createBuilder() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

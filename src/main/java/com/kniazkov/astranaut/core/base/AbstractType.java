@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * An immutable, globally named type, which need not be instantiable.
  * All definitions of the same name must agree. Implementations must provide
- * name-based equals and hashCode, for example by extending {@link NamedType}.
+ * name-based equals and hashCode, for example by extending {@link TypeWithNameBasedEquality}.
  * The inheritance graph must be acyclic and safely published.
  * @since 0.0.1
  */

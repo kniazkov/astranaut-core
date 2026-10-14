@@ -87,7 +87,7 @@ class DiffNodeTest {
         Assertions.assertSame(diff.getFragment(), original.getFragment());
         Assertions.assertEquals(diff.getData(), original.getData());
         Assertions.assertEquals(diff.getChildCount(), original.getChildCount());
-        Assertions.assertThrows(UnsupportedOperationException.class, diff::createBuilder);
+        Assertions.assertThrows(UnsupportedOperationException.class, diff.getType()::createBuilder);
     }
 
     @Test
@@ -303,18 +303,23 @@ class DiffNodeTest {
      * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    private static final class TestNode extends NodeAndType {
+    private static final class TestNode implements Node {
         /**
-         * Test case.
+         * Descriptor with configurable builder behavior.
          */
-        private final TestBuilderCase test;
+        private final Type type;
 
         /**
          * Constructor.
          * @param test Test case
          */
         private TestNode(final TestBuilderCase test) {
-            this.test = test;
+            this.type = new TypeImpl(test);
+        }
+
+        @Override
+        public Type getType() {
+            return this.type;
         }
 
         @Override
@@ -332,20 +337,39 @@ class DiffNodeTest {
             throw new IndexOutOfBoundsException();
         }
 
-        @Override
-        public String getName() {
-            return "Test";
-        }
+        /**
+         * Type descriptor independent of node instances.
+         * @since 0.0.1
+         */
+        private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
+            /**
+             * Immutable type definition.
+             */
+            private final TestBuilderCase test;
 
-        @Override
-        public Builder createBuilder() {
-            final Builder builder;
-            if (this.test == TestBuilderCase.NULL_BUILDER) {
-                builder = null;
-            } else {
-                builder = new TestBuilder(this.test);
+            /**
+             * Creates the descriptor.
+             * @param test Builder behavior
+             */
+            private TypeImpl(final TestBuilderCase test) {
+                this.test = test;
             }
-            return builder;
+
+            @Override
+            public String getName() {
+                return "Test";
+            }
+
+            @Override
+            public Builder createBuilder() {
+                final Builder builder;
+                if (this.test == TestBuilderCase.NULL_BUILDER) {
+                    builder = null;
+                } else {
+                    builder = new TestBuilder(this.test);
+                }
+                return builder;
+            }
         }
     }
 }

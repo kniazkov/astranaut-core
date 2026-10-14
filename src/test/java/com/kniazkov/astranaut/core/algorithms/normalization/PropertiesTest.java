@@ -55,7 +55,7 @@ class PropertiesTest {
 
     @Test
     void testBuilder() {
-        final Builder builder = new Properties(Collections.emptyMap()).createBuilder();
+        final Builder builder = new Properties(Collections.emptyMap()).getType().createBuilder();
         builder.setFragment(EmptyFragment.INSTANCE);
         Assertions.assertFalse(builder.setData("abc"));
         Assertions.assertTrue(builder.setData(""));

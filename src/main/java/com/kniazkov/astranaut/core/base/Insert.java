@@ -102,7 +102,7 @@ public final class Insert implements Action {
      * Type of 'Insert' action.
      * @since 0.0.1
      */
-    private static final class InsertType extends NamedType implements Type {
+    private static final class InsertType extends TypeWithNameBasedEquality implements Type {
         /**
          * The 'DELETE' string.
          */
