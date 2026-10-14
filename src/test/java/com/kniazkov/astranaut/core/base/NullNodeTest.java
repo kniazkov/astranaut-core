@@ -40,8 +40,8 @@ class NullNodeTest {
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> node.getChild(0));
         Assertions.assertEquals("\u2400", node.toString());
         final Type type = node.getType();
-        Assertions.assertEquals(0, type.getChildTypes().size());
-        Assertions.assertEquals(0, type.getHierarchy().size());
+        Assertions.assertEquals(0, type.getChildDescriptors().orElseThrow().size());
+        Assertions.assertEquals(0, type.getBaseTypes().size());
         Assertions.assertThrows(UnsupportedOperationException.class, type::createBuilder);
     }
 }

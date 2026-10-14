@@ -31,6 +31,11 @@ package com.kniazkov.astranaut.core.base;
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public interface Action extends DiffTreeItem, PatternItem {
     /**
+     * Abstract action type.
+     */
+    AbstractType TYPE = new SimpleAbstractType("Action");
+
+    /**
      * Converts a node reference to an action reference if the node is an action
      *  or the node prototype is an action.
      * @param node Node

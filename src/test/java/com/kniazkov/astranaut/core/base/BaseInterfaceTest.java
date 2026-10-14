@@ -59,12 +59,12 @@ class BaseInterfaceTest {
         Assertions.assertNotNull(type);
         Assertions.assertEquals("IntegerLiteral", type.getName());
         Assertions.assertEquals(node.getTypeName(), type.getName());
-        Assertions.assertNotNull(type.getChildTypes());
-        Assertions.assertFalse(type.getHierarchy().isEmpty());
-        Assertions.assertEquals(type.getHierarchy().get(0), type.getName());
+        Assertions.assertTrue(type.getChildDescriptors().orElseThrow().isEmpty());
+        Assertions.assertNotNull(type.getBaseTypes());
+        Assertions.assertTrue(type.isSubtypeOf(type));
         Assertions.assertNotNull(type.getProperties());
         final String group = "Expression";
-        Assertions.assertTrue(type.belongsToGroup(group));
+        Assertions.assertTrue(type.isSubtypeOf(new SimpleAbstractType(group)));
         Assertions.assertTrue(node.belongsToGroup(group));
     }
 

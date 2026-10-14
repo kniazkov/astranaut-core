@@ -25,6 +25,8 @@ package com.kniazkov.astranaut.core.base;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Special placeholder node that represents a problematic or default node instance.
@@ -112,20 +114,20 @@ public final class DummyNode implements Node {
      * The type of dummy node.
      * @since 0.0.1
      */
-    private static final class TypeImpl implements Type {
+    private static final class TypeImpl extends NamedType implements Type {
         @Override
         public String getName() {
             return "\u2205";
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return Collections.emptyList();
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
         }
 
         @Override
-        public List<String> getHierarchy() {
-            return Collections.emptyList();
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of();
         }
 
         @Override

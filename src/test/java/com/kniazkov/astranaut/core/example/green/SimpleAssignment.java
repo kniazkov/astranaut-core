@@ -25,17 +25,24 @@
 package com.kniazkov.astranaut.core.example.green;
 
 import com.kniazkov.astranaut.core.algorithms.NodeAllocator;
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
+import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.utils.ListUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -116,6 +123,28 @@ public final class SimpleAssignment implements Assignment {
     }
 
     @Override
+    public Optional<Node> getChild(final String tag) {
+        return switch (tag) {
+            case "left" -> Optional.ofNullable(this.left);
+            case "right" -> Optional.ofNullable(this.right);
+            default -> Optional.empty();
+        };
+    }
+
+    @Override
+    public Optional<String> getChildTag(final int index) {
+        Objects.checkIndex(index, this.getChildCount());
+        final List<String> tags = new ArrayList<>(2);
+        if (this.left != null) {
+            tags.add("left");
+        }
+        if (this.right != null) {
+            tags.add("right");
+        }
+        return Optional.of(tags.get(index));
+    }
+
+    @Override
     public String toString() {
         return String.format("%s = %s", this.left.toString(), this.right.toString());
     }
@@ -124,21 +153,11 @@ public final class SimpleAssignment implements Assignment {
      * Type descriptor of the 'SimpleAssignment' node.
      * @since 0.0.1
      */
-    private static final class TypeImpl implements Type {
+    private static final class TypeImpl extends NamedType implements Type {
         /**
          * The 'SimpleAssignment' string.
          */
         private static final String SIMPLE_ASSIGNMEN = "SimpleAssignment";
-
-        /**
-         * The 'AssignableExpression' string.
-         */
-        private static final String ASSIGNABLE_EXPRE = "AssignableExpression";
-
-        /**
-         * The 'Expression' string.
-         */
-        private static final String EXPRESSION = "Expression";
 
         /**
          * The list of child types.
@@ -147,30 +166,11 @@ public final class SimpleAssignment implements Assignment {
             Collections.unmodifiableList(
                 Arrays.asList(
                     new ChildDescriptor(
-                        TypeImpl.ASSIGNABLE_EXPRE,
-                        false
+                        AssignableExpression.TYPE,
+                        Optional.of("left"),
+                        Cardinality.REQUIRED
                     ),
-                    new ChildDescriptor(
-                        TypeImpl.EXPRESSION,
-                        false
-                    )
-                )
-            );
-
-        /**
-         * The 'Assignment' string.
-         */
-        private static final String ASSIGNMENT = "Assignment";
-
-        /**
-         * Hierarchy.
-         */
-        private static final List<String> HIERARCHY =
-            Collections.unmodifiableList(
-                Arrays.asList(
-                    TypeImpl.SIMPLE_ASSIGNMEN,
-                    TypeImpl.ASSIGNMENT,
-                    TypeImpl.EXPRESSION
+                    new ChildDescriptor(Expression.TYPE, Optional.of("right"), Cardinality.REQUIRED)
                 )
             );
 
@@ -181,7 +181,7 @@ public final class SimpleAssignment implements Assignment {
             new String[][] {
                 {"color", "green"},
                 {"language", "common"},
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            }).collect(Collectors.toUnmodifiableMap(data -> data[0], data -> data[1]));
 
         @Override
         public String getName() {
@@ -189,13 +189,13 @@ public final class SimpleAssignment implements Assignment {
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return TypeImpl.CHILDREN;
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return Optional.of(ChildDescriptor.copySchema(TypeImpl.CHILDREN));
         }
 
         @Override
-        public List<String> getHierarchy() {
-            return TypeImpl.HIERARCHY;
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of(Assignment.TYPE);
         }
 
         @Override
@@ -274,7 +274,7 @@ public final class SimpleAssignment implements Assignment {
         public boolean setChildrenList(final List<Node> list) {
             final Node[] mapping = new Node[Constructor.MAX_NODE_COUNT];
             final NodeAllocator allocator =
-                new NodeAllocator(SimpleAssignment.TYPE.getChildTypes());
+                new NodeAllocator(SimpleAssignment.TYPE.getChildDescriptors().orElseThrow());
             final boolean result = allocator.allocate(mapping, list);
             if (result) {
                 this.left = (AssignableExpression) mapping[Constructor.LEFT_POS];

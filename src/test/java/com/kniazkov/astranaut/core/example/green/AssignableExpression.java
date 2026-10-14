@@ -23,9 +23,24 @@
  */
 package com.kniazkov.astranaut.core.example.green;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Node that describes the 'AssignableExpression' type.
  * @since 0.0.1
+ * @checkstyle InterfaceIsTypeCheck (20 lines)
  */
+@SuppressWarnings("PMD.ConstantsInInterface")
 public interface AssignableExpression extends Expression {
+    /**
+     * Abstract type descriptor.
+     */
+    AbstractType TYPE = new SimpleAbstractType(
+        "AssignableExpression",
+        Set.of(Expression.TYPE),
+        Map.of()
+    );
 }

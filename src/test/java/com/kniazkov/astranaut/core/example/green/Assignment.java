@@ -24,11 +24,21 @@
 
 package com.kniazkov.astranaut.core.example.green;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Node that describes the 'Assignment' type.
  * @since 0.0.1
  */
 public interface Assignment extends Expression {
+    /**
+     * Abstract type descriptor.
+     */
+    AbstractType TYPE = new SimpleAbstractType("Assignment", Set.of(Expression.TYPE), Map.of());
+
     /**
      * Returns the child with the 'left' tag.
      * @return The node

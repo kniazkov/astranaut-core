@@ -23,37 +23,128 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * The {@code NodeAndType} abstract class is a combined implementation of the {@link Node}
- *  and {@link Type} interfaces.<br/>
- *  In many scenarios, it turns out that the type of a node is unique to each node.
- *  This is often encountered when a node is a wrapper for some data that needs to be represented
- *  using the {@link Node} interface in order to be processed by standard algorithms. Typically,
- *  this situation requires the creation of two objects: a node and its corresponding type.
- *  To simplify this, we can use a special class such as {@code NodeAndType} as a template,
- *  which represents both the node and the type simultaneously. This approach allows for the
- *  "saving" of one object instantiation when creating such nodes.
- *  Properties are empty by default; subclasses may override {@code getProperties()}
- *  with an immutable map or one whose changes cannot affect internal node state.
+ * Convenience base for nodes supplying a name and a builder factory.
+ * The descriptor is a separate object: node identity must not be confused
+ * with name-based type identity. Implementations must keep their definition stable.
  * @since 0.0.1
  */
-public abstract class NodeAndType implements Node, Type {
+public abstract class NodeAndType implements Node {
     @Override
     public final Type getType() {
-        return this;
+        return new Descriptor(this);
+    }
+
+    @Override
+    public final String getTypeName() {
+        return this.getName();
+    }
+
+    /**
+     * Returns the globally unique type name.
+     * @return Type name
+     */
+    public abstract String getName();
+
+    /**
+     * Creates a builder for this type.
+     * @return Builder
+     */
+    public abstract Builder createBuilder();
+
+    /**
+     * Returns the optional complete child schema.
+     * @return Schema or empty if unknown
+     * @checkstyle NonStaticMethodCheck (4 lines)
+     */
+    public Optional<List<ChildDescriptor>> getChildDescriptors() {
+        return Optional.empty();
+    }
+
+    /**
+     * Returns immediate base types.
+     * @return Immutable bases
+     * @checkstyle NonStaticMethodCheck (4 lines)
+     */
+    public Set<AbstractType> getBaseTypes() {
+        return Set.of();
     }
 
     @Override
     public Map<String, String> getProperties() {
-        this.getClass();
-        return Collections.emptyMap();
+        return Map.of();
     }
 
-    @Override
-    public final boolean belongsToGroup(final String type) {
-        return this.getHierarchy().contains(type);
+    /**
+     * A separate immutable snapshot of the type definition.
+     * @since 0.0.1
+     */
+    private static final class Descriptor extends NamedType implements Type {
+        /**
+         * Builder provider.
+         */
+        private final NodeAndType provider;
+
+        /**
+         * Name snapshot.
+         */
+        private final String name;
+
+        /**
+         * Base snapshot.
+         */
+        private final Set<AbstractType> bases;
+
+        /**
+         * Own properties.
+         */
+        private final Map<String, String> properties;
+
+        /**
+         * Optional schema snapshot.
+         */
+        private final Optional<List<ChildDescriptor>> schema;
+
+        /**
+         * Takes a snapshot of the definition.
+         * @param provider Node providing the definition and factory
+         */
+        Descriptor(final NodeAndType provider) {
+            this.provider = provider;
+            this.name = provider.getName();
+            this.bases = Set.copyOf(provider.getBaseTypes());
+            this.properties = Map.copyOf(provider.getProperties());
+            this.schema = provider.getChildDescriptors().map(ChildDescriptor::copySchema);
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public Set<AbstractType> getBaseTypes() {
+            return this.bases;
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return this.properties;
+        }
+
+        @Override
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return this.schema;
+        }
+
+        @Override
+        public Builder createBuilder() {
+            return this.provider.createBuilder();
+        }
     }
 }

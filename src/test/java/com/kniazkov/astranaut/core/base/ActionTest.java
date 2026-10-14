@@ -26,7 +26,6 @@ package com.kniazkov.astranaut.core.base;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -71,11 +70,10 @@ class ActionTest {
         Assertions.assertNull(action.getChild(1));
         final Type type = action.getType();
         Assertions.assertEquals(ActionTest.INSERT_TYPE, type.getName());
-        final List<ChildDescriptor> descriptors = type.getChildTypes();
-        Assertions.assertFalse(descriptors.isEmpty());
-        final List<String> hierarchy = type.getHierarchy();
+        Assertions.assertTrue(type.getChildDescriptors().isEmpty());
+        final java.util.Set<AbstractType> hierarchy = type.getBaseTypes();
         Assertions.assertFalse(hierarchy.isEmpty());
-        Assertions.assertEquals(type.getName(), hierarchy.get(0));
+        Assertions.assertTrue(hierarchy.contains(Action.TYPE));
         Assertions.assertEquals(
             ActionTest.EXPECTED_COLOR,
             type.getProperties().getOrDefault(ActionTest.COLOR_PROPERTY, "")
@@ -107,11 +105,10 @@ class ActionTest {
         Assertions.assertNull(action.getChild(2));
         final Type type = action.getType();
         Assertions.assertEquals(ActionTest.REPLACE_TYPE, type.getName());
-        final List<ChildDescriptor> descriptors = type.getChildTypes();
-        Assertions.assertFalse(descriptors.isEmpty());
-        final List<String> hierarchy = type.getHierarchy();
+        Assertions.assertTrue(type.getChildDescriptors().isEmpty());
+        final java.util.Set<AbstractType> hierarchy = type.getBaseTypes();
         Assertions.assertFalse(hierarchy.isEmpty());
-        Assertions.assertEquals(type.getName(), hierarchy.get(0));
+        Assertions.assertTrue(hierarchy.contains(Action.TYPE));
         Assertions.assertEquals(
             ActionTest.EXPECTED_COLOR,
             type.getProperties().getOrDefault(ActionTest.COLOR_PROPERTY, "")
@@ -142,11 +139,10 @@ class ActionTest {
         Assertions.assertNull(action.getChild(1));
         final Type type = action.getType();
         Assertions.assertEquals(ActionTest.DELETE_TYPE, type.getName());
-        final List<ChildDescriptor> descriptors = type.getChildTypes();
-        Assertions.assertFalse(descriptors.isEmpty());
-        final List<String> hierarchy = type.getHierarchy();
+        Assertions.assertTrue(type.getChildDescriptors().isEmpty());
+        final java.util.Set<AbstractType> hierarchy = type.getBaseTypes();
         Assertions.assertFalse(hierarchy.isEmpty());
-        Assertions.assertEquals(type.getName(), hierarchy.get(0));
+        Assertions.assertTrue(hierarchy.contains(Action.TYPE));
         Assertions.assertEquals(
             ActionTest.EXPECTED_COLOR,
             type.getProperties().getOrDefault(ActionTest.COLOR_PROPERTY, "")

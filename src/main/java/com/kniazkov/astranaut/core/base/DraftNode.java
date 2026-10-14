@@ -25,7 +25,6 @@ package com.kniazkov.astranaut.core.base;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -47,27 +46,32 @@ public final class DraftNode extends NodeAndType {
     /**
      * The fragment associated with the node.
      */
-    private Fragment fragment;
+    private final Fragment fragment;
 
     /**
      * The node name.
      */
-    private String name;
+    private final String name;
 
     /**
      * The node data.
      */
-    private String data;
+    private final String data;
 
     /**
      * The list of children nodes.
      */
-    private List<Node> children;
+    private final List<Node> children;
 
     /**
-     * Private constructor.
+     * Takes an immutable snapshot of a builder.
+     * @param builder Builder to copy
      */
-    private DraftNode() {
+    private DraftNode(final Constructor builder) {
+        this.fragment = Objects.requireNonNull(builder.fragment);
+        this.name = Objects.requireNonNull(builder.name);
+        this.data = Objects.requireNonNull(builder.data);
+        this.children = List.copyOf(builder.children);
     }
 
     @Override
@@ -314,8 +318,9 @@ public final class DraftNode extends NodeAndType {
 
         @Override
         public boolean setChildrenList(final List<Node> list) {
+            final List<Node> snapshot = List.copyOf(list);
             this.children.clear();
-            this.children.addAll(list);
+            this.children.addAll(snapshot);
             return true;
         }
 
@@ -329,12 +334,7 @@ public final class DraftNode extends NodeAndType {
             if (!this.isValid()) {
                 throw new IllegalStateException();
             }
-            final DraftNode node = new DraftNode();
-            node.fragment = this.fragment;
-            node.name = this.name;
-            node.data = this.data;
-            node.children = new ArrayList<>(this.children);
-            return node;
+            return new DraftNode(this);
         }
 
         @Override

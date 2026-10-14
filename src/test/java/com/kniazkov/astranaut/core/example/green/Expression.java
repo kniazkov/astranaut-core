@@ -23,11 +23,19 @@
  */
 package com.kniazkov.astranaut.core.example.green;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
 
 /**
  * Node that describes the 'Expression' type.
  * @since 0.0.1
+ * @checkstyle InterfaceIsTypeCheck (20 lines)
  */
+@SuppressWarnings("PMD.ConstantsInInterface")
 public interface Expression extends Node {
+    /**
+     * Abstract type descriptor.
+     */
+    AbstractType TYPE = new SimpleAbstractType("Expression");
 }

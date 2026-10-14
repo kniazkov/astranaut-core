@@ -50,7 +50,7 @@ class HoleTest {
         final Type type = hole.getType();
         final String typename = "IntegerLiteral";
         Assertions.assertEquals(typename, type.getName());
-        Assertions.assertEquals(typename, type.getHierarchy().get(0));
+        Assertions.assertEquals(typename, type.getName());
         Assertions.assertFalse(type.getProperties().containsKey("abracadabra"));
         Assertions.assertEquals(typename, node.getTypeName());
         Assertions.assertThrows(UnsupportedOperationException.class, type::createBuilder);

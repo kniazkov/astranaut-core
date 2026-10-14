@@ -23,10 +23,9 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,43 +102,11 @@ public final class Insert implements Action {
      * Type of 'Insert' action.
      * @since 0.0.1
      */
-    private static final class InsertType implements Type {
-        /**
-         * The 'Node' string.
-         */
-        private static final String NODE = "Node";
-
-        /**
-         * The 'ACTION' string.
-         */
-        private static final String ACTION = "Action";
-
+    private static final class InsertType extends NamedType implements Type {
         /**
          * The 'DELETE' string.
          */
         private static final String INSERT = "Insert";
-
-        /**
-         * The list of child descriptors.
-         */
-        private static final List<ChildDescriptor> CHILDREN =
-            Collections.singletonList(
-                new ChildDescriptor(
-                    InsertType.NODE,
-                    false
-                )
-            );
-
-        /**
-         * Hierarchy.
-         */
-        private static final List<String> HIERARCHY =
-            Collections.unmodifiableList(
-                Arrays.asList(
-                    InsertType.INSERT,
-                    InsertType.ACTION
-                )
-            );
 
         /**
          * Properties.
@@ -147,7 +114,7 @@ public final class Insert implements Action {
         private static final Map<String, String> PROPERTIES = Stream.of(
             new String[][] {
                 {"color", "blue"},
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            }).collect(Collectors.toUnmodifiableMap(data -> data[0], data -> data[1]));
 
         @Override
         public String getName() {
@@ -155,13 +122,8 @@ public final class Insert implements Action {
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return InsertType.CHILDREN;
-        }
-
-        @Override
-        public List<String> getHierarchy() {
-            return InsertType.HIERARCHY;
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of(Action.TYPE);
         }
 
         @Override

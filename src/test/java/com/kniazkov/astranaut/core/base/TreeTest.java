@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -125,7 +126,7 @@ class TreeTest {
      * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    private static final class TestType implements Type {
+    private static final class TestType extends NamedType implements Type {
         /**
          * The name of the type.
          */
@@ -155,13 +156,13 @@ class TreeTest {
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return Collections.emptyList();
+        public Optional<List<ChildDescriptor>> getChildDescriptors() {
+            return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
         }
 
         @Override
-        public List<String> getHierarchy() {
-            return Collections.singletonList(this.getName());
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of();
         }
 
         @Override

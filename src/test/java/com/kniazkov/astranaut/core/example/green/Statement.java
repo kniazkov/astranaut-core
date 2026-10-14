@@ -23,11 +23,20 @@
  */
 package com.kniazkov.astranaut.core.example.green;
 
-import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.AbstractType;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Node that describes the 'Statement' type.
  * @since 0.0.1
+ * @checkstyle InterfaceIsTypeCheck (20 lines)
  */
-public interface Statement extends Node {
+@SuppressWarnings("PMD.ConstantsInInterface")
+public interface Statement extends ProgramItem {
+    /**
+     * Abstract type descriptor.
+     */
+    AbstractType TYPE = new SimpleAbstractType("Statement", Set.of(ProgramItem.TYPE), Map.of());
 }

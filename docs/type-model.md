@@ -1,0 +1,126 @@
+# Type descriptors and child tags
+
+This is the first implementation stage of issues #11 and #26. The interfaces below
+are available in core; migrating the Astranaut generator is a separate step.
+
+## Abstract and concrete types
+
+`AbstractType` describes a globally named type, including abstract types that
+cannot create nodes. `Type extends AbstractType` adds a builder factory and an
+optional child schema. `Node.getType()` returns `Type`.
+
+`getBaseTypes()` returns an immutable set of immediate bases. It excludes the type
+itself. Bases have equal priority, and set iteration order has no semantic meaning.
+The producer must provide an acyclic graph and consistent definitions for each
+name. Core permits concrete types as bases even when a particular DSL does not.
+
+```java
+AbstractType expression = new SimpleAbstractType("Expression");
+AbstractType binary = new SimpleAbstractType(
+    "BinaryExpression",
+    Set.of(expression),
+    Map.of()
+);
+
+boolean subtype = binary.isSubtypeOf(expression); // true
+Optional<AbstractType> common = binary.findCommonBaseType(expression);
+```
+
+`isSubtypeOf` includes the type itself and traverses all ancestors.
+`findCommonBaseType` returns the unique most specific common base, including the
+operands. It returns empty for unrelated types or several incomparable candidates.
+For example, if both X and Y derive from unrelated A and B, neither A nor B is
+chosen arbitrarily. Both algorithms use iterative traversal and local state; they
+support deep graphs without consuming the Java call stack or maintaining a global
+cache.
+
+Type equality and hash codes depend only on the globally unique name. Extend
+`NamedType` to reuse this implementation. A direct implementation of
+`AbstractType` must implement the same contract, including equality across Java
+implementation classes. Java does not permit an interface default implementation
+of `Object.equals` or `Object.hashCode`.
+
+`SimpleAbstractType` copies its base set and property map. Supplied base descriptors
+must themselves be immutable. Properties are **own properties only**; there is no
+automatic merging of inherited properties.
+
+The existing `NodeAndType` convenience base now creates a **separate** descriptor.
+A node cannot also serve as its descriptor: name-based type identity and structural
+node identity are different contracts. Its subclasses must keep definitions and
+builder factories stable. Its historical name is retained for this migration step.
+
+## Child schemas
+
+`Type.getChildDescriptors()` returns `Optional<List<ChildDescriptor>>`:
+
+- Empty Optional: the schema is unknown; a custom builder handles construction.
+- Present empty list: the type is a leaf; no children are allowed.
+- Present list: the complete ordered schema of this concrete type. Consumers do
+  not assemble it by traversing the base types.
+
+Each descriptor references an `AbstractType` and permits that type and its
+subtypes. The three cardinalities are `REQUIRED` (one), `OPTIONAL` (zero or one),
+and `REPEATED` (zero or more). Only the first two may have a tag. All tags in one
+schema must be unique.
+
+```java
+List<ChildDescriptor> schema = ChildDescriptor.create()
+    .add(new ChildDescriptor(
+        expression,
+        Optional.of("left"),
+        Cardinality.REQUIRED
+    ))
+    .add(new ChildDescriptor(
+        expression,
+        Optional.of("right"),
+        Cardinality.OPTIONAL
+    ))
+    .build();
+```
+
+`ChildDescriptor.copySchema(list)` validates uniqueness and returns an immutable
+snapshot. The schema builder uses this method too; changing it after `build()`
+does not change a previously produced list. A custom `Type` must likewise expose
+a validated immutable schema, not a live view of mutable state.
+
+The current `NodeAllocator` consumes the new type references for its existing
+single/optional allocation algorithm. It explicitly rejects `REPEATED` descriptors;
+repeated allocation and the revised Builder setters belong to #12. Builders that
+implement their own list handling can already use repeated schemas as metadata.
+
+## Tags belong to child occurrences
+
+```java
+Optional<Node> left = addition.getChild("left");
+Optional<String> tag = addition.getChildTag(0);
+```
+
+Both methods work independently of a schema. By default, they return empty;
+`getChildTag` first checks the index against the compact child list and throws
+`IndexOutOfBoundsException` for an invalid index. Null tags are invalid arguments.
+
+For every present tag at index i, `getChild(tag)` must return the **same object**
+as `getChild(i)`. Unknown tags and absent optional children return empty. An absent
+optional child occupies no index; a tag's index is not necessarily its descriptor's
+index. One object may occur in both `left` and `right`; lookup must distinguish
+those occurrences instead of searching by node equality or object identity.
+
+Optional typed getters in base interfaces use `Optional<? extends Base>` so
+concrete implementations can return `Optional<Derived>`.
+
+The hand-written generated-style fixtures in core exercise Addition's left/right
+tags. Independent adapter tests cover a missing left child, equal-looking children,
+a shared child, concurrent reads and wildcard Optional getters.
+
+## Migration boundaries
+
+`getHierarchy()` and `getChildTypes()` are replaced by `getBaseTypes()` and
+`getChildDescriptors()`. `belongsToGroup(String)` remains a node convenience method,
+implemented using the new graph-based subtype test.
+
+This stage does not claim that all legacy algorithms already implement the final
+architecture. The Optional root and remaining immutable node-model migration in
+#11, the Builder redesign in #12, structural equality/hashing with tags in #13,
+immutable diff/pattern nodes, and tag-preserving transformations/JSON are subsequent
+steps. In particular, current serialization is not yet a tagged structural
+round-trip. Issues #11 and #26 remain open for their dependent integration checks.

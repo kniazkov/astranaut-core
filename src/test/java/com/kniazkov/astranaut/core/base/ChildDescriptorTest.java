@@ -23,6 +23,7 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,9 +34,13 @@ import org.junit.jupiter.api.Test;
 class ChildDescriptorTest {
     @Test
     void testBaseInterface() {
-        final ChildDescriptor first = new ChildDescriptor("Expression");
-        Assertions.assertEquals(first.getType(), first.toString());
-        final ChildDescriptor second = new ChildDescriptor("Statement", true);
+        final ChildDescriptor first = new ChildDescriptor(new SimpleAbstractType("Expression"));
+        Assertions.assertEquals(first.getType().getName(), first.toString());
+        final ChildDescriptor second = new ChildDescriptor(
+            new SimpleAbstractType("Statement"),
+            Optional.empty(),
+            Cardinality.OPTIONAL
+        );
         Assertions.assertEquals("[Statement]", second.toString());
     }
 }

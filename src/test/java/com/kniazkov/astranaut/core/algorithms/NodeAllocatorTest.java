@@ -23,10 +23,15 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.AbstractType;
+import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SimpleAbstractType;
 import com.kniazkov.astranaut.core.example.green.Addition;
+import com.kniazkov.astranaut.core.example.green.AssignableExpression;
+import com.kniazkov.astranaut.core.example.green.Expression;
 import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
 import com.kniazkov.astranaut.core.example.green.Variable;
 import java.util.ArrayList;
@@ -42,22 +47,29 @@ import org.junit.jupiter.api.Test;
  */
 @SuppressWarnings("PMD.TooManyMethods")
 class NodeAllocatorTest {
-    /**
-     * The 'AssignableExpression' string.
-     */
-    private static final String ASSIGN_EXPR = "AssignableExpression";
-
-    /**
-     * The 'Expression' string.
-     */
-    private static final String EXPRESSION = "Expression";
+    @Test
+    void snapshotsSchemaAndRejectsUnsupportedRepeatedAllocation() {
+        final AbstractType type = new SimpleAbstractType("A");
+        final List<ChildDescriptor> schema = new ArrayList<>(1);
+        schema.add(new ChildDescriptor(type));
+        final NodeAllocator allocator = new NodeAllocator(schema);
+        schema.clear();
+        final Node child = DraftNode.create("A");
+        final Node[] result = new Node[1];
+        Assertions.assertTrue(allocator.allocate(result, List.of(child)));
+        Assertions.assertSame(child, result[0]);
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> new NodeAllocator(ChildDescriptor.create().repeated(type).build())
+        );
+    }
 
     @Test
     void testAllNonOptionalChildrenMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A"),
-                new ChildDescriptor("B")
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"))
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -72,7 +84,10 @@ class NodeAllocatorTest {
     void testIncorrectOrderChildren() {
         final boolean result = this.testMapping(
             ChildDescriptor.create()
-                .required("A").required("B").optional("C").optional("D")
+                .required(new SimpleAbstractType("A"))
+                .required(new SimpleAbstractType("B"))
+                .optional(new SimpleAbstractType("C"))
+                .optional(new SimpleAbstractType("D"))
                 .build(),
             Arrays.asList(
                 new NodeDescriptor("D", 3),
@@ -88,7 +103,7 @@ class NodeAllocatorTest {
     void testOneNodeNotMapped() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A")
+                new ChildDescriptor(new SimpleAbstractType("A"))
             ),
             Arrays.asList(
                 new NodeDescriptor("B")
@@ -102,10 +117,10 @@ class NodeAllocatorTest {
     void testAllVariousChildrenMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("B", false),
-                new ChildDescriptor("A", true)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B")),
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -122,11 +137,11 @@ class NodeAllocatorTest {
     void testOnlyNonOptionalFromVariousChildrenMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("C", false),
-                new ChildDescriptor("B", false),
-                new ChildDescriptor("A", true)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C")),
+                new ChildDescriptor(new SimpleAbstractType("B")),
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -142,11 +157,11 @@ class NodeAllocatorTest {
     void testNonOptionalAndOptionalFromVariousChildrenMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("C", false),
-                new ChildDescriptor("B", false),
-                new ChildDescriptor("A", true)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C")),
+                new ChildDescriptor(new SimpleAbstractType("B")),
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -163,10 +178,10 @@ class NodeAllocatorTest {
     void testNonOptionalAndOptionalOfSameTypeMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("B", false),
-                new ChildDescriptor("B", false)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B")),
+                new ChildDescriptor(new SimpleAbstractType("B"))
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -182,12 +197,12 @@ class NodeAllocatorTest {
     void testNonOptionalOfSameTypeAsOptionalMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("C", true),
-                new ChildDescriptor("C", false),
-                new ChildDescriptor("D", false),
-                new ChildDescriptor("D", true)
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C")),
+                new ChildDescriptor(new SimpleAbstractType("D")),
+                new ChildDescriptor(new SimpleAbstractType("D"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("C", 3),
@@ -202,10 +217,10 @@ class NodeAllocatorTest {
     void testMissingNonOptionalChildMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("C", false),
-                new ChildDescriptor("D", true)
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C")),
+                new ChildDescriptor(new SimpleAbstractType("D"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("B", 1),
@@ -220,9 +235,9 @@ class NodeAllocatorTest {
     void testExtraChildMapping() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("C", false)
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C"))
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -238,10 +253,10 @@ class NodeAllocatorTest {
     void testOneNotMatchedNode() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("A", true)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -258,10 +273,10 @@ class NodeAllocatorTest {
     void testSideBySideControversialOptionalNodes() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("A", false)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("A"))
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -277,11 +292,11 @@ class NodeAllocatorTest {
     void testThreeControversialOptionalNodes() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("A", false)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("A"))
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -298,12 +313,12 @@ class NodeAllocatorTest {
     void testSeparatedControversialOptionalNodes() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("C", true),
-                new ChildDescriptor("B", true),
-                new ChildDescriptor("D", true),
-                new ChildDescriptor("A", false)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("C"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("D"), Cardinality.OPTIONAL),
+                new ChildDescriptor(new SimpleAbstractType("A"))
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -320,8 +335,8 @@ class NodeAllocatorTest {
     void testIncorrectNumberOfChildren() {
         final boolean result = this.testMapping(
             Arrays.asList(
-                new ChildDescriptor("A", false),
-                new ChildDescriptor("B", true)
+                new ChildDescriptor(new SimpleAbstractType("A")),
+                new ChildDescriptor(new SimpleAbstractType("B"), Cardinality.OPTIONAL)
             ),
             Arrays.asList(
                 new NodeDescriptor("A", 0),
@@ -336,8 +351,8 @@ class NodeAllocatorTest {
     @Test
     void testMappingWithInheritance() {
         final List<ChildDescriptor> descriptors = Arrays.asList(
-            new ChildDescriptor(NodeAllocatorTest.EXPRESSION),
-            new ChildDescriptor(NodeAllocatorTest.EXPRESSION)
+            new ChildDescriptor(Expression.TYPE),
+            new ChildDescriptor(Expression.TYPE)
         );
         final NodeAllocator mapper = new NodeAllocator(descriptors);
         IntegerLiteral.Constructor icr = new IntegerLiteral.Constructor();
@@ -362,8 +377,8 @@ class NodeAllocatorTest {
     @Test
     void testMappingWithTwoLevelInheritance() {
         final List<ChildDescriptor> descriptors = Arrays.asList(
-            new ChildDescriptor(NodeAllocatorTest.ASSIGN_EXPR),
-            new ChildDescriptor(NodeAllocatorTest.EXPRESSION)
+            new ChildDescriptor(AssignableExpression.TYPE),
+            new ChildDescriptor(Expression.TYPE)
         );
         final NodeAllocator mapper = new NodeAllocator(descriptors);
         final Variable.Constructor ctor = new Variable.Constructor();
@@ -389,7 +404,9 @@ class NodeAllocatorTest {
     @Test
     void testEmptyChildrenList() {
         final boolean result = this.testMapping(
-            Collections.singletonList(new ChildDescriptor("A", true)),
+            Collections.singletonList(
+                new ChildDescriptor(new SimpleAbstractType("A"), Cardinality.OPTIONAL)
+            ),
             Collections.emptyList(),
             true
         );
@@ -409,8 +426,8 @@ class NodeAllocatorTest {
     @Test
     void testBadDestination() {
         final List<ChildDescriptor> descriptors = Arrays.asList(
-            new ChildDescriptor("A"),
-            new ChildDescriptor("B")
+            new ChildDescriptor(new SimpleAbstractType("A")),
+            new ChildDescriptor(new SimpleAbstractType("B"))
         );
         final NodeAllocator allocator = new NodeAllocator(descriptors);
         Assertions.assertThrows(

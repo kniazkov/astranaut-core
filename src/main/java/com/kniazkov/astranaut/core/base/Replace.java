@@ -23,11 +23,10 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,47 +116,11 @@ public final class Replace implements Action {
      * Type of 'Replace' action.
      * @since 0.0.1
      */
-    private static final class ReplaceType implements Type {
-        /**
-         * The 'Node' string.
-         */
-        private static final String NODE = "Node";
-
-        /**
-         * The 'ACTION' string.
-         */
-        private static final String ACTION = "Action";
-
+    private static final class ReplaceType extends NamedType implements Type {
         /**
          * The 'DELETE' string.
          */
         private static final String REPLACE = "Replace";
-
-        /**
-         * The list of child descriptors.
-         */
-        private static final List<ChildDescriptor> CHILDREN =
-            Arrays.asList(
-                new ChildDescriptor(
-                    ReplaceType.NODE,
-                    false
-                ),
-                new ChildDescriptor(
-                    ReplaceType.NODE,
-                    false
-                )
-            );
-
-        /**
-         * Hierarchy.
-         */
-        private static final List<String> HIERARCHY =
-            Collections.unmodifiableList(
-                Arrays.asList(
-                    ReplaceType.REPLACE,
-                    ReplaceType.ACTION
-                )
-            );
 
         /**
          * Properties.
@@ -165,7 +128,7 @@ public final class Replace implements Action {
         private static final Map<String, String> PROPERTIES = Stream.of(
             new String[][] {
                 {"color", "blue"},
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            }).collect(Collectors.toUnmodifiableMap(data -> data[0], data -> data[1]));
 
         @Override
         public String getName() {
@@ -173,13 +136,8 @@ public final class Replace implements Action {
         }
 
         @Override
-        public List<ChildDescriptor> getChildTypes() {
-            return ReplaceType.CHILDREN;
-        }
-
-        @Override
-        public List<String> getHierarchy() {
-            return ReplaceType.HIERARCHY;
+        public Set<AbstractType> getBaseTypes() {
+            return Set.of(Action.TYPE);
         }
 
         @Override

@@ -42,6 +42,11 @@ Just add this to your `pom.xml`:
 
 You can find the latest release number [here](https://github.com/kniazkov/astranaut-core/tags). 
 
+# Type model and tagged children
+
+See [the type model and migration guide](docs/type-model.md) for `AbstractType`,
+`Type`, child schemas, subtype queries, and tagged child access.
+
 # The Basics: Interfaces & Classes  
 This is where the tree magic starts.  
 
