@@ -51,23 +51,6 @@ public final class ChildDescriptor {
     private final Cardinality cardinality;
 
     /**
-     * Creates an untagged required descriptor.
-     * @param type Allowed type
-     */
-    public ChildDescriptor(final AbstractType type) {
-        this(type, Optional.empty(), Cardinality.REQUIRED);
-    }
-
-    /**
-     * Creates an untagged descriptor.
-     * @param type Allowed type
-     * @param cardinality Allowed number of children
-     */
-    public ChildDescriptor(final AbstractType type, final Cardinality cardinality) {
-        this(type, Optional.empty(), cardinality);
-    }
-
-    /**
      * Creates a descriptor.
      * @param type Allowed type
      * @param tag Optional unique tag
@@ -75,7 +58,7 @@ public final class ChildDescriptor {
      * @throws IllegalArgumentException If a repeated descriptor has a tag
      */
     @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
-    public ChildDescriptor(final AbstractType type, final Optional<String> tag,
+    private ChildDescriptor(final AbstractType type, final Optional<String> tag,
         final Cardinality cardinality) {
         this.type = Objects.requireNonNull(type);
         this.tag = Objects.requireNonNull(tag);
@@ -110,24 +93,6 @@ public final class ChildDescriptor {
     }
 
     /**
-     * Creates a validated immutable schema snapshot.
-     * @param descriptors Complete ordered schema
-     * @return Snapshot with unique tags
-     * @throws IllegalArgumentException If tags are duplicated
-     */
-    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-    public static List<ChildDescriptor> copySchema(final List<ChildDescriptor> descriptors) {
-        final List<ChildDescriptor> result = List.copyOf(descriptors);
-        final Set<String> tags = new HashSet<>();
-        for (final ChildDescriptor descriptor : result) {
-            if (descriptor.tag.isPresent() && !tags.add(descriptor.tag.orElseThrow())) {
-                throw new IllegalArgumentException("Duplicate child tag");
-            }
-        }
-        return result;
-    }
-
-    /**
      * Creates a schema builder.
      * @return Mutable builder
      */
@@ -148,6 +113,23 @@ public final class ChildDescriptor {
             case OPTIONAL -> String.format("[%s]", name);
             case REPEATED -> String.format("%s*", name);
         };
+    }
+
+    /**
+     * Creates a validated immutable schema snapshot.
+     * @param descriptors Complete ordered schema
+     * @return Snapshot with unique tags
+     * @throws IllegalArgumentException If tags are duplicated
+     */
+    private static List<ChildDescriptor> copySchema(final List<ChildDescriptor> descriptors) {
+        final List<ChildDescriptor> result = List.copyOf(descriptors);
+        final Set<String> tags = new HashSet<>();
+        for (final ChildDescriptor descriptor : result) {
+            if (descriptor.tag.isPresent() && !tags.add(descriptor.tag.orElseThrow())) {
+                throw new IllegalArgumentException("Duplicate child tag");
+            }
+        }
+        return result;
     }
 
     /**
@@ -173,7 +155,27 @@ public final class ChildDescriptor {
          * @return This builder
          */
         public Constructor required(final AbstractType type) {
-            return this.add(new ChildDescriptor(type));
+            return this.required(type, Optional.empty());
+        }
+
+        /**
+         * Adds a tagged required child.
+         * @param type Allowed type
+         * @param tag Child tag
+         * @return This builder
+         */
+        public Constructor required(final AbstractType type, final String tag) {
+            return this.required(type, Optional.of(tag));
+        }
+
+        /**
+         * Adds a required child with an optional tag.
+         * @param type Allowed type
+         * @param tag Optional child tag
+         * @return This builder
+         */
+        public Constructor required(final AbstractType type, final Optional<String> tag) {
+            return this.add(new ChildDescriptor(type, tag, Cardinality.REQUIRED));
         }
 
         /**
@@ -182,7 +184,27 @@ public final class ChildDescriptor {
          * @return This builder
          */
         public Constructor optional(final AbstractType type) {
-            return this.add(new ChildDescriptor(type, Optional.empty(), Cardinality.OPTIONAL));
+            return this.optional(type, Optional.empty());
+        }
+
+        /**
+         * Adds a tagged optional child.
+         * @param type Allowed type
+         * @param tag Child tag
+         * @return This builder
+         */
+        public Constructor optional(final AbstractType type, final String tag) {
+            return this.optional(type, Optional.of(tag));
+        }
+
+        /**
+         * Adds an optional child with an optional tag.
+         * @param type Allowed type
+         * @param tag Optional child tag
+         * @return This builder
+         */
+        public Constructor optional(final AbstractType type, final Optional<String> tag) {
+            return this.add(new ChildDescriptor(type, tag, Cardinality.OPTIONAL));
         }
 
         /**

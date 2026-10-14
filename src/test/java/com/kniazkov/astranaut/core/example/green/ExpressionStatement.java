@@ -27,7 +27,6 @@ package com.kniazkov.astranaut.core.example.green;
 import com.kniazkov.astranaut.core.algorithms.NodeAllocator;
 import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
-import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
@@ -36,8 +35,6 @@ import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import com.kniazkov.astranaut.core.utils.ListUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -155,16 +152,9 @@ public final class ExpressionStatement implements Statement {
         /**
          * The list of child types.
          */
-        private static final List<ChildDescriptor> CHILDREN =
-            Collections.unmodifiableList(
-                Arrays.asList(
-                    new ChildDescriptor(
-                        Expression.TYPE,
-                        Optional.of("expression"),
-                        Cardinality.REQUIRED
-                    )
-                )
-            );
+        private static final List<ChildDescriptor> CHILDREN = ChildDescriptor.create()
+            .required(Expression.TYPE, "expression")
+            .build();
 
         /**
          * Properties.
@@ -182,7 +172,7 @@ public final class ExpressionStatement implements Statement {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(ChildDescriptor.copySchema(TypeImpl.CHILDREN));
+            return Optional.of(TypeImpl.CHILDREN);
         }
 
         @Override

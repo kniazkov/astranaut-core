@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -35,98 +34,100 @@ import org.junit.jupiter.api.Test;
  */
 class ChildSchemaTest {
     /**
-     * Shared test type name.
+     * Allowed type shared by the tests.
      */
-    private static final String TYPE_NAME = "Expression";
+    private static final AbstractType TYPE = new SimpleAbstractType("Expression");
 
     @Test
-    void describesThreeCardinalities() {
-        final AbstractType expression = new SimpleAbstractType(ChildSchemaTest.TYPE_NAME);
+    void describesAllOverloadsInOrder() {
         final List<ChildDescriptor> schema = ChildDescriptor.create()
-            .required(expression).optional(expression).repeated(expression).build();
-        Assertions.assertEquals(Cardinality.REQUIRED, schema.get(0).getCardinality());
-        Assertions.assertEquals(Cardinality.OPTIONAL, schema.get(1).getCardinality());
-        Assertions.assertEquals(Cardinality.REPEATED, schema.get(2).getCardinality());
-        Assertions.assertSame(expression, schema.get(0).getType());
-        Assertions.assertEquals("Expression*", schema.get(2).toString());
-        Assertions.assertTrue(schema.get(2).getTag().isEmpty());
-    }
-
-    @Test
-    void allowsTagsOnlyForSingleChildren() {
-        final AbstractType type = new SimpleAbstractType(ChildSchemaTest.TYPE_NAME);
-        final ChildDescriptor child = new ChildDescriptor(
-            type,
-            Optional.of("left"),
-            Cardinality.OPTIONAL
-        );
-        Assertions.assertEquals(Optional.of("left"), child.getTag());
-        Assertions.assertEquals("[left@Expression]", child.toString());
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> new ChildDescriptor(type, Optional.of("left"), Cardinality.REPEATED)
-        );
-    }
-
-    @Test
-    void validatesTagUniqueness() {
-        final AbstractType type = new SimpleAbstractType(ChildSchemaTest.TYPE_NAME);
-        final ChildDescriptor first = new ChildDescriptor(
-            type,
-            Optional.of("same"),
-            Cardinality.REQUIRED
-        );
-        final ChildDescriptor second = new ChildDescriptor(
-            type,
-            Optional.of("same"),
-            Cardinality.OPTIONAL
-        );
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> ChildDescriptor.copySchema(List.of(first, second))
-        );
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> ChildDescriptor.create().add(first).add(second).build()
-        );
+            .required(ChildSchemaTest.TYPE)
+            .required(ChildSchemaTest.TYPE, "left")
+            .required(ChildSchemaTest.TYPE, Optional.of("right"))
+            .required(ChildSchemaTest.TYPE, Optional.empty())
+            .optional(ChildSchemaTest.TYPE)
+            .optional(ChildSchemaTest.TYPE, "first")
+            .optional(ChildSchemaTest.TYPE, Optional.of("second"))
+            .optional(ChildSchemaTest.TYPE, Optional.empty())
+            .repeated(ChildSchemaTest.TYPE)
+            .build();
+        Assertions.assertEquals(9, schema.size());
         Assertions.assertEquals(
-            2,
-            ChildDescriptor.create().required(type).required(type).build().size()
+            List.of(
+                "Expression", "left@Expression", "right@Expression", "Expression",
+                "[Expression]", "[first@Expression]", "[second@Expression]",
+                "[Expression]", "Expression*"
+            ),
+            schema.stream().map(ChildDescriptor::toString).toList()
+        );
+        for (int index = 0; index < schema.size(); index = index + 1) {
+            final ChildDescriptor descriptor = schema.get(index);
+            Assertions.assertSame(ChildSchemaTest.TYPE, descriptor.getType());
+            final Cardinality cardinality;
+            if (index < 4) {
+                cardinality = Cardinality.REQUIRED;
+            } else if (index < 8) {
+                cardinality = Cardinality.OPTIONAL;
+            } else {
+                cardinality = Cardinality.REPEATED;
+            }
+            Assertions.assertEquals(cardinality, descriptor.getCardinality());
+        }
+        Assertions.assertEquals(Optional.of("left"), schema.get(1).getTag());
+        Assertions.assertTrue(schema.getLast().getTag().isEmpty());
+    }
+
+    @Test
+    void validatesTagUniquenessAcrossTypesAndCardinalities() {
+        final ChildDescriptor.Constructor builder = ChildDescriptor.create()
+            .required(ChildSchemaTest.TYPE, "same")
+            .optional(new SimpleAbstractType("Statement"), Optional.of("same"));
+        Assertions.assertThrows(IllegalArgumentException.class, builder::build);
+        final ChildDescriptor child = ChildDescriptor.create()
+            .required(ChildSchemaTest.TYPE, "shared")
+            .build().getFirst();
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> ChildDescriptor.create().add(child).add(child).build()
         );
     }
 
     @Test
     void makesIndependentImmutableSnapshots() {
-        final AbstractType type = new SimpleAbstractType(ChildSchemaTest.TYPE_NAME);
-        final ChildDescriptor.Constructor builder = ChildDescriptor.create().required(type);
+        final ChildDescriptor.Constructor builder = ChildDescriptor.create();
+        final List<ChildDescriptor> empty = builder.build();
+        builder.required(ChildSchemaTest.TYPE);
         final List<ChildDescriptor> first = builder.build();
-        builder.optional(type);
+        builder.optional(ChildSchemaTest.TYPE);
+        Assertions.assertTrue(empty.isEmpty());
         Assertions.assertEquals(1, first.size());
         Assertions.assertEquals(2, builder.build().size());
-        final List<ChildDescriptor> input = new ArrayList<>(first);
-        final List<ChildDescriptor> copied = ChildDescriptor.copySchema(input);
-        input.clear();
-        Assertions.assertEquals(first, copied);
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> copied.clear());
+        Assertions.assertThrows(UnsupportedOperationException.class, first::clear);
+        final List<ChildDescriptor> reused = ChildDescriptor.create().add(first.getFirst()).build();
+        Assertions.assertEquals(first, reused);
     }
 
     @Test
-    void rejectsNullComponents() {
-        final AbstractType type = new SimpleAbstractType(ChildSchemaTest.TYPE_NAME);
-        Assertions.assertThrows(NullPointerException.class, () -> new ChildDescriptor(null));
+    void rejectsNullComponentsWithoutChangingBuilder() {
+        final ChildDescriptor.Constructor builder = ChildDescriptor.create();
+        Assertions.assertThrows(NullPointerException.class, () -> builder.required(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.optional(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.repeated(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.add(null));
         Assertions.assertThrows(
-            NullPointerException.class,
-            () -> new ChildDescriptor(type, null, Cardinality.REQUIRED)
+            NullPointerException.class, () -> builder.required(ChildSchemaTest.TYPE, (String) null)
+        );
+        Assertions.assertThrows(
+            NullPointerException.class, () -> builder.optional(ChildSchemaTest.TYPE, (String) null)
         );
         Assertions.assertThrows(
             NullPointerException.class,
-            () -> new ChildDescriptor(type, Optional.empty(), null)
+            () -> builder.required(ChildSchemaTest.TYPE, (Optional<String>) null)
         );
-        final List<ChildDescriptor> invalid = new ArrayList<>(2);
-        invalid.add(null);
         Assertions.assertThrows(
             NullPointerException.class,
-            () -> ChildDescriptor.copySchema(invalid)
+            () -> builder.optional(ChildSchemaTest.TYPE, (Optional<String>) null)
         );
+        Assertions.assertTrue(builder.build().isEmpty());
     }
 }

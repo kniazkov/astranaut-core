@@ -25,7 +25,6 @@ package com.kniazkov.astranaut.core.base;
 
 import com.kniazkov.astranaut.core.utils.MapUtils;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -157,7 +156,7 @@ class TreeTest {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
+            return Optional.of(ChildDescriptor.create().build());
         }
 
         @Override

@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -122,7 +121,7 @@ public final class DummyNode implements Node {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
+            return Optional.of(ChildDescriptor.create().build());
         }
 
         @Override
