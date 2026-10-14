@@ -54,7 +54,7 @@ public final class AbsoluteHash implements Hash {
         if (this.calculated.containsKey(node)) {
             hash = this.calculated.get(node);
         } else {
-            hash = node.getTypeName().hashCode() * 31 + node.getData().hashCode();
+            hash = node.getType().hashCode() * 31 + node.getData().hashCode();
             final int count = node.getChildCount();
             for (int index = 0; index < count; index = index + 1) {
                 hash = 31 * hash + this.calculate(node.getChild(index));

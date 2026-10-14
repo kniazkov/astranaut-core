@@ -25,9 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -51,23 +49,23 @@ final class TypeHierarchy {
     }
 
     /**
-     * Tests reachability, stopping at the first matching name.
-     * @param target Requested type name
+     * Tests reachability, stopping at the first equal type.
+     * @param target Requested abstract or concrete type
      * @return Whether reachable
      */
-    boolean contains(final String target) {
-        final String name = Objects.requireNonNull(target);
+    boolean contains(final AbstractType target) {
+        Objects.requireNonNull(target);
         final Deque<AbstractType> pending = new ArrayDeque<>();
-        final Set<String> visited = new HashSet<>();
+        final Set<AbstractType> visited = new HashSet<>();
         pending.add(this.start);
         boolean found = false;
         while (!pending.isEmpty()) {
             final AbstractType current = pending.removeFirst();
-            if (name.equals(current.getName())) {
+            if (target.equals(current)) {
                 found = true;
                 break;
             }
-            if (visited.add(current.getName())) {
+            if (visited.add(current)) {
                 pending.addAll(current.getBaseTypes());
             }
         }
@@ -82,19 +80,19 @@ final class TypeHierarchy {
      * @return Most specific common base
      */
     Optional<AbstractType> commonBase(final AbstractType other) {
-        final Map<String, AbstractType> common = this.ancestors();
-        final Map<String, AbstractType> ancestors =
+        final Set<AbstractType> common = this.ancestors();
+        final Set<AbstractType> ancestors =
             new TypeHierarchy(Objects.requireNonNull(other)).ancestors();
-        common.keySet().retainAll(ancestors.keySet());
-        final Set<String> candidates = new HashSet<>(common.keySet());
-        for (final AbstractType type : common.values()) {
+        common.retainAll(ancestors);
+        final Set<AbstractType> candidates = new HashSet<>(common);
+        for (final AbstractType type : common) {
             for (final AbstractType base : type.getBaseTypes()) {
-                candidates.remove(base.getName());
+                candidates.remove(base);
             }
         }
         final Optional<AbstractType> result;
         if (candidates.size() == 1) {
-            result = Optional.of(common.get(candidates.iterator().next()));
+            result = Optional.of(candidates.iterator().next());
         } else {
             result = Optional.empty();
         }
@@ -102,16 +100,16 @@ final class TypeHierarchy {
     }
 
     /**
-     * Collects ancestors, including the starting type, once per name.
-     * @return Ancestors keyed by unique name
+     * Collects ancestors, including the starting type, once per equal type.
+     * @return Set of ancestor types
      */
-    private Map<String, AbstractType> ancestors() {
-        final Map<String, AbstractType> result = new HashMap<>();
+    private Set<AbstractType> ancestors() {
+        final Set<AbstractType> result = new HashSet<>();
         final Deque<AbstractType> pending = new ArrayDeque<>();
         pending.add(this.start);
         while (!pending.isEmpty()) {
             final AbstractType current = pending.removeFirst();
-            if (result.putIfAbsent(current.getName(), current) == null) {
+            if (result.add(current)) {
                 pending.addAll(current.getBaseTypes());
             }
         }

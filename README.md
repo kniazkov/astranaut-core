@@ -116,7 +116,7 @@ void process(Node node) {
    - Enables fast subtree comparison  
 
 2. **Type Hierarchy**  
-   - `belongsToGroup()` - Check node categories (e.g., "Expression")  
+   - `isSubtypeOf(AbstractType)` - Check the node type and its base types
 
 3. **Memory-Safe Iteration**  
    - `ChildrenList`/`ChildrenIterator` - Zero-copy child access  
