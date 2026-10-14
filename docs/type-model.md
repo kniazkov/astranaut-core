@@ -67,23 +67,25 @@ schema must be unique.
 
 ```java
 List<ChildDescriptor> schema = ChildDescriptor.create()
-    .add(new ChildDescriptor(
-        expression,
-        Optional.of("left"),
-        Cardinality.REQUIRED
-    ))
-    .add(new ChildDescriptor(
-        expression,
-        Optional.of("right"),
-        Cardinality.OPTIONAL
-    ))
+    .required(expression, "left")
+    .optional(expression, "right")
+    .required(statement)
+    .optional(statement, Optional.empty())
+    .repeated(statement)
     .build();
 ```
 
-`ChildDescriptor.copySchema(list)` validates uniqueness and returns an immutable
-snapshot. The schema builder uses this method too; changing it after `build()`
-does not change a previously produced list. A custom `Type` must likewise expose
-a validated immutable schema, not a live view of mutable state.
+`required` and `optional` accept a type alone, a type and a non-null string tag,
+or a type and an `Optional<String>` tag. `repeated` accepts only a type.
+Descriptors have a single private constructor: create schemas through
+`ChildDescriptor.create()...build()`. Existing descriptors can be reused with
+`add(descriptor)`; `build()` validates tag uniqueness across the entire list.
+Null types, tags, Optional containers and descriptors are rejected immediately.
+
+`build()` returns an immutable snapshot; changing the builder afterwards does
+not change a previously produced list. An empty builder produces an empty leaf
+schema. A custom `Type` must likewise expose a validated immutable schema,
+not a live view of mutable state.
 
 The current `NodeAllocator` consumes the new type references for its existing
 single/optional allocation algorithm. It explicitly rejects `REPEATED` descriptors;

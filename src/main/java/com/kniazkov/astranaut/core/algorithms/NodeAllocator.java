@@ -79,7 +79,11 @@ public class NodeAllocator {
      */
     @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
     public NodeAllocator(final List<ChildDescriptor> descriptors) {
-        this.descriptors = ChildDescriptor.copySchema(descriptors);
+        final ChildDescriptor.Constructor schema = ChildDescriptor.create();
+        for (final ChildDescriptor descriptor : descriptors) {
+            schema.add(descriptor);
+        }
+        this.descriptors = schema.build();
         if (descriptors.stream().anyMatch(item -> item.getCardinality() == Cardinality.REPEATED)) {
             throw new IllegalArgumentException("Repeated allocation is not supported yet");
         }

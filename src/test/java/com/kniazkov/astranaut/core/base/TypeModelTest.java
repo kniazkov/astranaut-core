@@ -208,7 +208,7 @@ class TypeModelTest {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(List.of());
+            return Optional.of(ChildDescriptor.create().build());
         }
 
         @Override

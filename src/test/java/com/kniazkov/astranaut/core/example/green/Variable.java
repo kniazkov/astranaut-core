@@ -31,7 +31,6 @@ import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -121,7 +120,7 @@ public final class Variable implements AssignableExpression {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(ChildDescriptor.copySchema(Collections.emptyList()));
+            return Optional.of(ChildDescriptor.create().build());
         }
 
         @Override

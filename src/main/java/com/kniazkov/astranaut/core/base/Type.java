@@ -35,7 +35,7 @@ public interface Type extends AbstractType {
      * Returns the complete ordered child schema, without traversing base types.
      * An absent schema is unknown; a present empty schema describes a leaf.
      * Implementations must expose an immutable, validated snapshot, for example
-     * using {@link ChildDescriptor#copySchema(List)}.
+     * using {@link ChildDescriptor#create()} and {@link ChildDescriptor.Constructor#build()}.
      * @return Optional immutable child schema
      */
     default Optional<List<ChildDescriptor>> getChildDescriptors() {

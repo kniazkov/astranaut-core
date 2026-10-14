@@ -25,7 +25,6 @@ package com.kniazkov.astranaut.core.example.green;
 
 import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
-import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
@@ -115,10 +114,9 @@ public final class ExpressionList implements Node {
         /**
          * The list of child types.
          */
-        private static final List<ChildDescriptor> CHILDREN =
-            Collections.singletonList(
-                new ChildDescriptor(Expression.TYPE, Optional.empty(), Cardinality.REPEATED)
-            );
+        private static final List<ChildDescriptor> CHILDREN = ChildDescriptor.create()
+            .repeated(Expression.TYPE)
+            .build();
 
         /**
          * Properties.
@@ -136,7 +134,7 @@ public final class ExpressionList implements Node {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(ChildDescriptor.copySchema(TypeImpl.CHILDREN));
+            return Optional.of(TypeImpl.CHILDREN);
         }
 
         @Override

@@ -26,7 +26,6 @@ package com.kniazkov.astranaut.core.example.green;
 
 import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
-import com.kniazkov.astranaut.core.base.Cardinality;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
@@ -124,10 +123,9 @@ public final class StatementBlock implements Statement {
         /**
          * The list of child types.
          */
-        private static final List<ChildDescriptor> CHILDREN =
-            Collections.singletonList(
-                new ChildDescriptor(Statement.TYPE, Cardinality.REPEATED)
-            );
+        private static final List<ChildDescriptor> CHILDREN = ChildDescriptor.create()
+            .repeated(Statement.TYPE)
+            .build();
 
         /**
          * Properties.
@@ -145,7 +143,7 @@ public final class StatementBlock implements Statement {
 
         @Override
         public Optional<List<ChildDescriptor>> getChildDescriptors() {
-            return Optional.of(ChildDescriptor.copySchema(TypeImpl.CHILDREN));
+            return Optional.of(TypeImpl.CHILDREN);
         }
 
         @Override
