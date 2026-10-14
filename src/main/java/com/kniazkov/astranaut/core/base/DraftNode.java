@@ -42,16 +42,16 @@ import java.util.Set;
  *  DraftNode is designed to be immutable.
  * @since 0.0.1
  */
-public final class DraftNode extends NodeAndType {
+public final class DraftNode implements Node {
     /**
      * The fragment associated with the node.
      */
     private final Fragment fragment;
 
     /**
-     * The node name.
+     * The node type.
      */
-    private final String name;
+    private final Type type;
 
     /**
      * The node data.
@@ -69,19 +69,19 @@ public final class DraftNode extends NodeAndType {
      */
     private DraftNode(final Constructor builder) {
         this.fragment = Objects.requireNonNull(builder.fragment);
-        this.name = Objects.requireNonNull(builder.name);
+        this.type = new TypeImpl(Objects.requireNonNull(builder.name));
         this.data = Objects.requireNonNull(builder.data);
         this.children = List.copyOf(builder.children);
     }
 
     @Override
-    public Fragment getFragment() {
-        return this.fragment;
+    public Type getType() {
+        return this.type;
     }
 
     @Override
-    public String getName() {
-        return this.name;
+    public Fragment getFragment() {
+        return this.fragment;
     }
 
     @Override
@@ -97,13 +97,6 @@ public final class DraftNode extends NodeAndType {
     @Override
     public Node getChild(final int index) {
         return this.children.get(index);
-    }
-
-    @Override
-    public Builder createBuilder() {
-        final Constructor ctor = new Constructor();
-        ctor.setName(this.name);
-        return ctor;
     }
 
     @Override
@@ -357,6 +350,37 @@ public final class DraftNode extends NodeAndType {
                 builder.append(')');
             }
             return builder.toString();
+        }
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends NamedType implements Type {
+        /**
+         * Immutable type definition.
+         */
+        private final String name;
+
+        /**
+         * Creates the descriptor.
+         * @param name Type name
+         */
+        private TypeImpl(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public Builder createBuilder() {
+            final Constructor ctor = new Constructor();
+            ctor.setName(this.name);
+            return ctor;
         }
     }
 }

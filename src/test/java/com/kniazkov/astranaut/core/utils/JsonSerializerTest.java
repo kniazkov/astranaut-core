@@ -26,9 +26,10 @@ package com.kniazkov.astranaut.core.utils;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.EmptyTree;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.NodeAndType;
 import com.kniazkov.astranaut.core.base.Tree;
+import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -185,11 +186,15 @@ class JsonSerializerTest {
      * @since 0.0.1
      */
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    private static final class TestNodeWithTypeWithLanguage extends NodeAndType {
+    private static final class TestNodeWithTypeWithLanguage implements Node {
+        /**
+         * Shared type descriptor.
+         */
+        private static final Type TYPE = new TypeImpl();
 
         @Override
-        public String getName() {
-            return "GandalfTheGrey";
+        public Type getType() {
+            return TestNodeWithTypeWithLanguage.TYPE;
         }
 
         @Override
@@ -207,14 +212,25 @@ class JsonSerializerTest {
             return null;
         }
 
-        @Override
-        public Map<String, String> getProperties() {
-            return new MapUtils<String, String>().put("language", "elven").make();
-        }
+        /**
+         * Type descriptor independent of node instances.
+         * @since 0.0.1
+         */
+        private static final class TypeImpl extends NamedType implements Type {
+            @Override
+            public String getName() {
+                return "GandalfTheGrey";
+            }
 
-        @Override
-        public Builder createBuilder() {
-            return null;
+            @Override
+            public Map<String, String> getProperties() {
+                return new MapUtils<String, String>().put("language", "elven").make();
+            }
+
+            @Override
+            public Builder createBuilder() {
+                return null;
+            }
         }
     }
 }

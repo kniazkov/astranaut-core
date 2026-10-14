@@ -25,8 +25,9 @@ package com.kniazkov.astranaut.core.algorithms.normalization;
 
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Fragment;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.NodeAndType;
+import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,12 @@ import java.util.TreeMap;
  * List of properties extracted from the original node.
  * @since 0.0.1
  */
-public final class Properties extends NodeAndType {
+public final class Properties implements Node {
+    /**
+     * Shared type descriptor.
+     */
+    private static final Type TYPE = new TypeImpl();
+
     /**
      * List of properties.
      */
@@ -49,6 +55,11 @@ public final class Properties extends NodeAndType {
      */
     public Properties(final Map<String, String> map) {
         this.list = Properties.initList(map);
+    }
+
+    @Override
+    public Type getType() {
+        return Properties.TYPE;
     }
 
     @Override
@@ -69,16 +80,6 @@ public final class Properties extends NodeAndType {
     @Override
     public String toString() {
         return Node.toString(this);
-    }
-
-    @Override
-    public String getName() {
-        return "Properties";
-    }
-
-    @Override
-    public Builder createBuilder() {
-        return new PropertiesBuilder();
     }
 
     /**
@@ -165,6 +166,22 @@ public final class Properties extends NodeAndType {
             final Properties node = new Properties(null);
             node.list = this.children;
             return node;
+        }
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends NamedType implements Type {
+        @Override
+        public String getName() {
+            return "Properties";
+        }
+
+        @Override
+        public Builder createBuilder() {
+            return new PropertiesBuilder();
         }
     }
 }

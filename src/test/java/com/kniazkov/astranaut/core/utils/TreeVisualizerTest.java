@@ -27,9 +27,10 @@ import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.CoreException;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.EmptyTree;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.NodeAndType;
 import com.kniazkov.astranaut.core.base.Tree;
+import com.kniazkov.astranaut.core.base.Type;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -191,15 +192,15 @@ class TreeVisualizerTest {
      * Colored node for test purposes.
      * @since 0.0.1
      */
-    private static final class ColoredNode extends NodeAndType {
-        @Override
-        public String getName() {
-            return "Colored";
-        }
+    private static final class ColoredNode implements Node {
+        /**
+         * Shared type descriptor.
+         */
+        private static final Type TYPE = new TypeImpl();
 
         @Override
-        public Builder createBuilder() {
-            return null;
+        public Type getType() {
+            return ColoredNode.TYPE;
         }
 
         @Override
@@ -223,6 +224,22 @@ class TreeVisualizerTest {
                 .put("color", "red")
                 .put("bgcolor", "yellow")
                 .make();
+        }
+
+        /**
+         * Type descriptor independent of node instances.
+         * @since 0.0.1
+         */
+        private static final class TypeImpl extends NamedType implements Type {
+            @Override
+            public String getName() {
+                return "Colored";
+            }
+
+            @Override
+            public Builder createBuilder() {
+                return null;
+            }
         }
     }
 }

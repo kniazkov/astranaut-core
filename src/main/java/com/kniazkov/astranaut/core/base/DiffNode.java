@@ -34,7 +34,12 @@ import java.util.Map;
  * @since 0.0.1
  */
 @SuppressWarnings("PMD.GodClass")
-public final class DiffNode extends NodeAndType implements DiffTreeItem, PrototypeBasedNode {
+public final class DiffNode implements DiffTreeItem, PrototypeBasedNode {
+    /**
+     * Independent type descriptor.
+     */
+    private final Type type;
+
     /**
      * The parent node with action.
      */
@@ -58,6 +63,7 @@ public final class DiffNode extends NodeAndType implements DiffTreeItem, Prototy
     private DiffNode(final DiffNode parent, final Node prototype) {
         this.parent = parent;
         this.prototype = prototype;
+        this.type = new TypeImpl(prototype.getType());
         this.children = this.initChildrenList();
     }
 
@@ -75,6 +81,11 @@ public final class DiffNode extends NodeAndType implements DiffTreeItem, Prototy
      */
     public DiffNode getParent() {
         return this.parent;
+    }
+
+    @Override
+    public Type getType() {
+        return this.type;
     }
 
     @Override
@@ -103,18 +114,8 @@ public final class DiffNode extends NodeAndType implements DiffTreeItem, Prototy
     }
 
     @Override
-    public String getName() {
-        return this.prototype.getTypeName();
-    }
-
-    @Override
     public Map<String, String> getProperties() {
         return this.prototype.getProperties();
-    }
-
-    @Override
-    public Builder createBuilder() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -318,5 +319,39 @@ public final class DiffNode extends NodeAndType implements DiffTreeItem, Prototy
          * @return Branch (node before or after changes)
          */
         Node select(DiffTreeItem item);
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends NamedType implements Type {
+        /**
+         * Immutable type definition.
+         */
+        private final Type original;
+
+        /**
+         * Creates the descriptor.
+         * @param original Prototype type
+         */
+        private TypeImpl(final Type original) {
+            this.original = original;
+        }
+
+        @Override
+        public String getName() {
+            return this.original.getName();
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return this.original.getProperties();
+        }
+
+        @Override
+        public Builder createBuilder() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

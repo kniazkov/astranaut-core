@@ -149,7 +149,12 @@ class DefaultFragmentTest {
      * A fake node for test purposes, it only returns a fragment.
      * @since 0.0.1
      */
-    private static final class FakeNode extends NodeAndType {
+    private static final class FakeNode implements Node {
+        /**
+         * Shared type descriptor.
+         */
+        private static final Type TYPE = new TypeImpl();
+
         /**
          * Row number.
          */
@@ -161,6 +166,11 @@ class DefaultFragmentTest {
          */
         private FakeNode(final int row) {
             this.row = row;
+        }
+
+        @Override
+        public Type getType() {
+            return FakeNode.TYPE;
         }
 
         @Override
@@ -189,14 +199,20 @@ class DefaultFragmentTest {
             return null;
         }
 
-        @Override
-        public String getName() {
-            return "X";
-        }
+        /**
+         * Type descriptor independent of node instances.
+         * @since 0.0.1
+         */
+        private static final class TypeImpl extends NamedType implements Type {
+            @Override
+            public String getName() {
+                return "X";
+            }
 
-        @Override
-        public Builder createBuilder() {
-            return null;
+            @Override
+            public Builder createBuilder() {
+                return null;
+            }
         }
     }
 }

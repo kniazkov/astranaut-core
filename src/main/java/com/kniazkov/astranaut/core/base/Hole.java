@@ -30,7 +30,12 @@ import java.util.Map;
  * A special pattern node that can substitute for any node of a suitable type.
  * @since 0.0.1
  */
-public final class Hole extends NodeAndType implements PatternItem, PrototypeBasedNode {
+public final class Hole implements PatternItem, PrototypeBasedNode {
+    /**
+     * Independent type descriptor.
+     */
+    private final Type type;
+
     /**
      * The prototype node, i.e., a node turned into hole.
      */
@@ -53,6 +58,7 @@ public final class Hole extends NodeAndType implements PatternItem, PrototypeBas
      */
     public Hole(final Node prototype, final int number) {
         this.prototype = prototype;
+        this.type = new TypeImpl(prototype.getType());
         this.number = number;
         this.properties = new MapUtils<String, String>()
             .put(prototype.getProperties())
@@ -61,18 +67,13 @@ public final class Hole extends NodeAndType implements PatternItem, PrototypeBas
     }
 
     @Override
+    public Type getType() {
+        return this.type;
+    }
+
+    @Override
     public Fragment getFragment() {
         return EmptyFragment.INSTANCE;
-    }
-
-    @Override
-    public String getName() {
-        return this.prototype.getTypeName();
-    }
-
-    @Override
-    public Builder createBuilder() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -113,5 +114,39 @@ public final class Hole extends NodeAndType implements PatternItem, PrototypeBas
     @Override
     public Node getPrototype() {
         return this.prototype;
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends NamedType implements Type {
+        /**
+         * Immutable type definition.
+         */
+        private final Type original;
+
+        /**
+         * Creates the descriptor.
+         * @param original Prototype type
+         */
+        private TypeImpl(final Type original) {
+            this.original = original;
+        }
+
+        @Override
+        public String getName() {
+            return this.original.getName();
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return this.original.getProperties();
+        }
+
+        @Override
+        public Builder createBuilder() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

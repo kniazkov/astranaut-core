@@ -25,9 +25,10 @@ package com.kniazkov.astranaut.core.algorithms.normalization;
 
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Fragment;
+import com.kniazkov.astranaut.core.base.NamedType;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.NodeAndType;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
+import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,12 @@ import java.util.Map;
  *  are extracted into separate child nodes.
  * @since 0.0.1
  */
-public final class NormalizedNode extends NodeAndType implements PrototypeBasedNode {
+public final class NormalizedNode implements PrototypeBasedNode {
+    /**
+     * Independent type descriptor.
+     */
+    private final Type type;
+
     /**
      * The original, non-normalized node.
      */
@@ -76,18 +82,19 @@ public final class NormalizedNode extends NodeAndType implements PrototypeBasedN
     private NormalizedNode(final Node original, final Properties properties,
         final List<NormalizedNode> children) {
         this.original = original;
+        this.type = new TypeImpl(original.getType());
         this.properties = properties;
         this.children = children;
     }
 
     @Override
-    public Fragment getFragment() {
-        return this.original.getFragment();
+    public Type getType() {
+        return this.type;
     }
 
     @Override
-    public String getName() {
-        return this.original.getTypeName();
+    public Fragment getFragment() {
+        return this.original.getFragment();
     }
 
     @Override
@@ -98,11 +105,6 @@ public final class NormalizedNode extends NodeAndType implements PrototypeBasedN
     @Override
     public Map<String, String> getProperties() {
         return Collections.emptyMap();
-    }
-
-    @Override
-    public Builder createBuilder() {
-        return new NormalizerNodeBuilder(this.original.getType().createBuilder());
     }
 
     @Override
@@ -252,6 +254,35 @@ public final class NormalizedNode extends NodeAndType implements PrototypeBasedN
                 this.properties,
                 this.children
             );
+        }
+    }
+
+    /**
+     * Type descriptor independent of node instances.
+     * @since 0.0.1
+     */
+    private static final class TypeImpl extends NamedType implements Type {
+        /**
+         * Immutable type definition.
+         */
+        private final Type original;
+
+        /**
+         * Creates the descriptor.
+         * @param original Original type
+         */
+        private TypeImpl(final Type original) {
+            this.original = original;
+        }
+
+        @Override
+        public String getName() {
+            return this.original.getName();
+        }
+
+        @Override
+        public Builder createBuilder() {
+            return new NormalizerNodeBuilder(this.original.createBuilder());
         }
     }
 }
