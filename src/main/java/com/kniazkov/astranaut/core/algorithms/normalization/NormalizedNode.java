@@ -27,6 +27,7 @@ import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
@@ -42,7 +43,7 @@ import java.util.Optional;
  *  are extracted into separate child nodes.
  * @since 0.0.1
  */
-public final class NormalizedNode implements PrototypeBasedNode {
+public final class NormalizedNode extends NodeWithStructuralEquality implements PrototypeBasedNode {
     /**
      * Independent type descriptor.
      */

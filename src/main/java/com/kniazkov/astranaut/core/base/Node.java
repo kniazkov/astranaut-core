@@ -44,6 +44,10 @@ import java.util.function.Consumer;
  *  of classes based on it.
  *  The interface is designed to be immutable, which ensures thread safety and
  *  consistency, as well as simplifying the debugging process.
+ * Implementations must provide structural equals/hashCode: type, data, ordered
+ * children and their tags are significant; properties and fragments are not.
+ * Extend {@link NodeWithStructuralEquality} or delegate to {@link NodeStructure}.
+ * Mixing implementations that retain Object equality violates this contract.
  * @since 0.0.1
  */
 @SuppressWarnings("PMD.ExcessivePublicCount")
@@ -171,26 +175,12 @@ public interface Node {
 
     /**
      * Performs a deep comparison of a node with another node,
-     *  i.e., compares nodes, as well as recursively all children of nodes one-to-one.
+     *  i.e., compares type, data, tags and children without recursive Java calls.
      * @param other Other node
      * @return Comparison result, {@code true} if the nodes are equal
      */
-    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     default boolean deepCompare(final Node other) {
-        boolean equals;
-        if (this == other) {
-            equals = true;
-        } else {
-            final int count = this.getChildCount();
-            equals = count == other.getChildCount()
-                && this.getType().equals(other.getType())
-                && this.getData().equals(other.getData())
-                && this.getProperties().equals(other.getProperties());
-            for (int index = 0; equals && index < count; index = index + 1) {
-                equals = this.getChild(index).deepCompare(other.getChild(index));
-            }
-        }
-        return equals;
+        return NodeStructure.equal(this, other);
     }
 
     /**
@@ -361,7 +351,7 @@ public interface Node {
             final int count = this.node.getChildCount();
             boolean found = false;
             for (int index = 0; index < count; index = index + 1) {
-                if (this.node.getChild(index) == obj) {
+                if (this.node.getChild(index).equals(obj)) {
                     found = true;
                     break;
                 }
@@ -472,7 +462,7 @@ public interface Node {
             if (obj instanceof Node) {
                 final int count = this.node.getChildCount();
                 for (int index = 0; index < count; index = index + 1) {
-                    if (this.node.getChild(index) == obj) {
+                    if (this.node.getChild(index).equals(obj)) {
                         result = index;
                         break;
                     }
@@ -487,7 +477,7 @@ public interface Node {
             int result = -1;
             if (obj instanceof Node) {
                 for (int index = this.node.getChildCount() - 1; index >= 0; index = index - 1) {
-                    if (this.node.getChild(index) == obj) {
+                    if (this.node.getChild(index).equals(obj)) {
                         result = index;
                         break;
                     }

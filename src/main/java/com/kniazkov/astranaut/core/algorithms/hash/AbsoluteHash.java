@@ -24,8 +24,7 @@
 package com.kniazkov.astranaut.core.algorithms.hash;
 
 import com.kniazkov.astranaut.core.base.Node;
-import java.util.HashMap;
-import java.util.Map;
+import com.kniazkov.astranaut.core.base.NodeStructure;
 
 /**
  * Computes the absolute hash of a node, that is, a hash that is computed from both the data
@@ -35,32 +34,8 @@ import java.util.Map;
  * @since 0.0.1
  */
 public final class AbsoluteHash implements Hash {
-    /**
-     * A table with the calculated hashes.
-     * Since nodes are immutable, a hash calculated once for a node will never change.
-     */
-    private final Map<Node, Integer> calculated;
-
-    /**
-     * Constructor.
-     */
-    public AbsoluteHash() {
-        this.calculated = new HashMap<>();
-    }
-
     @Override
     public int calculate(final Node node) {
-        int hash;
-        if (this.calculated.containsKey(node)) {
-            hash = this.calculated.get(node);
-        } else {
-            hash = node.getType().hashCode() * 31 + node.getData().hashCode();
-            final int count = node.getChildCount();
-            for (int index = 0; index < count; index = index + 1) {
-                hash = 31 * hash + this.calculate(node.getChild(index));
-            }
-            this.calculated.put(node, hash);
-        }
-        return hash;
+        return NodeStructure.hash(node);
     }
 }

@@ -31,7 +31,7 @@ import java.util.Set;
  * Special placeholder node that represents a problematic or default node instance.
  * @since 0.0.1
  */
-public final class DummyNode implements Node {
+public final class DummyNode extends NodeWithStructuralEquality implements Node {
     /**
      * The type.
      */

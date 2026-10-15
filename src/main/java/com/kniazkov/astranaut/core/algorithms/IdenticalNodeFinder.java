@@ -24,61 +24,85 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeStructure;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * A class which finds and returns identical nodes in a tree.
- *  Nodes are listed if they have data and their hashes match.
+ * Finds distinct node objects with matching type and nonempty data.
+ * Children are not part of this local grouping; hashes only select candidates.
+ * Returned sets use reference identity to retain structurally equal objects.
  * @since 0.0.1
  */
-public class IdenticalNodeFinder {
+public final class IdenticalNodeFinder {
     /**
-     * The root of the tree to search in.
+     * Search root.
      */
     private final Node root;
 
     /**
-     * Constructor.
-     *
-     * @param root The root of the tree to search in
+     * Creates a finder.
+     * @param root Root
      */
     public IdenticalNodeFinder(final Node root) {
         this.root = root;
     }
 
     /**
-     * Get identical nodes.
-     *
-     * @return The set of sets with identical nodes.
+     * Groups locally equal nodes, without merging hash collisions.
+     * @return Identity sets of matching objects
      */
     public Set<Set<Node>> find() {
-        final Map<Integer, Set<Node>> result = new HashMap<>();
-        this.search(this.root, result);
-        return result.values()
-            .stream()
-            .filter(set -> set.size() >= 2)
-            .collect(Collectors.toSet());
+        final Map<Integer, List<Set<Node>>> buckets = new HashMap<>();
+        final Set<Node> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        final Deque<Node> pending = new ArrayDeque<>();
+        pending.push(this.root);
+        while (!pending.isEmpty()) {
+            final Node node = pending.pop();
+            if (visited.add(node)) {
+                IdenticalNodeFinder.group(node, buckets);
+                node.forEachChild(pending::push);
+            }
+        }
+        final Set<Set<Node>> result = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (final List<Set<Node>> bucket : buckets.values()) {
+            for (final Set<Node> group : bucket) {
+                if (group.size() > 1) {
+                    result.add(Collections.unmodifiableSet(group));
+                }
+            }
+        }
+        return Collections.unmodifiableSet(result);
     }
 
     /**
-     * Calculates hash recursively for all nodes with non-empty data and
-     *  adds entries to the resulting map.
-     * @param node The current node to process
-     * @param result Where to put the result
+     * Confirms candidates and adds the object to its local structural group.
+     * @param node Node
+     * @param buckets Hash buckets
      */
-    private void search(final Node node, final Map<Integer, Set<Node>> result) {
+    private static void group(final Node node, final Map<Integer, List<Set<Node>>> buckets) {
         if (!node.getData().isEmpty()) {
-            result.computeIfAbsent(
-                node.getLocalHash(),
-                s -> new HashSet<>()
-            ).add(node);
-        }
-        for (final Node child: node.getChildrenList()) {
-            this.search(child, result);
+            final List<Set<Node>> groups = buckets.computeIfAbsent(
+                node.getLocalHash(), key -> new ArrayList<>(1)
+            );
+            Set<Node> found = Collections.newSetFromMap(new IdentityHashMap<>());
+            for (final Set<Node> group : groups) {
+                if (NodeStructure.locallyEqual(node, group.iterator().next())) {
+                    found = group;
+                    break;
+                }
+            }
+            if (found.isEmpty()) {
+                groups.add(found);
+            }
+            found.add(node);
         }
     }
 }

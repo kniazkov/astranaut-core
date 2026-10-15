@@ -31,7 +31,7 @@ import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -173,7 +173,7 @@ public final class DiffTreeBuilder {
      * @return The map containing relationship of the nodes to their parents.
      */
     private static Map<Node, NodeInfo> buildNodeInfoMap(final DiffNode root) {
-        final Map<Node, NodeInfo> map = new HashMap<>();
+        final Map<Node, NodeInfo> map = new IdentityHashMap<>();
         map.put(root.getPrototype(), new NodeInfo(root, null));
         DiffTreeBuilder.buildNodeInfoMap(map, root);
         return map;

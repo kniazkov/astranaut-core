@@ -30,6 +30,7 @@ import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
@@ -52,7 +53,7 @@ import java.util.stream.Stream;
  *
  * @since 0.0.1
  */
-public final class Multiplication implements BinaryExpression {
+public final class Multiplication extends NodeWithStructuralEquality implements BinaryExpression {
     /**
      * The type.
      */

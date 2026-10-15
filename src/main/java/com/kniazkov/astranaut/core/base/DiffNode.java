@@ -34,7 +34,8 @@ import java.util.Map;
  * @since 0.0.1
  */
 @SuppressWarnings("PMD.GodClass")
-public final class DiffNode implements DiffTreeItem, PrototypeBasedNode {
+public final class DiffNode extends NodeWithStructuralEquality
+    implements DiffTreeItem, PrototypeBasedNode {
     /**
      * Independent type descriptor.
      */
@@ -252,6 +253,7 @@ public final class DiffNode implements DiffTreeItem, PrototypeBasedNode {
      * @param node Prototype of the node whose index is to be found
      * @return Index or -1 if there is no such node or it has already been deleted or replaced
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private int findChildIndex(final Node node) {
         int result = -1;
         final int count = this.children.size();
@@ -260,7 +262,7 @@ public final class DiffNode implements DiffTreeItem, PrototypeBasedNode {
             if (child instanceof DiffNode) {
                 Node proto = ((DiffNode) child).getPrototype();
                 while (true) {
-                    if (node.equals(proto)) {
+                    if (node == proto) {
                         result = index;
                         break;
                     } else if (proto instanceof PrototypeBasedNode) {

@@ -24,7 +24,7 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Node;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -42,7 +42,7 @@ public final class DepthCalculator {
      * Constructor.
      */
     public DepthCalculator() {
-        this.calculated = new HashMap<>();
+        this.calculated = new IdentityHashMap<>();
     }
 
     /**

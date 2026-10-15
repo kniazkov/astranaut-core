@@ -31,7 +31,7 @@ import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Provider;
 import com.kniazkov.astranaut.core.base.Tree;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -62,7 +62,7 @@ public class TreeDescriptor {
                 break;
             }
             final ActionList actions = new ActionList();
-            final Map<Node, Integer> holes = new HashMap<>();
+            final Map<Node, Integer> holes = new IdentityHashMap<>();
             result = new Tree(this.root.convert(factory, actions, holes));
             if (holes.isEmpty() && !actions.hasActions()) {
                 break;

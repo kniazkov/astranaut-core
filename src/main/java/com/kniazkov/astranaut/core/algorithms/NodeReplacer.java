@@ -45,9 +45,10 @@ public class NodeReplacer {
      *  - {@code -1} if the full tree was replaced or was not replaced at all;
      *  - index of the root child which branch was modified if a subtree was replaced
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public Pair<Node, Integer> replace(final Node tree, final Node source, final Node target) {
         Pair<Node, Integer> result = new Pair<>(DummyNode.INSTANCE, -1);
-        if (tree.equals(source)) {
+        if (tree == source) {
             result = new Pair<>(target, -1);
         } else if (tree.getChildCount() > 0) {
             final List<Node> list = new ArrayList<>(tree.getChildCount());
@@ -55,7 +56,7 @@ public class NodeReplacer {
             for (int idx = 0; idx < tree.getChildCount(); idx += 1) {
                 final Node child = tree.getChild(idx);
                 final Pair<Node, Integer> replacement = this.replace(child, source, target);
-                if (replacement.getKey().equals(DummyNode.INSTANCE)) {
+                if (replacement.getKey() == DummyNode.INSTANCE) {
                     list.add(child);
                 } else {
                     list.add(replacement.getKey());

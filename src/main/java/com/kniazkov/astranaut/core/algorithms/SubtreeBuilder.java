@@ -26,11 +26,12 @@ package com.kniazkov.astranaut.core.algorithms;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,7 +89,7 @@ public class SubtreeBuilder {
      * @return Root node of created subtree.
      */
     public Node create(final Set<Node> nodes) {
-        final Map<Node, List<Integer>> indexes = new HashMap<>();
+        final Map<Node, List<Integer>> indexes = new IdentityHashMap<>();
         this.build(this.root, indexes, nodes);
         final Node result;
         if (indexes.get(this.root).isEmpty()) {
@@ -151,7 +152,8 @@ public class SubtreeBuilder {
      * A node created from the original node, but which has only children from the specified set.
      * @since 0.0.1
      */
-    private static final class SubNode implements PrototypeBasedNode {
+    private static final class SubNode extends NodeWithStructuralEquality
+        implements PrototypeBasedNode {
         /**
          * Original node.
          */
@@ -219,6 +221,25 @@ public class SubtreeBuilder {
         @Override
         public Node getPrototype() {
             return this.original;
+        }
+
+        @Override
+        public java.util.Optional<String> getChildTag(final int index) {
+            java.util.Objects.checkIndex(index, this.getChildCount());
+            return this.original.getChildTag(this.indexes.get(this.original).get(index));
+        }
+
+        @Override
+        public java.util.Optional<Node> getChild(final String tag) {
+            java.util.Objects.requireNonNull(tag);
+            java.util.Optional<Node> result = java.util.Optional.empty();
+            for (int index = 0; index < this.getChildCount(); index += 1) {
+                if (this.getChildTag(index).filter(tag::equals).isPresent()) {
+                    result = java.util.Optional.of(this.getChild(index));
+                    break;
+                }
+            }
+            return result;
         }
 
         @Override
