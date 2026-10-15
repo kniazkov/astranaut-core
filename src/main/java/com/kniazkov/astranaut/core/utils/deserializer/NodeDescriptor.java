@@ -166,10 +166,10 @@ public class NodeDescriptor {
                 if (descriptor.children != null) {
                     final List<Node> list = new ArrayList<>(descriptor.children.size());
                     parent = this.convertChildren(descriptor, list);
-                    filled = builder.setChildrenList(list);
+                    filled = builder.setChildren(list);
                 }
                 if (filled && builder.isValid()) {
-                    result = builder.createNode();
+                    result = builder.build();
                 }
                 if (parent != null) {
                     parent.set(result);

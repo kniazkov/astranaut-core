@@ -60,7 +60,7 @@ class PropertiesTest {
         Assertions.assertFalse(builder.setData("abc"));
         Assertions.assertTrue(builder.setData(""));
         Assertions.assertFalse(
-            builder.setChildrenList(Collections.singletonList(DummyNode.INSTANCE))
+            builder.setChildren(Collections.singletonList(DummyNode.INSTANCE))
         );
         final Map<String, String> expected = new TreeMap<>();
         expected.put("color", "red");
@@ -69,9 +69,9 @@ class PropertiesTest {
         for (final Map.Entry<String, String> entry : expected.entrySet()) {
             children.add(new Property(entry.getKey(), entry.getValue()));
         }
-        Assertions.assertTrue(builder.setChildrenList(children));
+        Assertions.assertTrue(builder.setChildren(children));
         Assertions.assertTrue(builder.isValid());
-        final Node properties = builder.createNode();
+        final Node properties = builder.build();
         Assertions.assertTrue(properties instanceof Properties);
         final Map<String, String> actual = ((Properties) properties).collectAllProperties();
         Assertions.assertEquals(expected, actual);

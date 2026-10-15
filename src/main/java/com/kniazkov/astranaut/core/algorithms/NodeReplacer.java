@@ -64,8 +64,8 @@ public class NodeReplacer {
             }
             if (pos != -1) {
                 final Builder builder = tree.getType().createBuilder();
-                builder.setChildrenList(list);
-                result = new Pair<>(builder.createNode(), pos);
+                builder.setChildren(list);
+                result = new Pair<>(builder.build(), pos);
             }
         }
         return result;

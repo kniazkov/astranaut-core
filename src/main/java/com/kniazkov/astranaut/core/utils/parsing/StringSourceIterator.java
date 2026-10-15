@@ -88,7 +88,7 @@ final class StringSourceIterator implements Iterator<Char> {
         final Char.Constructor builder = new Char.Constructor();
         builder.setFragment(fragment);
         builder.setValue(this.symbol);
-        final Char node = (Char) builder.createNode();
+        final Char node = (Char) builder.build();
         if (this.symbol == '\n') {
             this.row = this.row + 1;
             this.column = 1;

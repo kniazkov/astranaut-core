@@ -111,12 +111,12 @@ public final class Property implements Node {
 
         @Override
         public boolean setData(final String str) {
-            this.value = str;
+            this.value = java.util.Objects.requireNonNull(str);
             return true;
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return list.isEmpty();
         }
 
@@ -126,7 +126,7 @@ public final class Property implements Node {
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             return new Property(this.name, this.value);
         }
     }

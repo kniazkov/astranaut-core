@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("PMD.TooManyMethods")
 class NodeAllocatorTest {
     @Test
-    void snapshotsSchemaAndRejectsUnsupportedRepeatedAllocation() {
+    void snapshotsSchemaAndSupportsRepeatedAllocation() {
         final AbstractType type = new SimpleAbstractType("A");
         final List<ChildDescriptor> schema = new ArrayList<>(1);
         schema.add(ChildDescriptor.create().required(type).build().getFirst());
@@ -57,9 +57,11 @@ class NodeAllocatorTest {
         final Node[] result = new Node[1];
         Assertions.assertTrue(allocator.allocate(result, List.of(child)));
         Assertions.assertSame(child, result[0]);
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> new NodeAllocator(ChildDescriptor.create().repeated(type).build())
+        final NodeAllocator repeated = new NodeAllocator(
+            ChildDescriptor.create().repeated(type).build()
+        );
+        Assertions.assertEquals(
+            List.of(List.of(child, child)), repeated.allocate(List.of(child, child)).orElseThrow()
         );
     }
 
@@ -356,16 +358,16 @@ class NodeAllocatorTest {
         final NodeAllocator mapper = new NodeAllocator(descriptors);
         IntegerLiteral.Constructor icr = new IntegerLiteral.Constructor();
         icr.setData("7");
-        final Node first = icr.createNode();
+        final Node first = icr.build();
         icr = new IntegerLiteral.Constructor();
         icr.setData("11");
-        final Node second = icr.createNode();
+        final Node second = icr.build();
         final Addition.Constructor acr = new Addition.Constructor();
-        acr.setChildrenList(Arrays.asList(first, second));
-        final Node addition = acr.createNode();
+        acr.setChildren(Arrays.asList(first, second));
+        final Node addition = acr.build();
         icr = new IntegerLiteral.Constructor();
         icr.setData("13");
-        final Node third = icr.createNode();
+        final Node third = icr.build();
         final Node[] mapping = new Node[2];
         final boolean result = mapper.allocate(mapping, Arrays.asList(addition, third));
         Assertions.assertTrue(result);
@@ -382,9 +384,9 @@ class NodeAllocatorTest {
         final NodeAllocator mapper = new NodeAllocator(descriptors);
         final Variable.Constructor ctor = new Variable.Constructor();
         ctor.setData("x");
-        final Node left = ctor.createNode();
+        final Node left = ctor.build();
         ctor.setData("y");
-        final Node right = ctor.createNode();
+        final Node right = ctor.build();
         final Node[] mapping = new Node[2];
         final boolean result = mapper.allocate(mapping, Arrays.asList(left, right));
         Assertions.assertTrue(result);
@@ -450,7 +452,7 @@ class NodeAllocatorTest {
             final DraftNode.Constructor ctor = new DraftNode.Constructor();
             ctor.setName(node.getTypeName());
             ctor.setData(node.getIndex());
-            children.add(ctor.createNode());
+            children.add(ctor.build());
         }
         final Node[] mapping = new Node[types.size()];
         final NodeAllocator mapper = new NodeAllocator(types);

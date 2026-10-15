@@ -173,7 +173,7 @@ public final class IntegerLiteral implements Expression {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return list.isEmpty();
         }
 
@@ -183,7 +183,7 @@ public final class IntegerLiteral implements Expression {
         }
 
         @Override
-        public IntegerLiteral createNode() {
+        public IntegerLiteral build() {
             final IntegerLiteral node = new IntegerLiteral();
             node.fragment = this.fragment;
             node.data = this.data;

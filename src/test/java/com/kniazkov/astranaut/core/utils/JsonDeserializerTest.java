@@ -359,7 +359,7 @@ class JsonDeserializerTest {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return false;
         }
 
@@ -369,7 +369,7 @@ class JsonDeserializerTest {
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             return DraftNode.create(this.name);
         }
     }
@@ -390,7 +390,7 @@ class JsonDeserializerTest {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return true;
         }
 
@@ -400,7 +400,7 @@ class JsonDeserializerTest {
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             throw new UnsupportedOperationException();
         }
     }

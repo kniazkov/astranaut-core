@@ -94,7 +94,7 @@ public final class DummyNode implements Node {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return false;
         }
 
@@ -104,7 +104,7 @@ public final class DummyNode implements Node {
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             return DummyNode.INSTANCE;
         }
     }

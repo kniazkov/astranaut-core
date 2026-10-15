@@ -26,7 +26,9 @@ package com.kniazkov.astranaut.core.base;
 import java.util.List;
 
 /**
- * Object that creates nodes.
+ * Mutable, independently implemented node builder. Builders need not be thread safe.
+ * Individual edits may leave required positions empty. A rejected edit is atomic:
+ * data, child order and tags remain unchanged. Building never mutates builder state.
  * @since 0.0.1
  */
 public interface Builder {
@@ -44,12 +46,51 @@ public interface Builder {
     boolean setData(String str);
 
     /**
-     * Sets a new list of children.
+     * Replaces all children and their bindings. Accepts only a complete, unambiguous
+     * allocation, including every required child; data is validated separately.
      * @param list A list of children
      * @return Result of operation, {@code true} if the new children list is suitable
      *  for this type of node
      */
-    boolean setChildrenList(List<Node> list);
+    boolean setChildren(List<Node> list);
+
+    /**
+     * Sets a named child, retaining its position if already present.
+     * @param tag Child tag
+     * @param child Replacement child
+     * @return Whether accepted; unknown tags and incompatible children are rejected
+     */
+    default boolean setChild(final String tag, final Node child) {
+        return false;
+    }
+
+    /**
+     * Replaces a child in the current insertion order, preserving its tag.
+     * @param index Current child index, not a schema index
+     * @param child Replacement child
+     * @return Whether accepted; invalid indexes never append
+     */
+    default boolean setChild(final int index, final Node child) {
+        return false;
+    }
+
+    /**
+     * Removes a named child. Removing a required child is permitted.
+     * @param tag Child tag
+     * @return Whether a child was removed
+     */
+    default boolean removeChild(final String tag) {
+        return false;
+    }
+
+    /**
+     * Removes a child in current insertion order. Subsequent indexes shift.
+     * @param index Current child index
+     * @return Whether a child was removed
+     */
+    default boolean removeChild(final int index) {
+        return false;
+    }
 
     /**
      * Checks if the Creator is in a valid state,
@@ -59,8 +100,9 @@ public interface Builder {
     boolean isValid();
 
     /**
-     * Creates a specific node.
+     * Creates a valid node detached from mutable builder state.
      * @return A node
+     * @throws ConstructionException If the current state cannot produce a valid node
      */
-    Node createNode();
+    Node build();
 }

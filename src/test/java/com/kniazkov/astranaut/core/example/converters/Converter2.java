@@ -69,7 +69,7 @@ public final class Converter2 implements Converter {
             }
             final Builder builder = factory.createBuilder(Converter2.NODE_NAME);
             builder.setData(extracted.getData(1));
-            result = Optional.of(new ConversionResult(builder.createNode(), 1));
+            result = Optional.of(new ConversionResult(builder.build(), 1));
         } while (false);
         return result;
     }

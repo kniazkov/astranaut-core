@@ -45,9 +45,9 @@ final class IndependentTypeTest {
         final Builder second = type.createBuilder();
         Assertions.assertNotSame(first, second);
         Assertions.assertTrue(first.setData("new"));
-        Assertions.assertTrue(first.setChildrenList(List.of(DraftNode.create("Other"))));
-        final Node created = first.createNode();
-        final Node empty = second.createNode();
+        Assertions.assertTrue(first.setChildren(List.of(DraftNode.create("Other"))));
+        final Node created = first.build();
+        final Node empty = second.build();
         Assertions.assertEquals(type, created.getType());
         Assertions.assertEquals(type, empty.getType());
         Assertions.assertEquals("", empty.getData());
@@ -62,19 +62,19 @@ final class IndependentTypeTest {
         final Type type = original.getType();
         final Builder builder = type.createBuilder();
         Assertions.assertTrue(builder.setData("after"));
-        final Node created = builder.createNode();
+        final Node created = builder.build();
         Assertions.assertInstanceOf(Property.class, created);
         Assertions.assertEquals(type, created.getType());
         Assertions.assertEquals("after", created.getData());
         Assertions.assertEquals("before", original.getData());
-        Assertions.assertEquals("", type.createBuilder().createNode().getData());
+        Assertions.assertEquals("", type.createBuilder().build().getData());
     }
 
     @Test
     void propertiesFactoryDoesNotCaptureValues() {
         final Properties original = new Properties(Map.of("key", "value"));
         final Builder builder = original.getType().createBuilder();
-        final Node created = builder.createNode();
+        final Node created = builder.build();
         Assertions.assertInstanceOf(Properties.class, created);
         Assertions.assertEquals(0, created.getChildCount());
         Assertions.assertEquals(1, original.getChildCount());
@@ -86,13 +86,13 @@ final class IndependentTypeTest {
         final NormalizedNode original = new NormalizedNode(DraftNode.create("Branch(A,B)"));
         final Type type = original.getType();
         final Builder builder = type.createBuilder();
-        Assertions.assertTrue(builder.setChildrenList(List.of(DraftNode.create("C"))));
-        final Node created = builder.createNode();
+        Assertions.assertTrue(builder.setChildren(List.of(DraftNode.create("C"))));
+        final Node created = builder.build();
         Assertions.assertInstanceOf(NormalizedNode.class, created);
         Assertions.assertEquals(type, created.getType());
         Assertions.assertEquals(1, created.getChildCount());
         Assertions.assertEquals(2, original.getChildCount());
-        Assertions.assertEquals(0, type.createBuilder().createNode().getChildCount());
+        Assertions.assertEquals(0, type.createBuilder().build().getChildCount());
     }
 
     @Test

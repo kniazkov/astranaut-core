@@ -47,7 +47,7 @@ class TreeTest {
         ctor.setName("A");
         ctor.addChild(DraftNode.create("B"));
         ctor.addChild(new TestNode("C", language));
-        final Tree tree = new Tree(ctor.createNode());
+        final Tree tree = new Tree(ctor.build());
         Assertions.assertEquals(description, tree.getRoot().toString());
         Assertions.assertEquals(description, tree.toString());
         Assertions.assertEquals(language, tree.getLanguage());

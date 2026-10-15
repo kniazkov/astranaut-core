@@ -75,10 +75,10 @@ class NodeTagsTest {
     void generatedStyleNodeDistinguishesOccurrencesOfSharedChild() {
         final IntegerLiteral.Constructor literal = new IntegerLiteral.Constructor();
         literal.setData("42");
-        final Node child = literal.createNode();
+        final Node child = literal.build();
         final Addition.Constructor builder = new Addition.Constructor();
-        Assertions.assertTrue(builder.setChildrenList(List.of(child, child)));
-        final Addition node = (Addition) builder.createNode();
+        Assertions.assertTrue(builder.setChildren(List.of(child, child)));
+        final Addition node = (Addition) builder.build();
         Assertions.assertSame(child, node.getLeft());
         Assertions.assertSame(child, node.getRight());
         Assertions.assertSame(child, node.getChild(NodeTagsTest.LEFT).orElseThrow());
@@ -95,7 +95,7 @@ class NodeTagsTest {
     void schemaFreeAdapterPreservesTagAfterOptionalGap() {
         final IntegerLiteral.Constructor literal = new IntegerLiteral.Constructor();
         literal.setData("1");
-        final IntegerLiteral right = (IntegerLiteral) literal.createNode();
+        final IntegerLiteral right = (IntegerLiteral) literal.build();
         final OptionalPair node = new OptionalPair(Optional.empty(), Optional.of(right));
         Assertions.assertTrue(node.getType().getChildDescriptors().isEmpty());
         Assertions.assertTrue(node.getChild(NodeTagsTest.LEFT).isEmpty());
@@ -110,8 +110,8 @@ class NodeTagsTest {
     void equalLookingChildrenRemainSeparateOccurrences() {
         final IntegerLiteral.Constructor literal = new IntegerLiteral.Constructor();
         literal.setData("1");
-        final IntegerLiteral left = (IntegerLiteral) literal.createNode();
-        final IntegerLiteral right = (IntegerLiteral) literal.createNode();
+        final IntegerLiteral left = (IntegerLiteral) literal.build();
+        final IntegerLiteral right = (IntegerLiteral) literal.build();
         final OptionalPair pair = new OptionalPair(Optional.of(left), Optional.of(right));
         Assertions.assertTrue(left.deepCompare(right));
         Assertions.assertNotSame(left, right);
@@ -125,7 +125,7 @@ class NodeTagsTest {
     void supportsConcurrentReads() throws Exception {
         final IntegerLiteral.Constructor literal = new IntegerLiteral.Constructor();
         literal.setData("7");
-        final IntegerLiteral child = (IntegerLiteral) literal.createNode();
+        final IntegerLiteral child = (IntegerLiteral) literal.build();
         final OptionalPair pair = new OptionalPair(Optional.of(child), Optional.of(child));
         final Callable<Boolean> read = () ->
             pair.getChild(NodeTagsTest.RIGHT).orElseThrow() == pair.getChild(1)

@@ -84,11 +84,10 @@ class ActionTest {
         Assertions.assertTrue(builder.setData(""));
         Assertions.assertFalse(builder.setData("abracadabra"));
         Assertions.assertFalse(builder.isValid());
-        Node created = builder.createNode();
-        Assertions.assertEquals(DummyNode.INSTANCE, created);
-        Assertions.assertTrue(builder.setChildrenList(Collections.singletonList(inserted)));
-        Assertions.assertFalse(builder.setChildrenList(Arrays.asList(inserted, inserted)));
-        created = builder.createNode();
+        Assertions.assertThrows(ConstructionException.class, builder::build);
+        Assertions.assertTrue(builder.setChildren(Collections.singletonList(inserted)));
+        Assertions.assertFalse(builder.setChildren(Arrays.asList(inserted, inserted)));
+        final Node created = builder.build();
         Assertions.assertEquals(ActionTest.INSERT_TYPE, created.getTypeName());
     }
 
@@ -119,12 +118,11 @@ class ActionTest {
         Assertions.assertTrue(builder.setData(""));
         Assertions.assertFalse(builder.setData("it's a kind of magic"));
         Assertions.assertFalse(builder.isValid());
-        Node created = builder.createNode();
-        Assertions.assertEquals(DummyNode.INSTANCE, created);
-        Assertions.assertTrue(builder.setChildrenList(Arrays.asList(before, after)));
-        Assertions.assertFalse(builder.setChildrenList(Collections.singletonList(before)));
+        Assertions.assertThrows(ConstructionException.class, builder::build);
+        Assertions.assertTrue(builder.setChildren(Arrays.asList(before, after)));
+        Assertions.assertFalse(builder.setChildren(Collections.singletonList(before)));
         Assertions.assertTrue(builder.isValid());
-        created = builder.createNode();
+        final Node created = builder.build();
         Assertions.assertEquals(ActionTest.REPLACE_TYPE, created.getTypeName());
     }
 
@@ -153,11 +151,10 @@ class ActionTest {
         Assertions.assertTrue(builder.setData(""));
         Assertions.assertFalse(builder.setData("I hate syntax trees"));
         Assertions.assertFalse(builder.isValid());
-        Node created = builder.createNode();
-        Assertions.assertEquals(DummyNode.INSTANCE, created);
-        Assertions.assertTrue(builder.setChildrenList(Collections.singletonList(deleted)));
-        Assertions.assertFalse(builder.setChildrenList(Arrays.asList(deleted, deleted)));
-        created = builder.createNode();
+        Assertions.assertThrows(ConstructionException.class, builder::build);
+        Assertions.assertTrue(builder.setChildren(Collections.singletonList(deleted)));
+        Assertions.assertFalse(builder.setChildren(Arrays.asList(deleted, deleted)));
+        final Node created = builder.build();
         Assertions.assertEquals(ActionTest.DELETE_TYPE, created.getTypeName());
     }
 }

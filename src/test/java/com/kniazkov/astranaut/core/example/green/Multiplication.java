@@ -23,13 +23,14 @@
  */
 package com.kniazkov.astranaut.core.example.green;
 
-import com.kniazkov.astranaut.core.algorithms.NodeAllocator;
 import com.kniazkov.astranaut.core.base.AbstractType;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ChildDescriptor;
+import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.util.ArrayList;
@@ -56,6 +57,16 @@ public final class Multiplication implements BinaryExpression {
      * The type.
      */
     public static final Type TYPE = new TypeImpl();
+
+    /**
+     * The left child tag.
+     */
+    private static final String LEFT_TAG = "left";
+
+    /**
+     * The right child tag.
+     */
+    private static final String RIGHT_TAG = "right";
 
     /**
      * The fragment associated with the node.
@@ -121,8 +132,8 @@ public final class Multiplication implements BinaryExpression {
     @Override
     public Optional<Node> getChild(final String tag) {
         return switch (tag) {
-            case "left" -> Optional.ofNullable(this.left);
-            case "right" -> Optional.ofNullable(this.right);
+            case Multiplication.LEFT_TAG -> Optional.ofNullable(this.left);
+            case Multiplication.RIGHT_TAG -> Optional.ofNullable(this.right);
             default -> Optional.empty();
         };
     }
@@ -132,10 +143,10 @@ public final class Multiplication implements BinaryExpression {
         Objects.checkIndex(index, this.getChildCount());
         final List<String> tags = new ArrayList<>(2);
         if (this.left != null) {
-            tags.add("left");
+            tags.add(Multiplication.LEFT_TAG);
         }
         if (this.right != null) {
-            tags.add("right");
+            tags.add(Multiplication.RIGHT_TAG);
         }
         return Optional.of(tags.get(index));
     }
@@ -159,8 +170,8 @@ public final class Multiplication implements BinaryExpression {
          * The list of child types.
          */
         private static final List<ChildDescriptor> CHILDREN = ChildDescriptor.create()
-            .required(Expression.TYPE, "left")
-            .required(Expression.TYPE, "right")
+            .required(Expression.TYPE, Multiplication.LEFT_TAG)
+            .required(Expression.TYPE, Multiplication.RIGHT_TAG)
             .build();
 
         /**
@@ -202,21 +213,19 @@ public final class Multiplication implements BinaryExpression {
      * Class for 'Addition' node construction.
      * @since 0.0.1
      */
-    public static final class Constructor implements Builder {
+    public static final class Constructor extends SchemaBuilder {
         /**
          * The fragment associated with the node.
          */
-        private Fragment fragment = EmptyFragment.INSTANCE;
+        private Fragment fragment;
 
         /**
-         * Node with the 'left' tag.
+         * Creates an empty builder.
          */
-        private Expression left;
-
-        /**
-         * Node with the 'right' tag.
-         */
-        private Expression right;
+        public Constructor() {
+            super(Multiplication.TYPE.getChildDescriptors().orElseThrow());
+            this.fragment = EmptyFragment.INSTANCE;
+        }
 
         @Override
         public void setFragment(final Fragment obj) {
@@ -233,7 +242,7 @@ public final class Multiplication implements BinaryExpression {
          * @param node Node
          */
         public void setLeft(final Expression node) {
-            this.left = node;
+            this.setChild(Multiplication.LEFT_TAG, node);
         }
 
         /**
@@ -241,37 +250,25 @@ public final class Multiplication implements BinaryExpression {
          * @param node Node
          */
         public void setRight(final Expression node) {
-            this.right = node;
+            this.setChild(Multiplication.RIGHT_TAG, node);
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
-            final Node[] mapping = new Node[2];
-            final NodeAllocator allocator =
-                new NodeAllocator(Multiplication.TYPE.getChildDescriptors().orElseThrow());
-            final boolean result = allocator.allocate(mapping, list);
-            if (result) {
-                this.left = (Expression) mapping[0];
-                this.right = (Expression) mapping[1];
-            }
-            return result;
-        }
-
-        @Override
-        public boolean isValid() {
-            return this.left != null && this.right != null;
-        }
-
-        @Override
-        public Multiplication createNode() {
+        public Multiplication build() {
             if (!this.isValid()) {
-                throw new IllegalStateException();
+                throw new ConstructionException("Required builder state is missing");
             }
+            final Expression left = (Expression) this.getBindings()
+                .getChild(Multiplication.LEFT_TAG)
+                .orElse(null);
+            final Expression right = (Expression) this.getBindings()
+                .getChild(Multiplication.RIGHT_TAG)
+                .orElse(null);
             final Multiplication node = new Multiplication();
             node.fragment = this.fragment;
-            node.children = Arrays.asList(this.left, this.right);
-            node.left = this.left;
-            node.right = this.right;
+            node.children = Arrays.asList(left, right);
+            node.left = left;
+            node.right = right;
             return node;
         }
     }

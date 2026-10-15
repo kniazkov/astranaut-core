@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -157,14 +156,9 @@ public final class Replace implements Action {
      */
     public static final class Constructor implements Builder {
         /**
-         * Child node before changes.
+         * Children in current insertion order.
          */
-        private Node before;
-
-        /**
-         * Child node after changes.
-         */
-        private Node after;
+        private final List<Node> children = new java.util.ArrayList<>(2);
 
         @Override
         public void setFragment(final Fragment fragment) {
@@ -177,29 +171,46 @@ public final class Replace implements Action {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
-            boolean result = false;
-            if (list.size() == 2) {
-                final Iterator<Node> iterator = list.iterator();
-                this.before = iterator.next();
-                this.after = iterator.next();
-                result = true;
+        public boolean setChildren(final List<Node> list) {
+            final List<Node> snapshot = List.copyOf(list);
+            final boolean result = snapshot.size() == 2;
+            if (result) {
+                this.children.clear();
+                this.children.addAll(snapshot);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean setChild(final int index, final Node child) {
+            java.util.Objects.requireNonNull(child);
+            final boolean result = index >= 0 && index < this.children.size();
+            if (result) {
+                this.children.set(index, child);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean removeChild(final int index) {
+            final boolean result = index >= 0 && index < this.children.size();
+            if (result) {
+                this.children.remove(index);
             }
             return result;
         }
 
         @Override
         public boolean isValid() {
-            return this.before != null;
+            return this.children.size() == 2;
         }
 
         @Override
-        public Node createNode() {
-            Node node = DummyNode.INSTANCE;
-            if (this.isValid()) {
-                node = new Replace(this.before, this.after);
+        public Node build() {
+            if (!this.isValid()) {
+                throw new ConstructionException("Required action children are missing");
             }
-            return node;
+            return new Replace(this.children.get(0), this.children.get(1));
         }
     }
 }

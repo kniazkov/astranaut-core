@@ -143,9 +143,9 @@ public final class Delete implements Action {
      */
     public static final class Constructor implements Builder {
         /**
-         * Child node.
+         * Children in current insertion order.
          */
-        private Node child;
+        private final List<Node> children = new java.util.ArrayList<>(2);
 
         @Override
         public void setFragment(final Fragment fragment) {
@@ -158,27 +158,46 @@ public final class Delete implements Action {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
-            boolean result = false;
-            if (list.size() == 1) {
-                this.child = list.get(0);
-                result = true;
+        public boolean setChildren(final List<Node> list) {
+            final List<Node> snapshot = List.copyOf(list);
+            final boolean result = snapshot.size() == 1;
+            if (result) {
+                this.children.clear();
+                this.children.addAll(snapshot);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean setChild(final int index, final Node child) {
+            java.util.Objects.requireNonNull(child);
+            final boolean result = index >= 0 && index < this.children.size();
+            if (result) {
+                this.children.set(index, child);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean removeChild(final int index) {
+            final boolean result = index >= 0 && index < this.children.size();
+            if (result) {
+                this.children.remove(index);
             }
             return result;
         }
 
         @Override
         public boolean isValid() {
-            return this.child != null;
+            return this.children.size() == 1;
         }
 
         @Override
-        public Node createNode() {
-            Node node = DummyNode.INSTANCE;
-            if (this.isValid()) {
-                node = new Delete(this.child);
+        public Node build() {
+            if (!this.isValid()) {
+                throw new ConstructionException("Required action children are missing");
             }
-            return node;
+            return new Delete(this.children.get(0));
         }
     }
 }

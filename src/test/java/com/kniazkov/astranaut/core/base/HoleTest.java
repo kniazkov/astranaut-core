@@ -36,7 +36,7 @@ class HoleTest {
     void testBaseInterface() {
         final Builder builder = new IntegerLiteral.Constructor();
         builder.setData("0");
-        final Node node = builder.createNode();
+        final Node node = builder.build();
         final Hole hole = new Hole(node, 1);
         Assertions.assertSame(EmptyFragment.INSTANCE, hole.getFragment());
         Assertions.assertEquals(0, hole.getChildCount());

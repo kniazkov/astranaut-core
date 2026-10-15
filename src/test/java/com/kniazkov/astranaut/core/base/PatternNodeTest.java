@@ -44,8 +44,8 @@ class PatternNodeTest {
         ctor.setFragment(fragment);
         ctor.setName("X");
         ctor.setData("test");
-        ctor.setChildrenList(Collections.singletonList(child));
-        final Node node = ctor.createNode();
+        ctor.setChildren(Collections.singletonList(child));
+        final Node node = ctor.build();
         final PatternNode pattern = new PatternNode(new DiffNode(node));
         Assertions.assertEquals(100, pattern.getFragment().getEnd().getColumn());
         Assertions.assertEquals("X<\"test\">(A)", pattern.toString());

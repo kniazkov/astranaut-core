@@ -64,7 +64,7 @@ public final class LittleTrees {
         final Variable.Constructor ctor = new Variable.Constructor();
         ctor.setData(name);
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -79,7 +79,7 @@ public final class LittleTrees {
         final IntegerLiteral.Constructor ctor = new IntegerLiteral.Constructor();
         ctor.setData(String.valueOf(value));
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -93,9 +93,9 @@ public final class LittleTrees {
     public static Node createAssignment(final Node left, final Node right) {
         Node result = DummyNode.INSTANCE;
         final SimpleAssignment.Constructor ctor = new SimpleAssignment.Constructor();
-        ctor.setChildrenList(Arrays.asList(left, right));
+        ctor.setChildren(Arrays.asList(left, right));
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -109,9 +109,9 @@ public final class LittleTrees {
     public static Node createAddition(final Node left, final Node right) {
         Node result = DummyNode.INSTANCE;
         final Addition.Constructor ctor = new Addition.Constructor();
-        ctor.setChildrenList(Arrays.asList(left, right));
+        ctor.setChildren(Arrays.asList(left, right));
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -124,9 +124,9 @@ public final class LittleTrees {
     public static Node wrapExpressionWithStatement(final Node expression) {
         Node result = DummyNode.INSTANCE;
         final ExpressionStatement.Constructor ctor = new ExpressionStatement.Constructor();
-        ctor.setChildrenList(Collections.singletonList(expression));
+        ctor.setChildren(Collections.singletonList(expression));
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -140,10 +140,10 @@ public final class LittleTrees {
         Node result = DummyNode.INSTANCE;
         final Return.Constructor ctor = new Return.Constructor();
         if (expression != null) {
-            ctor.setChildrenList(Collections.singletonList(expression));
+            ctor.setChildren(Collections.singletonList(expression));
         }
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -156,9 +156,9 @@ public final class LittleTrees {
     public static Node createStatementBlock(final Node... statements) {
         Node result = DummyNode.INSTANCE;
         final StatementBlock.Constructor ctor = new StatementBlock.Constructor();
-        ctor.setChildrenList(Arrays.asList(statements));
+        ctor.setChildren(Arrays.asList(statements));
         if (ctor.isValid()) {
-            result = ctor.createNode();
+            result = ctor.build();
         }
         return result;
     }
@@ -365,16 +365,16 @@ public final class LittleTrees {
     public static Pattern createPatternWithHole() {
         Builder ctor = new Variable.Constructor();
         ctor.setData("w");
-        final Node first = ctor.createNode();
+        final Node first = ctor.build();
         ctor = new IntegerLiteral.Constructor();
         ctor.setData("1");
-        final Node second = ctor.createNode();
+        final Node second = ctor.build();
         ctor = new Addition.Constructor();
-        ctor.setChildrenList(Arrays.asList(first, second));
-        final Node addition = ctor.createNode();
+        ctor.setChildren(Arrays.asList(first, second));
+        final Node addition = ctor.build();
         ctor = new IntegerLiteral.Constructor();
         ctor.setData("2");
-        final Node replacement = ctor.createNode();
+        final Node replacement = ctor.build();
         final DiffTreeBuilder dtbld = new DiffTreeBuilder(addition);
         dtbld.replaceNode(second, replacement);
         final PatternBuilder pbld = new PatternBuilder(dtbld.getDiffTree());

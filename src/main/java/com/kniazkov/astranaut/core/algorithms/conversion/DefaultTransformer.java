@@ -197,13 +197,13 @@ public class DefaultTransformer implements Transformer {
             if (!builder.setData(original.getData())) {
                 break;
             }
-            if (!builder.setChildrenList(children)) {
+            if (!builder.setChildren(children)) {
                 break;
             }
             if (!builder.isValid()) {
                 break;
             }
-            result = builder.createNode();
+            result = builder.build();
         } while (false);
         return result;
     }

@@ -144,8 +144,8 @@ public final class DraftNode implements Node {
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setName(type);
         ctor.setData(data);
-        ctor.setChildrenList(Arrays.asList(children));
-        return ctor.createNode();
+        ctor.setChildren(Arrays.asList(children));
+        return ctor.build();
     }
 
     /**
@@ -176,9 +176,9 @@ public final class DraftNode implements Node {
                 symbol = iterator.current();
             }
             if (symbol == '(') {
-                builder.setChildrenList(DraftNode.parseChildrenList(iterator, nodes));
+                builder.setChildren(DraftNode.parseChildrenList(iterator, nodes));
             }
-            result = builder.createNode();
+            result = builder.build();
             if (nodes != null) {
                 final Set<Node> set =
                     nodes.computeIfAbsent(result.getTypeName(), k -> new HashSet<>());
@@ -284,7 +284,7 @@ public final class DraftNode implements Node {
 
         @Override
         public void setFragment(final Fragment obj) {
-            this.fragment = obj;
+            this.fragment = Objects.requireNonNull(obj);
         }
 
         /**
@@ -292,7 +292,7 @@ public final class DraftNode implements Node {
          * @param str Type mane
          */
         public void setName(final String str) {
-            this.name = str;
+            this.name = Objects.requireNonNull(str);
         }
 
         @Override
@@ -310,11 +310,30 @@ public final class DraftNode implements Node {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             final List<Node> snapshot = List.copyOf(list);
             this.children.clear();
             this.children.addAll(snapshot);
             return true;
+        }
+
+        @Override
+        public boolean setChild(final int index, final Node child) {
+            Objects.requireNonNull(child);
+            final boolean result = index >= 0 && index < this.children.size();
+            if (result) {
+                this.children.set(index, child);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean removeChild(final int index) {
+            final boolean result = index >= 0 && index < this.children.size();
+            if (result) {
+                this.children.remove(index);
+            }
+            return result;
         }
 
         @Override
@@ -323,9 +342,9 @@ public final class DraftNode implements Node {
         }
 
         @Override
-        public DraftNode createNode() {
+        public DraftNode build() {
             if (!this.isValid()) {
-                throw new IllegalStateException();
+                throw new ConstructionException("Required builder state is missing");
             }
             return new DraftNode(this);
         }

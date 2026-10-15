@@ -146,7 +146,7 @@ public final class Char implements Node {
         }
 
         @Override
-        public boolean setChildrenList(final List<Node> list) {
+        public boolean setChildren(final List<Node> list) {
             return list.isEmpty();
         }
 
@@ -156,9 +156,9 @@ public final class Char implements Node {
         }
 
         @Override
-        public Node createNode() {
+        public Node build() {
             if (!this.isValid()) {
-                throw new IllegalStateException();
+                throw new ConstructionException("Required builder state is missing");
             }
             final Char node = new Char();
             node.fragment = this.fragment;
