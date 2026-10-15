@@ -23,9 +23,10 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import com.kniazkov.astranaut.core.algorithms.hash.AbsoluteHash;
 import com.kniazkov.astranaut.core.base.ExtNode;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeStructure;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.Type;
 import java.util.Map;
 
@@ -35,43 +36,33 @@ import java.util.Map;
  */
 public final class ExtNodeCreator {
     /**
-     * Set of node hashes.
-     */
-    private final AbsoluteHash hashes;
-
-    /**
-     * Constructor.
-     */
-    public ExtNodeCreator() {
-        this.hashes = new AbsoluteHash();
-    }
-
-    /**
      * Creates an extended node from a 'regular' node.
      * @param node Original node
      * @return Extended node
      */
     public ExtNode create(final Node node) {
-        return this.create(node, null);
+        return this.create(node, null, NodeStructure.hashes(node));
     }
 
     /**
      * Creates an extended node from a 'regular' node (recursive method).
      * @param node Original node
      * @param parent Parent node of the node to be created
+     * @param hashes Operation-local hash snapshot
      * @return Extended node
      */
-    private ExtNodeImpl create(final Node node, final ExtNode parent) {
+    private ExtNodeImpl create(final Node node, final ExtNode parent,
+        final Map<Node, Integer> hashes) {
         final ExtNodeImpl ext = new ExtNodeImpl();
         ext.prototype = node;
         ext.parent = parent;
         ext.index = -1;
-        ext.hash = this.hashes.calculate(node);
+        ext.hash = hashes.get(node);
         final int count = node.getChildCount();
         ext.children = new ExtNodeImpl[count];
         int index;
         for (index = 0; index < count; index = index + 1) {
-            final ExtNodeImpl child = this.create(node.getChild(index), ext);
+            final ExtNodeImpl child = this.create(node.getChild(index), ext, hashes);
             child.index = index;
             ext.children[index] = child;
         }
@@ -88,7 +79,7 @@ public final class ExtNodeCreator {
      * Class that implements the extended node interface.
      * @since 0.0.1
      */
-    private static final class ExtNodeImpl implements ExtNode {
+    private static final class ExtNodeImpl extends NodeWithStructuralEquality implements ExtNode {
         /**
          * Prototype (not-extended) node.
          */
@@ -174,6 +165,23 @@ public final class ExtNodeCreator {
         @Override
         public Node getChild(final int idx) {
             return this.children[idx];
+        }
+
+        @Override
+        public java.util.Optional<String> getChildTag(final int idx) {
+            return this.prototype.getChildTag(idx);
+        }
+
+        @Override
+        public java.util.Optional<Node> getChild(final String tag) {
+            java.util.Optional<Node> result = java.util.Optional.empty();
+            for (int idx = 0; idx < this.children.length; idx += 1) {
+                if (this.getChildTag(idx).filter(tag::equals).isPresent()) {
+                    result = java.util.Optional.of(this.children[idx]);
+                    break;
+                }
+            }
+            return result;
         }
 
         @Override

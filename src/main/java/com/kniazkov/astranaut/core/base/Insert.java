@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * An action that inserts a child element.
  * @since 0.0.1
  */
-public final class Insert implements Action {
+public final class Insert extends NodeWithStructuralEquality implements Action {
     /**
      * The type.
      */

@@ -267,7 +267,7 @@ class BaseInterfaceTest {
             .build(Collections.singleton(node), "color", "red")
             .getRoot();
         Assertions.assertEquals(labeled.toString(), node.toString());
-        Assertions.assertFalse(node.deepCompare(labeled));
+        Assertions.assertTrue(node.deepCompare(labeled));
     }
 
     @Test

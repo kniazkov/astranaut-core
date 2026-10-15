@@ -29,6 +29,7 @@ import com.kniazkov.astranaut.core.base.ChildDescriptor;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.stream.Stream;
  * Node that describes the 'Variable' type.
  * @since 0.0.1
  */
-public final class Variable implements AssignableExpression {
+public final class Variable extends NodeWithStructuralEquality implements AssignableExpression {
     /**
      * The type.
      */

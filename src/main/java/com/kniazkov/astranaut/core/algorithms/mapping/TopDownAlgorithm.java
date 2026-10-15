@@ -24,10 +24,11 @@
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
 import com.kniazkov.astranaut.core.base.ExtNode;
+import com.kniazkov.astranaut.core.base.NodeStructure;
 import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +75,12 @@ final class TopDownAlgorithm {
      * Constructor.
      */
     TopDownAlgorithm() {
-        this.ltr = new HashMap<>();
-        this.rtl = new HashMap<>();
+        this.ltr = new IdentityHashMap<>();
+        this.rtl = new IdentityHashMap<>();
         this.identical = 0;
         this.inserted = new ArrayList<>(0);
-        this.replaced = new HashMap<>();
-        this.deleted = new HashSet<>();
+        this.replaced = new IdentityHashMap<>();
+        this.deleted = Collections.newSetFromMap(new IdentityHashMap<>());
     }
 
     /**
@@ -148,10 +149,12 @@ final class TopDownAlgorithm {
      */
     private boolean mapSubtrees(final ExtNode left, final ExtNode right) {
         final boolean result;
-        if (left.getAbsoluteHash() == right.getAbsoluteHash()) {
+        if (left.getAbsoluteHash() == right.getAbsoluteHash()
+            && NodeStructure.equal(left, right)) {
             this.mapSubtreesWithTheSameAbsoluteHash(left, right);
             result = true;
-        } else if (left.getLocalHash() == right.getLocalHash()) {
+        } else if (left.getLocalHash() == right.getLocalHash()
+            && NodeStructure.locallyEqual(left, right)) {
             this.mapSubtreesWithTheSameLocalHash(left, right);
             result = true;
         } else {
@@ -361,7 +364,7 @@ final class TopDownAlgorithm {
         final int hash = node.getLocalHash();
         for (int leftidx = index - 1; leftidx >= 0; leftidx = leftidx - 1) {
             final ExtNode previous = list.get(leftidx);
-            if (hash == previous.getLocalHash()) {
+            if (hash == previous.getLocalHash() && NodeStructure.locallyEqual(node, previous)) {
                 result.add(0, previous);
             } else {
                 break;
@@ -369,7 +372,7 @@ final class TopDownAlgorithm {
         }
         for (int rightidx = index + 1; rightidx < list.size(); rightidx = rightidx + 1) {
             final ExtNode next = list.get(rightidx);
-            if (hash == next.getLocalHash()) {
+            if (hash == next.getLocalHash() && NodeStructure.locallyEqual(node, next)) {
                 result.add(next);
             } else {
                 break;

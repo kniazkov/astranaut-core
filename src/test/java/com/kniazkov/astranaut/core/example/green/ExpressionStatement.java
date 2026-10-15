@@ -31,6 +31,7 @@ import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
@@ -48,7 +49,7 @@ import java.util.stream.Stream;
  * Node that describes the 'ExpressionStatement' type.
  * @since 0.0.1
  */
-public final class ExpressionStatement implements Statement {
+public final class ExpressionStatement extends NodeWithStructuralEquality implements Statement {
     /**
      * The type.
      */

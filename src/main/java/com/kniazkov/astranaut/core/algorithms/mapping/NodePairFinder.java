@@ -24,6 +24,8 @@
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
 import com.kniazkov.astranaut.core.base.ExtNode;
+import com.kniazkov.astranaut.core.base.NodeStructure;
+import java.util.List;
 
 /**
  * Auxiliary algorithm for top-down mapping.
@@ -51,12 +53,17 @@ final  class NodePairFinder {
     /**
      * Representing the left side of the unprocessed node section as an array of numbers.
      */
-    private final int[] left;
+    private final List<ExtNode> left;
 
     /**
      * Representing the left side of the unprocessed node section as an array of numbers.
      */
-    private final int[] right;
+    private final List<ExtNode> right;
+
+    /**
+     * Comparison criterion, including collision confirmation.
+     */
+    private final Converter converter;
 
     /**
      * Constructor.
@@ -64,8 +71,9 @@ final  class NodePairFinder {
      * @param converter Converter than converts nodes to numbers
      */
     NodePairFinder(final Section section, final Converter converter) {
-        this.left = section.getLeft().stream().mapToInt(converter::convertNode).toArray();
-        this.right = section.getRight().stream().mapToInt(converter::convertNode).toArray();
+        this.left = List.copyOf(section.getLeft());
+        this.right = List.copyOf(section.getRight());
+        this.converter = converter;
     }
 
     /**
@@ -75,16 +83,18 @@ final  class NodePairFinder {
      * @return Result containing indices of found elements
      */
     Result findMatchingSequence() {
-        int size = Math.min(this.left.length, this.right.length);
+        int size = Math.min(this.left.size(), this.right.size());
         Result seq = null;
         while (size > 0 && seq == null) {
             seq = this.findMatchingSequence(size);
             size = size - 1;
         }
-        while (size > 0 && seq.getOffsetDiff() > NodePairFinder.SIGNIFICANT_DIFF) {
+        while (size > 0 && seq != null
+            && seq.getOffsetDiff() > NodePairFinder.SIGNIFICANT_DIFF) {
             final Result other = this.findMatchingSequence(size);
             size = size - 1;
-            if (seq.getOffsetDiff() - other.getOffsetDiff() > NodePairFinder.SIGNIFICANT_DIFF) {
+            if (other != null
+                && seq.getOffsetDiff() - other.getOffsetDiff() > NodePairFinder.SIGNIFICANT_DIFF) {
                 seq = other;
             }
         }
@@ -105,9 +115,9 @@ final  class NodePairFinder {
     private Result findMatchingSequence(final int size) {
         Result seq = null;
         int min = Integer.MAX_VALUE;
-        for (int loffset = 0; min > 0 && loffset <= this.left.length - size;
+        for (int loffset = 0; min > 0 && loffset <= this.left.size() - size;
             loffset = loffset + 1) {
-            for (int roffset = 0; min > 0 && roffset <= this.right.length - size;
+            for (int roffset = 0; min > 0 && roffset <= this.right.size() - size;
                 roffset = roffset + 1) {
                 final boolean matches = this.compareSegments(loffset, roffset, size);
                 if (!matches) {
@@ -140,12 +150,28 @@ final  class NodePairFinder {
     private boolean compareSegments(final int loffset, final int roffset, final int count) {
         boolean equals = true;
         for (int index = 0; index < count; index = index + 1) {
-            if (this.left[index + loffset] != this.right[index + roffset]) {
+            if (!this.matches(this.left.get(index + loffset), this.right.get(index + roffset))) {
                 equals = false;
                 break;
             }
         }
         return equals;
+    }
+
+    /**
+     * Confirms hash candidates using the requested structural criterion.
+     * @param first Left node
+     * @param second Right node
+     * @return Whether the candidate is a true match
+     */
+    private boolean matches(final ExtNode first, final ExtNode second) {
+        boolean result = this.converter.convertNode(first) == this.converter.convertNode(second);
+        if (result && this.converter == NodePairFinder.ABSOLUTE_HASH) {
+            result = NodeStructure.equal(first, second);
+        } else if (result) {
+            result = NodeStructure.locallyEqual(first, second);
+        }
+        return result;
     }
 
     /**

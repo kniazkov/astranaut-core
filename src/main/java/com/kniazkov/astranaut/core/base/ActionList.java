@@ -26,8 +26,8 @@ package com.kniazkov.astranaut.core.base;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
 import com.kniazkov.astranaut.core.utils.Promise;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,7 +94,7 @@ public class ActionList {
      */
     public void replaceNode(final Node node, final Node replacement) {
         if (this.replace == null) {
-            this.replace = new HashMap<>();
+            this.replace = new IdentityHashMap<>();
         }
         this.replace.put(node, replacement);
     }
@@ -105,7 +105,7 @@ public class ActionList {
      */
     public void deleteNode(final Node node) {
         if (this.delete == null) {
-            this.delete = new HashSet<>();
+            this.delete = Collections.newSetFromMap(new IdentityHashMap<>());
         }
         this.delete.add(node);
     }

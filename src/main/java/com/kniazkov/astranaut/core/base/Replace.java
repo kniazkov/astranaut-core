@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * Action that replaces a child element.
  * @since 0.0.1
  */
-public final class Replace implements Action {
+public final class Replace extends NodeWithStructuralEquality implements Action {
     /**
      * The type.
      */

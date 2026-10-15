@@ -24,6 +24,7 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
@@ -78,7 +79,8 @@ public class LabeledTreeBuilder {
      * A node created from the original node, however, with one modified property.
      * @since 0.0.1
      */
-    private static final class LabeledNode implements PrototypeBasedNode {
+    private static final class LabeledNode extends NodeWithStructuralEquality
+        implements PrototypeBasedNode {
         /**
          * Original node.
          */
@@ -130,6 +132,25 @@ public class LabeledTreeBuilder {
         @Override
         public Node getChild(final int index) {
             return this.children.get(index);
+        }
+
+        @Override
+        public java.util.Optional<String> getChildTag(final int index) {
+            java.util.Objects.checkIndex(index, this.getChildCount());
+            return this.original.getChildTag(index);
+        }
+
+        @Override
+        public java.util.Optional<Node> getChild(final String tag) {
+            java.util.Objects.requireNonNull(tag);
+            java.util.Optional<Node> result = java.util.Optional.empty();
+            for (int index = 0; index < this.getChildCount(); index += 1) {
+                if (this.getChildTag(index).filter(tag::equals).isPresent()) {
+                    result = java.util.Optional.of(this.getChild(index));
+                    break;
+                }
+            }
+            return result;
         }
 
         @Override
