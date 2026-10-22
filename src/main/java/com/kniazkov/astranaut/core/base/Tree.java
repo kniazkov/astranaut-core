@@ -24,6 +24,8 @@
 package com.kniazkov.astranaut.core.base;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,21 +37,36 @@ public class Tree {
     /**
      * Root node of the tree.
      */
-    private final Node root;
+    private final Optional<Node> root;
+
+    /**
+     * Creates an empty tree without a placeholder node.
+     */
+    public Tree() {
+        this(Optional.empty());
+    }
 
     /**
      * Constructor.
-     * @param root Root node the tree
+     * @param root Non-null root node of the tree
      */
     public Tree(final Node root) {
+        this(Optional.of(root));
+    }
+
+    /**
+     * Initializes the immutable root slot.
+     * @param root Present or absent root
+     */
+    private Tree(final Optional<Node> root) {
         this.root = root;
     }
 
     /**
      * Returns the root node of the tree.
-     * @return Root node of the tree
+     * @return Root node, or an empty Optional for an empty tree
      */
-    public Node getRoot() {
+    public final Optional<Node> getRoot() {
         return this.root;
     }
 
@@ -60,12 +77,12 @@ public class Tree {
      *  in any of the nodes.
      */
     public String getLanguage() {
-        return Tree.getLanguage(this.root);
+        return this.root.map(Tree::getLanguage).orElse("");
     }
 
     @Override
     public final String toString() {
-        return this.root.toString();
+        return this.root.map(node -> node.toString()).orElse("");
     }
 
     /**
@@ -75,7 +92,15 @@ public class Tree {
      * @return Comparison result, {@code true} if the nodes are equal
      */
     public boolean deepCompare(final Tree other) {
-        return this.root.deepCompare(other.root);
+        Objects.requireNonNull(other);
+        final boolean result;
+        if (this.root.isEmpty()) {
+            result = other.root.isEmpty();
+        } else {
+            result = other.root
+                .map(node -> this.root.orElseThrow().deepCompare(node)).orElse(false);
+        }
+        return result;
     }
 
     /**

@@ -56,8 +56,11 @@ public class TreeDescriptor {
      */
     public Tree convert(final Provider provider) {
         Tree result = EmptyTree.INSTANCE;
-        final Factory factory = provider.getFactory(this.language);
         do {
+            if (this.root == null) {
+                break;
+            }
+            final Factory factory = provider.getFactory(this.language);
             if (factory == null) {
                 break;
             }

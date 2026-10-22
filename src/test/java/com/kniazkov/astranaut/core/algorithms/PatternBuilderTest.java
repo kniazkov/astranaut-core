@@ -76,7 +76,7 @@ class PatternBuilderTest {
         builder.makeHole(var, 1);
         final Pattern pattern = builder.getPattern();
         Assertions.assertNotNull(pattern);
-        final DepthFirstWalker traversal = new DepthFirstWalker(pattern.getRoot());
+        final DepthFirstWalker traversal = new DepthFirstWalker(pattern.getRoot().orElseThrow());
         final Optional<Node> hole = traversal.findFirst(node -> node instanceof Hole);
         Assertions.assertTrue(hole.isPresent());
         Assertions.assertEquals("#1",  hole.get().getData());
@@ -122,7 +122,7 @@ class PatternBuilderTest {
         final PatternBuilder ptbuilder = new PatternBuilder(subtree);
         ptbuilder.makeHole(var, 1);
         final Pattern pattern = ptbuilder.getPattern();
-        final DepthFirstWalker traversal = new DepthFirstWalker(pattern.getRoot());
+        final DepthFirstWalker traversal = new DepthFirstWalker(pattern.getRoot().orElseThrow());
         Assertions.assertTrue(traversal.findFirst(node -> node instanceof Replace).isPresent());
         Assertions.assertTrue(traversal.findFirst(node -> node instanceof Hole).isPresent());
     }

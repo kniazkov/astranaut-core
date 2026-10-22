@@ -37,9 +37,9 @@ class DepthCalculatorTest {
     void test() {
         final DiffTree tree = LittleTrees.createTreeWithDeleteAction();
         final DepthCalculator depth = new DepthCalculator();
-        int value = depth.calculate(tree.getRoot());
+        int value = depth.calculate(tree.getRoot().orElseThrow());
         Assertions.assertEquals(5, value);
-        value = depth.calculate(tree.getRoot().getChild(0));
+        value = depth.calculate(tree.getRoot().orElseThrow().getChild(0));
         Assertions.assertEquals(3, value);
     }
 }

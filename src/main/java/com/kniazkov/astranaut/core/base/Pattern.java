@@ -44,9 +44,4 @@ public final class Pattern extends Tree {
     public Pattern(final PatternNode root) {
         super(root);
     }
-
-    @Override
-    public PatternNode getRoot() {
-        return (PatternNode) super.getRoot();
-    }
 }

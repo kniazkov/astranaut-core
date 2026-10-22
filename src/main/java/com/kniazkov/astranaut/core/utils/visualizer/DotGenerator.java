@@ -85,7 +85,7 @@ public class DotGenerator {
      */
     public String generate() {
         this.appendStart();
-        this.processNode(this.tree.getRoot());
+        this.tree.getRoot().ifPresent(this::processNode);
         this.appendEnd();
         return this.builder.toString();
     }

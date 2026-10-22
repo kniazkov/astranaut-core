@@ -470,7 +470,7 @@ class TopDownMapperTest {
         final DiffTreeBuilder builder = new DiffTreeBuilder(first);
         builder.build(second, mapper);
         final DiffTree diff = builder.getDiffTree();
-        final Node third = diff.getAfter().getRoot();
+        final Node third = diff.getAfter().getRoot().orElseThrow();
         Assertions.assertTrue(third.deepCompare(second));
     }
 
@@ -488,7 +488,7 @@ class TopDownMapperTest {
         final DiffTreeBuilder builder = new DiffTreeBuilder(first);
         builder.build(second, mapper);
         final DiffTree diff = builder.getDiffTree();
-        final Node third = diff.getAfter().getRoot();
+        final Node third = diff.getAfter().getRoot().orElseThrow();
         Assertions.assertTrue(third.deepCompare(second));
     }
 
@@ -525,7 +525,7 @@ class TopDownMapperTest {
             }
         );
         final Tree tree = deserializer.convert();
-        Assertions.assertEquals("CompilationUnit", tree.getRoot().getTypeName());
+        Assertions.assertEquals("CompilationUnit", tree.getRoot().orElseThrow().getTypeName());
         return tree;
     }
 }

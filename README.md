@@ -256,8 +256,11 @@ Meet Our Polite Non-Null Alternatives:
 ## **EmptyTree – The Polite Way to Say "Nothing Here"**  
 
 **What it is:**  
-- A **singleton tree** that contains a `DummyNode` as its root.  
-- The **official "empty" representation** when you need a valid `Tree` instead of `null`.  
+- A **singleton tree without a root**: `getRoot()` returns `Optional.empty()`.
+- `new Tree()` creates another valid empty tree; `new Tree(node)` requires a non-null root.
+- An explicit `DummyNode` root is still a node and is not an empty tree.
+
+See [the Optional root migration guide](docs/optional-root.md) for consumer behavior.
 
 ## **Fragment, Position & Source – The Location Trio**  
 

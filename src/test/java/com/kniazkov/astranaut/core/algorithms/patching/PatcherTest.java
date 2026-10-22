@@ -84,7 +84,9 @@ class PatcherTest {
                 nodes.get("B").iterator().next()
             )
         );
-        final Pattern pattern = new Pattern(new PatternNode(builder.getDiffTree().getRoot()));
+        final Pattern pattern = new Pattern(
+            new PatternNode(builder.getDiffTree().getRoot().orElseThrow())
+        );
         final Tree tree = Tree.createDraft("X(Y,A(B),Z)");
         final Patcher patcher = DefaultPatcher.INSTANCE;
         final Tree result = patcher.patch(tree, pattern);
@@ -98,7 +100,9 @@ class PatcherTest {
         final Node prepattern = DraftNode.create("A(B, D)", nodes);
         final DiffTreeBuilder builder = new DiffTreeBuilder(prepattern);
         builder.replaceNode(nodes.get("B").iterator().next(), DraftNode.create("C"));
-        final Pattern pattern = new Pattern(new PatternNode(builder.getDiffTree().getRoot()));
+        final Pattern pattern = new Pattern(
+            new PatternNode(builder.getDiffTree().getRoot().orElseThrow())
+        );
         final Tree tree = Tree.createDraft("X(Y,A(B,D),Z)");
         final Patcher patcher = DefaultPatcher.INSTANCE;
         final Tree result = patcher.patch(tree, pattern);
@@ -112,7 +116,9 @@ class PatcherTest {
         final Node prepattern = DraftNode.create("A(B, D)", nodes);
         final DiffTreeBuilder builder = new DiffTreeBuilder(prepattern);
         builder.deleteNode(nodes.get("B").iterator().next());
-        final Pattern pattern = new Pattern(new PatternNode(builder.getDiffTree().getRoot()));
+        final Pattern pattern = new Pattern(
+            new PatternNode(builder.getDiffTree().getRoot().orElseThrow())
+        );
         final Tree tree = Tree.createDraft("X(Y,A(B,D),Z)");
         final Patcher patcher = DefaultPatcher.INSTANCE;
         final Tree result = patcher.patch(tree, pattern);
@@ -161,7 +167,7 @@ class PatcherTest {
         ctor = new ExpressionStatement.Constructor();
         ctor.setChildren(Collections.singletonList(assignment));
         final Node expected = ctor.build();
-        Assertions.assertTrue(expected.deepCompare(patched.getRoot()));
+        Assertions.assertTrue(expected.deepCompare(patched.getRoot().orElseThrow()));
     }
 
     @Test
@@ -172,21 +178,27 @@ class PatcherTest {
         Node prepattern = DraftNode.create("E(B,D)", nodes);
         DiffTreeBuilder builder = new DiffTreeBuilder(prepattern);
         builder.replaceNode(nodes.get("B").iterator().next(), DraftNode.create("C"));
-        final Pattern first = new Pattern(new PatternNode(builder.getDiffTree().getRoot()));
+        final Pattern first = new Pattern(
+            new PatternNode(builder.getDiffTree().getRoot().orElseThrow())
+        );
         Tree result = patcher.patch(tree, first);
         Assertions.assertTrue(tree.deepCompare(result));
         nodes = new TreeMap<>();
         prepattern = DraftNode.create("K<\"a\">(B,D)", nodes);
         builder = new DiffTreeBuilder(prepattern);
         builder.replaceNode(nodes.get("B").iterator().next(), DraftNode.create("C"));
-        final Pattern second = new Pattern(new PatternNode(builder.getDiffTree().getRoot()));
+        final Pattern second = new Pattern(
+            new PatternNode(builder.getDiffTree().getRoot().orElseThrow())
+        );
         result = patcher.patch(tree, second);
         Assertions.assertTrue(tree.deepCompare(result));
         nodes = new TreeMap<>();
         prepattern = DraftNode.create("K(B<\"a\">,D)", nodes);
         builder = new DiffTreeBuilder(prepattern);
         builder.replaceNode(nodes.get("B").iterator().next(), DraftNode.create("C"));
-        final Pattern third = new Pattern(new PatternNode(builder.getDiffTree().getRoot()));
+        final Pattern third = new Pattern(
+            new PatternNode(builder.getDiffTree().getRoot().orElseThrow())
+        );
         result = patcher.patch(tree, third);
         Assertions.assertTrue(tree.deepCompare(result));
     }
@@ -199,8 +211,8 @@ class PatcherTest {
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
         final Pattern pattern = new PatternBuilder(diff).getPattern();
         final Tree original = Tree.createDraft(
             "Y(X(A,C(D(F(G(J,K))))),X(A,C(D(F(G(L))))),X(A,C(D(F(G(H))))))"
@@ -221,8 +233,8 @@ class PatcherTest {
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
         final Pattern pattern = new PatternBuilder(diff).getPattern();
         final Tree original = Tree.createDraft("Y(X(D),E,F)");
         final Patcher patcher = DefaultPatcher.INSTANCE;

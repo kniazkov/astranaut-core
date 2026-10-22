@@ -55,8 +55,8 @@ class DiffTreeBuilderTest {
         final DiffTree diff = builder.getDiffTree();
         final DiffTree expected = LittleTrees.createTreeWithInsertAction();
         Assertions.assertTrue(expected.deepCompare(diff));
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
     }
 
     /**
@@ -75,12 +75,12 @@ class DiffTreeBuilderTest {
         Assertions.assertTrue(result);
         final DiffTree diff = builder.getDiffTree();
         final DiffTree expected = LittleTrees.createTreeWithReplaceAction();
-        final int diffhash = NodeStructure.hash(diff.getRoot());
-        final int expectedhash = NodeStructure.hash(expected.getRoot());
+        final int diffhash = NodeStructure.hash(diff.getRoot().orElseThrow());
+        final int expectedhash = NodeStructure.hash(expected.getRoot().orElseThrow());
         Assertions.assertEquals(expectedhash, diffhash);
         Assertions.assertTrue(expected.deepCompare(diff));
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
     }
 
     /**
@@ -98,8 +98,8 @@ class DiffTreeBuilderTest {
         final DiffTree diff = builder.getDiffTree();
         final DiffTree expected = LittleTrees.createTreeWithDeleteAction();
         Assertions.assertTrue(expected.deepCompare(diff));
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
     }
 
     @Test
@@ -118,8 +118,8 @@ class DiffTreeBuilderTest {
         final DiffTree diff = builder.getDiffTree();
         final DiffTree expected = LittleTrees.createTreeWithDeleteActionInDepth();
         Assertions.assertTrue(expected.deepCompare(diff));
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
     }
 
     @Test
@@ -169,13 +169,13 @@ class DiffTreeBuilderTest {
         final DiffTreeBuilder first = new DiffTreeBuilder(before);
         first.replaceNode(removed, added);
         final DiffTree expected = first.getDiffTree();
-        Assertions.assertTrue(before.deepCompare(expected.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(expected.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(expected.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(expected.getAfter().getRoot().orElseThrow()));
         final DiffTreeBuilder second = new DiffTreeBuilder(before);
         second.build(after, TopDownMapper.INSTANCE);
         final DiffTree actual = second.getDiffTree();
-        Assertions.assertTrue(before.deepCompare(actual.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(actual.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(actual.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(actual.getAfter().getRoot().orElseThrow()));
         Assertions.assertTrue(actual.deepCompare(expected));
     }
 
@@ -187,8 +187,8 @@ class DiffTreeBuilderTest {
         final boolean result = builder.build(after, TopDownMapper.INSTANCE);
         Assertions.assertTrue(result);
         final DiffTree diff = builder.getDiffTree();
-        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot()));
+        Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot().orElseThrow()));
+        Assertions.assertTrue(after.deepCompare(diff.getAfter().getRoot().orElseThrow()));
     }
 
     @Test

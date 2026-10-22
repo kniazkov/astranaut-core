@@ -32,12 +32,14 @@ public interface Transformer {
      * Transforms the given syntax tree into another tree.
      *  The input tree remains unchanged. Implementations must ensure that the returned
      *  {@link Tree} is either a modified copy or the original if no transformation was needed.
+     * Empty trees stay empty and do not invoke the node transformation.
      * @param tree The tree to be transformed, must not be {@code null}
      * @return A new {@link Tree} representing the result of the transformation,
      *  never {@code null}
      */
     default Tree transform(final Tree tree) {
-        return new Tree(this.transform(tree.getRoot()));
+        return tree.getRoot().map(node -> new Tree(this.transform(node)))
+            .orElse(EmptyTree.INSTANCE);
     }
 
     /**

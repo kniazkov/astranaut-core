@@ -57,9 +57,14 @@ public final class PatternBuilder {
     /**
      * Constructor.
      * @param tree Syntax tree from which the pattern is built
+     * @throws IllegalArgumentException If the tree has no root
      */
     public PatternBuilder(final Tree tree) {
-        this.root = new PatternNode(tree.getRoot());
+        this.root = new PatternNode(
+            tree.getRoot().orElseThrow(
+                () -> new IllegalArgumentException("This builder requires a non-empty tree")
+            )
+        );
         this.info = PatternBuilder.buildNodeInfoMap(this.root);
     }
 

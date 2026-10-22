@@ -35,16 +35,17 @@ package com.kniazkov.astranaut.core.base;
  */
 public final class DiffTree extends Tree {
     /**
+     * Non-empty difference root.
+     */
+    private final DiffNode difference;
+
+    /**
      * Constructor.
      * @param root Root node the difference tree
      */
     public DiffTree(final DiffNode root) {
         super(root);
-    }
-
-    @Override
-    public DiffNode getRoot() {
-        return (DiffNode) super.getRoot();
+        this.difference = root;
     }
 
     /**
@@ -52,7 +53,7 @@ public final class DiffTree extends Tree {
      * @return The syntax tree before the changes
      */
     public Tree getBefore() {
-        return new Tree(this.getRoot().getBefore());
+        return new Tree(this.difference.getBefore());
     }
 
     /**
@@ -60,6 +61,6 @@ public final class DiffTree extends Tree {
      * @return The syntax tree after the changes
      */
     public Tree getAfter() {
-        return new Tree(this.getRoot().getAfter());
+        return new Tree(this.difference.getAfter());
     }
 }

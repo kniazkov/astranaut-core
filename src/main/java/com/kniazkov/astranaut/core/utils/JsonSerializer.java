@@ -31,6 +31,7 @@ import com.kniazkov.json.JsonArray;
 import com.kniazkov.json.JsonObject;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
+import java.util.Optional;
 
 /**
  * Converts a tree to a string that contains JSON object.
@@ -85,7 +86,7 @@ public final class JsonSerializer {
     /**
      * The root node.
      */
-    private final Node root;
+    private final Optional<Node> root;
 
     /**
      * Programming language that defines a factory
@@ -108,8 +109,9 @@ public final class JsonSerializer {
      */
     public String serialize() {
         final JsonObject obj = new JsonObject();
-        final JsonObject child = obj.createObject(JsonSerializer.STR_ROOT);
-        this.convertNode(this.root, child);
+        this.root.ifPresent(
+            node -> this.convertNode(node, obj.createObject(JsonSerializer.STR_ROOT))
+        );
         if (!this.language.isEmpty()) {
             obj.addString(JsonSerializer.STR_LANGUAGE, this.language);
         }
