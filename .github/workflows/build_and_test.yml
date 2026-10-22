@@ -17,6 +17,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Install Graphviz for visualization tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends graphviz
+          dot -V
       - name: Build, test and run all quality checks
         run: mvn -B -ntp clean verify
       - name: Ensure the build did not modify tracked files

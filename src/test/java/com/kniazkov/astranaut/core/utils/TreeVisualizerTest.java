@@ -33,9 +33,11 @@ import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -53,6 +55,7 @@ class TreeVisualizerTest {
         Assertions.assertDoesNotThrow(
             () -> {
                 visualizer.visualize(new File(img.toString()));
+                Assertions.assertNotNull(ImageIO.read(img.toFile()));
             }
         );
     }
@@ -101,6 +104,7 @@ class TreeVisualizerTest {
         Assertions.assertDoesNotThrow(
             () -> {
                 visualizer.visualize(new File(img.toString()));
+                Assertions.assertTrue(Files.readString(img).contains("<svg"));
             }
         );
     }

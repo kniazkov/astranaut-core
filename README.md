@@ -23,6 +23,15 @@ So if you're working with anything Astranaut produces, you're working with Core 
 
 * Java 21 or newer (bytecode targets Java 21)
 * Maven 3.6.3+ (to build)
+* Graphviz with `dot` on `PATH` (for PNG/SVG visualization and the full test suite)
+
+Tree manipulation and DOT text generation do not require Graphviz. Image rendering
+uses the installed `dot` executable through `GraphvizCmdLineEngine`; J2V8 is not
+used or included as a transitive dependency.
+
+On Debian/Ubuntu, install Graphviz with `sudo apt-get install graphviz`. On other
+systems, install Graphviz and add its `bin` directory to `PATH`. Check the setup
+with `dot -V` before running `mvn clean verify`.
 
 # How to Add Astranaut Core to Your Project
 
