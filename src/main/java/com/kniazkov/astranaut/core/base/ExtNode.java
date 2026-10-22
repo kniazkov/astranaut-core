@@ -121,7 +121,7 @@ public interface ExtNode extends PrototypeBasedNode {
      * Computes and returns the absolute hash of this node.
      *  The absolute hash is calculated based on the data of this node as well as all its
      *  descendant nodes. If two nodes have identical absolute hashes, their entire subtrees
-     *  are considered structurally and data-wise equivalent.
+     *  may still differ because hashes can collide; verify structural equality.
      * @return The absolute hash of the node and its subtree
      */
     int getAbsoluteHash();

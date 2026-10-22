@@ -192,7 +192,7 @@ class BaseInterfaceTest {
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> sub.get(3));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.subList(-1, 0));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.subList(0, 4));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.subList(2, 1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> list.subList(2, 1));
     }
 
     void testListOtherMethods(final Node root, final List<Node> list) {
@@ -213,9 +213,10 @@ class BaseInterfaceTest {
         Assertions.assertEquals(3, objects.length);
         final Node[] smaller = new Node[2];
         final Node[] same = list.toArray(smaller);
-        Assertions.assertSame(same, smaller);
-        Assertions.assertSame(root.getChild(0), smaller[0]);
-        Assertions.assertSame(root.getChild(1), smaller[1]);
+        Assertions.assertNotSame(same, smaller);
+        Assertions.assertEquals(3, same.length);
+        Assertions.assertSame(root.getChild(0), same[0]);
+        Assertions.assertSame(root.getChild(2), same[2]);
         final Node[] biggest = new Node[4];
         list.toArray(biggest);
         Assertions.assertSame(root.getChild(2), biggest[2]);

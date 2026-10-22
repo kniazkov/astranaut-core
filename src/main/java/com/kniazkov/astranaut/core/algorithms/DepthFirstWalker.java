@@ -24,7 +24,7 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Node;
-import java.util.ArrayList;
+import com.kniazkov.astranaut.core.base.NodeOccurrence;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +48,7 @@ public class DepthFirstWalker {
 
     /**
      * Processes nodes starting from the root. Processes a node first.
-     *  If the stopping criterion is not reached, recursively processes all children of it,
+     *  If the stopping criterion is not reached, iteratively processes all children of it,
      *  starting from the first one. Once a node is found that satisfies the criterion,
      *  stops traversal.<br/>
      *  And yes, you can use this algorithm not only to find nodes, but also just to traverse
@@ -57,7 +57,9 @@ public class DepthFirstWalker {
      * @return Found node (optional)
      */
     public Optional<Node> findFirst(final Visitor visitor) {
-        return Optional.ofNullable(DepthFirstWalker.findFirst(this.root, visitor));
+        return new OccurrenceWalker(new NodeOccurrence(this.root))
+            .findFirst(occurrence -> visitor.process(occurrence.getNode()))
+            .map(NodeOccurrence::getNode);
     }
 
     /**
@@ -68,70 +70,18 @@ public class DepthFirstWalker {
      * @return List of found nodes (can be empty, but not {@code null})
      */
     public List<Node> findAll(final Visitor visitor) {
-        final List<Node> list = new ArrayList<>(0);
-        DepthFirstWalker.findAll(this.root, visitor, list);
-        return list;
+        return new OccurrenceWalker(new NodeOccurrence(this.root))
+            .findAll(occurrence -> visitor.process(occurrence.getNode()))
+            .stream().map(NodeOccurrence::getNode).toList();
     }
 
     /**
-     * Collects all nodes without criteria in the order corresponding to the traversal in depth.
-     * @return List of collected nodes (can't be empty)
+     * Collects all occurrences in preorder, including shared objects more than once.
+     * @return Ordered nodes
      */
     public List<Node> collectAll() {
-        final List<Node> list = new ArrayList<>(1 + this.root.getChildCount());
-        DepthFirstWalker.collectAll(this.root, list);
-        return list;
-    }
-
-    /**
-     * Recursive method that implements the "Find first starting from the root" algorithm.
-     * @param node Current node to be processed
-     * @param visitor Visitor that processes nodes
-     * @return Found node or {@code null} if no node is found
-     */
-    private static Node findFirst(final Node node, final Visitor visitor) {
-        Node result = null;
-        final boolean stop = visitor.process(node);
-        if (stop) {
-            result = node;
-        } else {
-            final int count = node.getChildCount();
-            for (int index = 0; index < count && result == null; index = index + 1) {
-                result = DepthFirstWalker.findFirst(node.getChild(index), visitor);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Recursive method that implements the "Find all starting from the root" algorithm.
-     * @param node Current node to be processed
-     * @param visitor Visitor that processes nodes
-     * @param list List of found nodes
-     */
-    private static void findAll(final Node node, final Visitor visitor, final List<Node> list) {
-        final boolean found = visitor.process(node);
-        if (found) {
-            list.add(node);
-        } else {
-            final int count = node.getChildCount();
-            for (int index = 0; index < count; index = index + 1) {
-                DepthFirstWalker.findAll(node.getChild(index), visitor, list);
-            }
-        }
-    }
-
-    /**
-     * Recursive method that implements the "Collect all starting from the root" algorithm.
-     * @param node Current node to be processed
-     * @param list List of found nodes
-     */
-    private static void collectAll(final Node node, final List<Node> list) {
-        list.add(node);
-        final int count = node.getChildCount();
-        for (int index = 0; index < count; index = index + 1) {
-            DepthFirstWalker.collectAll(node.getChild(index), list);
-        }
+        return new OccurrenceWalker(new NodeOccurrence(this.root)).collectAll()
+            .stream().map(NodeOccurrence::getNode).toList();
     }
 
     /**
