@@ -124,8 +124,8 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         final Tree result = transformer.transform(new Tree(root));
-        Assertions.assertEquals(1, result.getRoot().getChildCount());
-        Assertions.assertEquals("2 + 3 + 4", result.getRoot().getChild(0).toString());
+        Assertions.assertEquals(1, result.getRoot().orElseThrow().getChildCount());
+        Assertions.assertEquals("2 + 3 + 4", result.getRoot().orElseThrow().getChild(0).toString());
     }
 
     @Test
@@ -144,8 +144,8 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         final Tree result = transformer.transform(new Tree(root));
-        Assertions.assertEquals(1, result.getRoot().getChildCount());
-        Assertions.assertEquals("2 + 3 * 4", result.getRoot().getChild(0).toString());
+        Assertions.assertEquals(1, result.getRoot().orElseThrow().getChildCount());
+        Assertions.assertEquals("2 + 3 * 4", result.getRoot().orElseThrow().getChild(0).toString());
     }
 
     @Test
@@ -164,8 +164,8 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         final Tree result = transformer.transform(new Tree(root));
-        Assertions.assertEquals(1, result.getRoot().getChildCount());
-        Assertions.assertEquals("x = y = 0", result.getRoot().getChild(0).toString());
+        Assertions.assertEquals(1, result.getRoot().orElseThrow().getChildCount());
+        Assertions.assertEquals("x = y = 0", result.getRoot().orElseThrow().getChild(0).toString());
     }
 
     @Test
@@ -191,9 +191,9 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         final Tree result = transformer.transform(new Tree(root));
-        Assertions.assertEquals(8, result.getRoot().getChildCount());
-        Assertions.assertEquals("x = y", result.getRoot().getChild(1).toString());
-        Assertions.assertEquals("q = r", result.getRoot().getChild(3).toString());
+        Assertions.assertEquals(8, result.getRoot().orElseThrow().getChildCount());
+        Assertions.assertEquals("x = y", result.getRoot().orElseThrow().getChild(1).toString());
+        Assertions.assertEquals("q = r", result.getRoot().orElseThrow().getChild(3).toString());
     }
 
     @Test
@@ -216,8 +216,8 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         final Tree result = transformer.transform(new Tree(root));
-        Assertions.assertEquals(1, result.getRoot().getChildCount());
-        Assertions.assertEquals("x = y + 0", result.getRoot().getChild(0).toString());
+        Assertions.assertEquals(1, result.getRoot().orElseThrow().getChildCount());
+        Assertions.assertEquals("x = y + 0", result.getRoot().orElseThrow().getChild(0).toString());
     }
 
     @Test
@@ -227,11 +227,11 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         Tree result = transformer.transform(new Tree(new TestNode(TestBuilderCase.BAD_DATA)));
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
         result = transformer.transform(new Tree(new TestNode(TestBuilderCase.BAD_CHILDREN)));
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
         result = transformer.transform(new Tree(new TestNode(TestBuilderCase.INVALID_BUILDER)));
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
     }
 
     @Test
@@ -260,7 +260,7 @@ class ConversionTest {
             GreenFactory.INSTANCE
         );
         final Tree result = transformer.transform(new Tree(root));
-        final List<Node> list = result.getRoot().getChildrenList();
+        final List<Node> list = result.getRoot().orElseThrow().getChildrenList();
         Assertions.assertEquals(3, list.size());
         Assertions.assertEquals("a", list.get(0).getData());
         Assertions.assertEquals("b", list.get(1).getData());

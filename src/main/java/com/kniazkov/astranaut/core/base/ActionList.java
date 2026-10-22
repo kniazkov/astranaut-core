@@ -116,7 +116,7 @@ public class ActionList {
      * @return Difference tree
      */
     public DiffTree convertTreeToDiffTree(final Tree tree) {
-        final DiffTreeBuilder builder = new DiffTreeBuilder(tree.getRoot());
+        final DiffTreeBuilder builder = new DiffTreeBuilder(tree);
         if (this.insert != null) {
             for (final Insertion insertion : this.insert) {
                 builder.insertNode(insertion);

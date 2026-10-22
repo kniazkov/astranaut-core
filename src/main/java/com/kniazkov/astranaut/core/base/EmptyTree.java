@@ -24,8 +24,7 @@
 package com.kniazkov.astranaut.core.base;
 
 /**
- * Empty syntax tree. It contains a single dummy node. Used as a placeholder
- *  instead of a null pointer.
+ * Empty syntax tree with no root node.
  * @since 0.0.1
  */
 public final class EmptyTree extends Tree {
@@ -38,6 +37,6 @@ public final class EmptyTree extends Tree {
      * Constructor.
      */
     private EmptyTree() {
-        super(DummyNode.INSTANCE);
+        super();
     }
 }

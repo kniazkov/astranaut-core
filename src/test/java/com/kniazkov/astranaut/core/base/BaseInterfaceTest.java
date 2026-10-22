@@ -265,7 +265,7 @@ class BaseInterfaceTest {
         Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,W,E,R)")));
         final Node labeled = new LabeledTreeBuilder(node)
             .build(Collections.singleton(node), "color", "red")
-            .getRoot();
+            .getRoot().orElseThrow();
         Assertions.assertEquals(labeled.toString(), node.toString());
         Assertions.assertTrue(node.deepCompare(labeled));
     }
@@ -309,11 +309,11 @@ class BaseInterfaceTest {
     void testLocalHash() {
         final DiffTree first = LittleTrees.createTreeWithDeleteAction();
         final DiffTree second = LittleTrees.createTreeWithDeleteAction();
-        int expected = first.getRoot().getLocalHash();
-        int actual = second.getRoot().getLocalHash();
+        int expected = first.getRoot().orElseThrow().getLocalHash();
+        int actual = second.getRoot().orElseThrow().getLocalHash();
         Assertions.assertEquals(expected, actual);
-        expected = first.getRoot().getChild(0).getLocalHash();
-        actual = second.getRoot().getChild(0).getLocalHash();
+        expected = first.getRoot().orElseThrow().getChild(0).getLocalHash();
+        actual = second.getRoot().orElseThrow().getChild(0).getLocalHash();
         Assertions.assertEquals(expected, actual);
     }
 }

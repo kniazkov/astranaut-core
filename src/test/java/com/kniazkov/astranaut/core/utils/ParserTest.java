@@ -74,7 +74,7 @@ class ParserTest {
     void parsingFileToTree() {
         final FileSource source = new FileSource(ParserTest.TEST_FILE);
         final Tree tree = source.parseIntoTree();
-        Assertions.assertTrue(tree.getRoot().getChildCount() > 0);
+        Assertions.assertTrue(tree.getRoot().orElseThrow().getChildCount() > 0);
     }
 
     @Test
@@ -144,10 +144,10 @@ class ParserTest {
         final StringSource source = new StringSource("abc");
         Assertions.assertTrue(source.getFileName().isEmpty());
         final Tree tree = source.parseIntoTree();
-        Assertions.assertEquals(3, tree.getRoot().getChildCount());
+        Assertions.assertEquals(3, tree.getRoot().orElseThrow().getChildCount());
         Assertions.assertEquals(
             "1.1-1.1",
-            tree.getRoot().getChild(0).getFragment().getPositionAsString()
+            tree.getRoot().orElseThrow().getChild(0).getFragment().getPositionAsString()
         );
     }
 

@@ -23,6 +23,7 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.EmptyTree;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -44,14 +46,14 @@ public class LabeledTreeBuilder {
     /**
      * The root node of the original tree.
      */
-    private final Node root;
+    private final Optional<Node> root;
 
     /**
      * Constructor.
      * @param root Root node of the original not labeled tree
      */
     public LabeledTreeBuilder(final Node root) {
-        this.root = root;
+        this(new Tree(root));
     }
 
     /**
@@ -59,7 +61,7 @@ public class LabeledTreeBuilder {
      * @param tree Original not labeled tree
      */
     public LabeledTreeBuilder(final Tree tree) {
-        this(tree.getRoot());
+        this.root = tree.getRoot();
     }
 
     /**
@@ -70,9 +72,9 @@ public class LabeledTreeBuilder {
      * @return Labeled tree
      */
     public Tree build(final Set<Node> selected, final String name, final String value) {
-        return new Tree(
-            new LabeledNode(this.root, selected, new Pair<>(name, value))
-        );
+        return this.root.map(
+            node -> new Tree(new LabeledNode(node, selected, new Pair<>(name, value)))
+        ).orElse(EmptyTree.INSTANCE);
     }
 
     /**
@@ -135,18 +137,18 @@ public class LabeledTreeBuilder {
         }
 
         @Override
-        public java.util.Optional<String> getChildTag(final int index) {
+        public Optional<String> getChildTag(final int index) {
             java.util.Objects.checkIndex(index, this.getChildCount());
             return this.original.getChildTag(index);
         }
 
         @Override
-        public java.util.Optional<Node> getChild(final String tag) {
+        public Optional<Node> getChild(final String tag) {
             java.util.Objects.requireNonNull(tag);
-            java.util.Optional<Node> result = java.util.Optional.empty();
+            Optional<Node> result = Optional.empty();
             for (int index = 0; index < this.getChildCount(); index += 1) {
                 if (this.getChildTag(index).filter(tag::equals).isPresent()) {
-                    result = java.util.Optional.of(this.getChild(index));
+                    result = Optional.of(this.getChild(index));
                     break;
                 }
             }

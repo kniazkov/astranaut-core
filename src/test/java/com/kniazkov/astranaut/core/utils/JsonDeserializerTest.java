@@ -114,7 +114,7 @@ class JsonDeserializerTest {
             JsonDeserializerTest.PROVIDER
         );
         final Tree result = deserializer.convert();
-        final Node root = result.getRoot();
+        final Node root = result.getRoot().orElseThrow();
         Assertions.assertEquals(JsonDeserializerTest.ADD, root.getTypeName());
         Assertions.assertEquals("", root.getData());
         Assertions.assertEquals(2, root.getChildCount());
@@ -136,7 +136,7 @@ class JsonDeserializerTest {
         );
         final Tree tree = deserializer.convert();
         Assertions.assertNotNull(tree);
-        Assertions.assertEquals("Example", tree.getRoot().getTypeName());
+        Assertions.assertEquals("Example", tree.getRoot().orElseThrow().getTypeName());
     }
 
     @Test
@@ -244,7 +244,7 @@ class JsonDeserializerTest {
             }
         );
         final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
     }
 
     @Test
@@ -269,7 +269,7 @@ class JsonDeserializerTest {
             }
         );
         final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
     }
 
     @Test
@@ -295,7 +295,7 @@ class JsonDeserializerTest {
             }
         );
         final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
     }
 
     @Test
@@ -305,7 +305,7 @@ class JsonDeserializerTest {
             JsonDeserializerTest.PROVIDER
         );
         final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
     }
 
     @Test
@@ -315,7 +315,7 @@ class JsonDeserializerTest {
             JsonDeserializerTest.PROVIDER
         );
         final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot());
+        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
     }
 
     /**

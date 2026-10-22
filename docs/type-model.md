@@ -125,10 +125,12 @@ accept descriptors; the former string-based group query has been removed. Graph 
 Names remain the identifiers in serialization and the basis of type equality.
 
 This stage does not claim that all legacy algorithms already implement the final
-architecture. The Optional root and remaining immutable node-model migration in
-#11,
+architecture. The remaining immutable node-model migration in #11,
 immutable diff/pattern nodes, and tag-preserving transformations/JSON are subsequent
 steps. In particular, current serialization is not yet a tagged structural
 round-trip. Issues #11 and #26 remain open for their dependent integration checks.
 Structural equality and hashing with tags are implemented as described in
 [the structural equality guide](structural-equality.md).
+
+Tree roots now use `Optional<Node>`; see [the root migration guide](optional-root.md)
+for empty-tree behavior and boundaries of the remaining immutable-model work.

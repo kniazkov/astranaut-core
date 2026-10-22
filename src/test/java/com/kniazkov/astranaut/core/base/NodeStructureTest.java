@@ -116,7 +116,7 @@ class NodeStructureTest {
         );
         final Node second = builder.build();
         final Node third = new LabeledTreeBuilder(second)
-            .build(Set.of(second), "color", "red").getRoot();
+            .build(Set.of(second), "color", "red").getRoot().orElseThrow();
         Assertions.assertNotEquals(first.getFragment(), second.getFragment());
         Assertions.assertNotEquals(first.getProperties(), third.getProperties());
         Assertions.assertEquals(first, second);
@@ -141,11 +141,12 @@ class NodeStructureTest {
         final DiffTree first = LittleTrees.createTreeWithDeleteAction();
         final DiffTree second = LittleTrees.createTreeWithDeleteAction();
         Assertions.assertEquals(
-            NodeStructure.hash(first.getRoot()), NodeStructure.hash(second.getRoot())
+            NodeStructure.hash(first.getRoot().orElseThrow()),
+            NodeStructure.hash(second.getRoot().orElseThrow())
         );
         Assertions.assertEquals(
-            NodeStructure.hash(first.getRoot().getChild(0)),
-            NodeStructure.hash(second.getRoot().getChild(0))
+            NodeStructure.hash(first.getRoot().orElseThrow().getChild(0)),
+            NodeStructure.hash(second.getRoot().orElseThrow().getChild(0))
         );
     }
 }

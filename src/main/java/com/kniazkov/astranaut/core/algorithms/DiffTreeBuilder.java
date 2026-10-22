@@ -68,9 +68,12 @@ public final class DiffTreeBuilder {
     /**
      * Constructor.
      * @param before Original 'ordinary', non-difference tree before the changes
+     * @throws IllegalArgumentException If the tree has no root
      */
     public DiffTreeBuilder(final Tree before) {
-        this(before.getRoot());
+        this(before.getRoot().orElseThrow(
+            () -> new IllegalArgumentException("This builder requires a non-empty tree")
+        ));
     }
 
     /**
@@ -101,7 +104,7 @@ public final class DiffTreeBuilder {
      * @return Result of operation, {@code true} if difference tree was built
      */
     public boolean build(final Tree after, final Mapper mapper) {
-        return this.build(after.getRoot(), mapper);
+        return after.getRoot().map(node -> this.build(node, mapper)).orElse(false);
     }
 
     /**

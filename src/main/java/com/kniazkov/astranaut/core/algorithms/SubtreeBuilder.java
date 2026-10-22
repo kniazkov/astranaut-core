@@ -77,9 +77,12 @@ public class SubtreeBuilder {
      * Constructor.
      * @param tree Original tree
      * @param algorithm Algorithm that selects nodes based on some criteria
+     * @throws IllegalArgumentException If the tree has no root
      */
     public SubtreeBuilder(final Tree tree, final Algorithm algorithm) {
-        this(tree.getRoot(), algorithm);
+        this(tree.getRoot().orElseThrow(
+            () -> new IllegalArgumentException("This builder requires a non-empty tree")
+        ), algorithm);
     }
 
     /**

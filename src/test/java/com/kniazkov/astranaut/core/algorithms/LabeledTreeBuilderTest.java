@@ -48,11 +48,11 @@ class LabeledTreeBuilderTest {
         final String value = "yellow";
         final LabeledTreeBuilder builder = new LabeledTreeBuilder(new Tree(original));
         final Tree labeled = builder.build(Collections.singleton(target), name, value);
-        final Optional<Node> colored = new DepthFirstWalker(labeled.getRoot())
+        final Optional<Node> colored = new DepthFirstWalker(labeled.getRoot().orElseThrow())
             .findFirst(node -> node.getTypeName().equals(target.getTypeName()));
         Assertions.assertTrue(colored.isPresent());
         Assertions.assertEquals(colored.get().getProperties().get(name), value);
-        final Node root = labeled.getRoot();
+        final Node root = labeled.getRoot().orElseThrow();
         Assertions.assertTrue(root instanceof PrototypeBasedNode);
         Assertions.assertSame(((PrototypeBasedNode) root).getPrototype(), original);
     }

@@ -293,7 +293,7 @@ class DiffNodeTest {
             }
         );
         final Tree tree = deserializer.convert();
-        final Node root = tree.getRoot();
+        final Node root = tree.getRoot().orElseThrow();
         Assertions.assertNotEquals(DummyNode.INSTANCE, root);
         return root;
     }

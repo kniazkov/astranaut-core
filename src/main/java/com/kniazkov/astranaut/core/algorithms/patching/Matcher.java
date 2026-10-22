@@ -31,13 +31,13 @@ import com.kniazkov.astranaut.core.base.Hole;
 import com.kniazkov.astranaut.core.base.Insert;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Pattern;
-import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.Replace;
 import com.kniazkov.astranaut.core.base.Tree;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -48,7 +48,7 @@ class Matcher {
     /**
      * Root node of the tree in which patterns are searched.
      */
-    private final Node root;
+    private final Optional<Node> root;
 
     /**
      * Set of nodes mapped to the root of the pattern.
@@ -71,12 +71,13 @@ class Matcher {
      *  to the nodes of the tree
      */
     ActionList match(final Pattern pattern) {
-        final DepthFirstWalker deep = new DepthFirstWalker(this.root);
-        final PatternNode head = pattern.getRoot();
-        final List<Node> preset = deep.findAll(
-            node -> node.getType().equals(head.getType())
-                && node.getData().equals(head.getData())
-        );
+        final Node head = pattern.getRoot().orElseThrow();
+        final List<Node> preset = this.root.map(
+            node -> new DepthFirstWalker(node).findAll(
+                candidate -> candidate.getType().equals(head.getType())
+                    && candidate.getData().equals(head.getData())
+            )
+        ).orElseGet(List::of);
         final ActionList list = new ActionList();
         for (final Node node : preset) {
             final Matched applicants = new Matched();
