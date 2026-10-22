@@ -30,7 +30,7 @@ import java.util.Optional;
  * Singleton node representing intentional absence of a meaningful node value.
  * @since 0.0.1
  */
-public final class NullNode implements Node {
+public final class NullNode extends NodeWithStructuralEquality implements Node {
     /**
      * The instance.
      */

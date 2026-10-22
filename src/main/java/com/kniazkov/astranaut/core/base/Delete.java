@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * Action that deletes a child element.
  * @since 0.0.1
  */
-public final class Delete implements Action {
+public final class Delete extends NodeWithStructuralEquality implements Action {
     /**
      * The type.
      */

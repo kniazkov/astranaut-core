@@ -119,7 +119,7 @@ final class Section {
      * @return Checking result
      */
     boolean hasNode(final ExtNode node) {
-        return this.left.contains(node) || this.right.contains(node);
+        return Section.indexOf(this.left, node) >= 0 || Section.indexOf(this.right, node) >= 0;
     }
 
     /**
@@ -133,12 +133,12 @@ final class Section {
     Section removeNode(final ExtNode node) {
         final Section result;
         do {
-            int index = this.left.indexOf(node);
+            int index = Section.indexOf(this.left, node);
             if (index >= 0) {
                 result = this.removeLeftNode(index);
                 break;
             }
-            index = this.right.indexOf(node);
+            index = Section.indexOf(this.right, node);
             if (index >= 0) {
                 result = this.removeRightNode(index);
                 break;
@@ -296,7 +296,7 @@ final class Section {
         final ExtNode node) {
         final Pair<List<ExtNode>, List<ExtNode>> result;
         final int size = list.size();
-        final int index = list.indexOf(node);
+        final int index = Section.indexOf(list, node);
         if (index < 0) {
             result = new Pair<>(Collections.emptyList(), list);
         } else if (index == 0 && size == 1) {
@@ -307,6 +307,24 @@ final class Section {
             result = new Pair<>(list.subList(0, index), Collections.emptyList());
         } else {
             result = new Pair<>(list.subList(0, index), list.subList(index + 1, size));
+        }
+        return result;
+    }
+
+    /**
+     * Locates a specific occurrence rather than a structurally equal sibling.
+     * @param list Occurrences
+     * @param node Requested object
+     * @return Index, or minus one
+     */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
+    private static int indexOf(final List<ExtNode> list, final ExtNode node) {
+        int result = -1;
+        for (int index = 0; index < list.size(); index += 1) {
+            if (list.get(index) == node) {
+                result = index;
+                break;
+            }
         }
         return result;
     }

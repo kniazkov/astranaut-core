@@ -32,7 +32,8 @@ import java.util.Map;
  * Child nodes can be replaced by holes.
  * @since 0.0.1
  */
-public final class PatternNode implements PatternItem, PrototypeBasedNode {
+public final class PatternNode extends NodeWithStructuralEquality
+    implements PatternItem, PrototypeBasedNode {
     /**
      * Independent type descriptor.
      */
@@ -94,6 +95,25 @@ public final class PatternNode implements PatternItem, PrototypeBasedNode {
     }
 
     @Override
+    public java.util.Optional<String> getChildTag(final int index) {
+        java.util.Objects.checkIndex(index, this.getChildCount());
+        return this.prototype.getChildTag(index);
+    }
+
+    @Override
+    public java.util.Optional<Node> getChild(final String tag) {
+        java.util.Objects.requireNonNull(tag);
+        java.util.Optional<Node> result = java.util.Optional.empty();
+        for (int index = 0; index < this.getChildCount(); index += 1) {
+            if (this.getChildTag(index).filter(tag::equals).isPresent()) {
+                result = java.util.Optional.of(this.getChild(index));
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
     public String toString() {
         return Node.toString(this);
     }
@@ -140,6 +160,7 @@ public final class PatternNode implements PatternItem, PrototypeBasedNode {
      * @param node Prototype of the node whose index is to be found
      * @return Index or -1 if there is no such node
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private int findChildIndex(final Node node) {
         int result = -1;
         final int count = this.children.size();
@@ -148,7 +169,7 @@ public final class PatternNode implements PatternItem, PrototypeBasedNode {
             if (child instanceof PatternNode) {
                 Node proto = ((PatternNode) child).getPrototype();
                 while (true) {
-                    if (node.equals(proto)) {
+                    if (node == proto) {
                         result = index;
                         break;
                     } else if (proto instanceof PrototypeBasedNode) {

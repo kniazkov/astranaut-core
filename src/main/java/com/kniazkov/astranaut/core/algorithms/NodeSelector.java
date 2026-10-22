@@ -24,8 +24,9 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Node;
+import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -95,7 +96,7 @@ public final class NodeSelector {
          */
         private Walker(final Criteria criteria) {
             this.criteria = criteria;
-            this.set = new HashSet<>();
+            this.set = Collections.newSetFromMap(new IdentityHashMap<>());
         }
 
         /**

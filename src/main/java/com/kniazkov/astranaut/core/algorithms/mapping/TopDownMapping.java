@@ -27,7 +27,7 @@ import com.kniazkov.astranaut.core.base.ExtNode;
 import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,7 +79,11 @@ final class TopDownMapping implements Mapping {
         this.deleted = Collections.unmodifiableSet(
             algorithm.getDeleted().stream()
                 .map(ExtNode::getPrototype)
-                .collect(Collectors.toSet())
+                .collect(
+                    Collectors.toCollection(
+                        () -> Collections.newSetFromMap(new IdentityHashMap<>())
+                    )
+                )
         );
     }
 
@@ -114,7 +118,7 @@ final class TopDownMapping implements Mapping {
      * @return Resulting collection
      */
     private static Map<Node, Node> convert(final Map<ExtNode, ExtNode> original) {
-        final Map<Node, Node> result = new HashMap<>();
+        final Map<Node, Node> result = new IdentityHashMap<>();
         for (final Map.Entry<ExtNode, ExtNode> entry : original.entrySet()) {
             Node value = null;
             if (entry.getValue() != null) {

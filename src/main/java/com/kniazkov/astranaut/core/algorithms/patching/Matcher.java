@@ -35,7 +35,7 @@ import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.Replace;
 import com.kniazkov.astranaut.core.base.Tree;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -61,7 +61,7 @@ class Matcher {
      */
     Matcher(final Tree tree) {
         this.root = tree.getRoot();
-        this.found = new HashSet<>();
+        this.found = Collections.newSetFromMap(new IdentityHashMap<>());
     }
 
     /**

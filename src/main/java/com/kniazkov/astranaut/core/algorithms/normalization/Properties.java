@@ -26,6 +26,7 @@ package com.kniazkov.astranaut.core.algorithms.normalization;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import java.util.TreeMap;
  * List of properties extracted from the original node.
  * @since 0.0.1
  */
-public final class Properties implements Node {
+public final class Properties extends NodeWithStructuralEquality implements Node {
     /**
      * Shared type descriptor.
      */

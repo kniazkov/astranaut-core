@@ -26,7 +26,8 @@ package com.kniazkov.astranaut.core.base;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ import java.util.Set;
  *  DraftNode is designed to be immutable.
  * @since 0.0.1
  */
-public final class DraftNode implements Node {
+public final class DraftNode extends NodeWithStructuralEquality implements Node {
     /**
      * The fragment associated with the node.
      */
@@ -181,7 +182,10 @@ public final class DraftNode implements Node {
             result = builder.build();
             if (nodes != null) {
                 final Set<Node> set =
-                    nodes.computeIfAbsent(result.getTypeName(), k -> new HashSet<>());
+                    nodes.computeIfAbsent(
+                        result.getTypeName(),
+                        key -> Collections.newSetFromMap(new IdentityHashMap<>())
+                    );
                 set.add(result);
             }
         } else {

@@ -28,7 +28,7 @@ import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -93,7 +93,7 @@ public final class PatternBuilder {
      * @return The map containing relationship of the nodes to their parents.
      */
     private static Map<Node, NodeInfo> buildNodeInfoMap(final PatternNode root) {
-        final Map<Node, NodeInfo> map = new HashMap<>();
+        final Map<Node, NodeInfo> map = new IdentityHashMap<>();
         map.put(root.getPrototype(), new NodeInfo(null));
         PatternBuilder.buildNodeInfoMap(map, root);
         return map;

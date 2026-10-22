@@ -21,34 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.kniazkov.astranaut.core.algorithms.hash;
-
-import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.Tree;
+package com.kniazkov.astranaut.core.base;
 
 /**
- * An interface that calculates the hash of a node.
- *  Hash is a number that uniquely identifies a node by some criteria.
+ * Optional base implementing the structural Node equality contract.
+ * Implementations with another superclass can delegate to {@link NodeStructure}.
+ * No hash is retained: legacy mutable wrappers must not be mutated while used
+ * as keys in ordinary hash collections or during a structural operation.
  * @since 0.0.1
  */
-public interface Hash {
+public abstract class NodeWithStructuralEquality implements Node {
     /**
-     * Calculates the hash of the node.
-     * This method computes the hash value for the given node, which can be used
-     *  to uniquely identify the node based on its content and structure.
-     * @param node Node to calculate the hash for.
-     * @return Hash value of the node
+     * Creates a structural node.
      */
-    int calculate(Node node);
+    @SuppressWarnings("PMD.UncommentedEmptyConstructor")
+    protected NodeWithStructuralEquality() {
+    }
 
-    /**
-     * Calculates the hash of the tree.
-     * This default method computes the hash value for the entire tree by
-     *  calculating the hash of its root node.
-     * @param tree Tree to calculate the hash for.
-     * @return Hash value of the tree, derived from its root node.
-     */
-    default int calculate(final Tree tree) {
-        return this.calculate(tree.getRoot());
+    @Override
+    public final boolean equals(final Object other) {
+        return other instanceof Node node && NodeStructure.equal(this, node);
+    }
+
+    @Override
+    public final int hashCode() {
+        return NodeStructure.hash(this);
     }
 }

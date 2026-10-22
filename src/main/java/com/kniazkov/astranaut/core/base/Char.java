@@ -29,7 +29,7 @@ import java.util.List;
  * Node representing one character of the source text.
  * @since 0.0.1
  */
-public final class Char implements Node {
+public final class Char extends NodeWithStructuralEquality implements Node {
     /**
      * Name of the type.
      */

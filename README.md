@@ -23,6 +23,15 @@ So if you're working with anything Astranaut produces, you're working with Core 
 
 * Java 21 or newer (bytecode targets Java 21)
 * Maven 3.6.3+ (to build)
+* Graphviz with `dot` on `PATH` (for PNG/SVG visualization and the full test suite)
+
+Tree manipulation and DOT text generation do not require Graphviz. Image rendering
+uses the installed `dot` executable through `GraphvizCmdLineEngine`; J2V8 is not
+used or included as a transitive dependency.
+
+On Debian/Ubuntu, install Graphviz with `sudo apt-get install graphviz`. On other
+systems, install Graphviz and add its `bin` directory to `PATH`. Check the setup
+with `dot -V` before running `mvn clean verify`.
 
 # How to Add Astranaut Core to Your Project
 
@@ -46,6 +55,8 @@ You can find the latest release number [here](https://github.com/kniazkov/astran
 
 See [the type model and migration guide](docs/type-model.md) for `AbstractType`,
 `Type`, child schemas, subtype queries, and tagged child access.
+See [structural equality and hashing](docs/structural-equality.md) for the Node
+contract, adapter examples, collision handling and explicit parallel operations.
 
 # The Basics: Interfaces & Classes  
 This is where the tree magic starts.  
@@ -354,7 +365,7 @@ Think of them as **power-ups** for working with Astranaut’s core.
 Sometimes, vanilla `Node` is *too minimal*—you need:
 
 - **Parent/left/right sibling access** (for complex traversals).  
-- **Structural hashing** (to compare entire subtrees in O(1)).  
+- **Structural hashing** (to reject unequal subtrees quickly; equal hashes still require comparison).
 
 Enter **`ExtNode`** (extended node) and **`ExtNodeCreator`** (its builder).  
 
@@ -363,16 +374,16 @@ Adds these **key methods** to `Node`:
 - **`getParent()`** → Who’s your daddy?
 - **`getIndex()`** → Where are you?
 - **`getLeft()`** / **`getRight()`** → Nodes beside you.  
-- **`getAbsoluteHash()`** → **Unique fingerprint** of the *entire subtree*.  
+- **`getAbsoluteHash()`** → **Structural hash** of the *entire subtree* (collisions are possible).
   - Computed from:  
     - Node **type**  
     - Node **data**  
-    - **Hashes of all children** (recursively)  
+    - **Tags and hashes of all children**, in order
   - **Two identical subtrees = same hash**.  
 
 **Why hashing rocks:**  
-- **Find duplicate subtrees** instantly (e.g., for code deduplication).  
-- **Memoization** – Cache transformations by hash.  
+- **Find candidate duplicate subtrees**, then verify structural equality.
+- **Memoization** – Use hashes to select candidates, with structural equality to resolve collisions.
 
 ### **ExtNodeCreator: Wrapper Factory**  
 

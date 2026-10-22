@@ -25,7 +25,7 @@ package com.kniazkov.astranaut.core.utils.visualizer;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import guru.nidi.graphviz.engine.GraphvizV8Engine;
+import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.parse.Parser;
 import java.io.File;
@@ -34,6 +34,7 @@ import java.util.Optional;
 
 /**
  * Renders an image from a tree using the external Graphviz tool.
+ * Requires the Graphviz dot executable on PATH.
  * @since 0.0.1
  */
 public class ImageRender {
@@ -60,7 +61,7 @@ public class ImageRender {
     public void render(final File file) throws WrongFileExtension, IOException {
         final Enum<Format> format = getFileExtension(file.getPath());
         final MutableGraph graph = new Parser().read(this.dot);
-        Graphviz.useEngine(new GraphvizV8Engine());
+        Graphviz.useEngine(new GraphvizCmdLineEngine());
         Graphviz.fromGraph(graph).render((Format) format).toFile(file);
     }
 
