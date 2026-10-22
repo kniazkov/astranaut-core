@@ -53,7 +53,7 @@ one invocation. `NodeStructure.hashes` additionally exposes an unmodifiable,
 identity-keyed snapshot for algorithms needing every subtree hash. Discard this
 snapshot when the operation ends; retaining it retains its nodes.
 
-`AbsoluteHash` delegates to this implementation and retains no trees between calls.
+`NodeStructure.hash` retains no trees between calls.
 `ExtNodeCreator` calculates one snapshot per conversion. Absolute hashes and
 `Node.hashCode` agree, but neither is a stable persistence format or a unique ID.
 Equal hashes require a structural comparison. Top-down mapping and pair finding
@@ -80,7 +80,7 @@ try (var executor = Executors.newFixedThreadPool(4)) {
 ```
 
 The caller owns and closes the bounded executor. Ordinary `equals`, `hashCode`
-and `AbsoluteHash` remain sequential and never submit tasks or use a global pool.
+and `NodeStructure.hash` remain sequential and never submit tasks or use a global pool.
 Invoke the strategy outside its executor to avoid starvation on a saturated pool.
 Node implementations and their callbacks must allow concurrent reads.
 

@@ -23,13 +23,12 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import com.kniazkov.astranaut.core.algorithms.hash.AbsoluteHash;
-import com.kniazkov.astranaut.core.algorithms.hash.Hash;
 import com.kniazkov.astranaut.core.algorithms.mapping.TopDownMapper;
 import com.kniazkov.astranaut.core.base.DiffTree;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeStructure;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import java.util.Collections;
@@ -76,9 +75,8 @@ class DiffTreeBuilderTest {
         Assertions.assertTrue(result);
         final DiffTree diff = builder.getDiffTree();
         final DiffTree expected = LittleTrees.createTreeWithReplaceAction();
-        final Hash hash = new AbsoluteHash();
-        final int diffhash = hash.calculate(diff);
-        final int expectedhash = hash.calculate(expected);
+        final int diffhash = NodeStructure.hash(diff.getRoot());
+        final int expectedhash = NodeStructure.hash(expected.getRoot());
         Assertions.assertEquals(expectedhash, diffhash);
         Assertions.assertTrue(expected.deepCompare(diff));
         Assertions.assertTrue(before.deepCompare(diff.getBefore().getRoot()));

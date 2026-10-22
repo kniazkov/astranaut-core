@@ -24,7 +24,7 @@
 package com.kniazkov.astranaut.core.base;
 
 import com.kniazkov.astranaut.core.algorithms.LabeledTreeBuilder;
-import com.kniazkov.astranaut.core.algorithms.hash.AbsoluteHash;
+import com.kniazkov.astranaut.core.example.LittleTrees;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +67,7 @@ class NodeStructureTest {
         Assertions.assertFalse(first.equals("Root"));
         Assertions.assertFalse(NodeStructure.equal(first, null));
         Assertions.assertEquals(1, new HashSet<>(List.of(first, second, third)).size());
-        Assertions.assertEquals(new AbsoluteHash().calculate(first), first.hashCode());
+        Assertions.assertEquals(NodeStructure.hash(first), first.hashCode());
     }
 
     @Test
@@ -95,7 +95,7 @@ class NodeStructureTest {
         Assertions.assertNotEquals(first, reversed);
         Assertions.assertNotEquals(first, absent);
         Assertions.assertNotEquals(first.hashCode(), reversed.hashCode());
-        Assertions.assertEquals(first.hashCode(), new AbsoluteHash().calculate(first));
+        Assertions.assertEquals(first.hashCode(), NodeStructure.hash(first));
         final Node empty = new StructuralNodeFixture(
             root, children, List.of(Optional.of(""), Optional.of("right"))
         );
@@ -128,12 +128,24 @@ class NodeStructureTest {
     void repeatedHashCallsDoNotRetainMutableWrapperState() {
         final Node original = DraftNode.create("Root(Leaf)");
         final PatternNode pattern = new PatternNode(original);
-        final AbsoluteHash algorithm = new AbsoluteHash();
-        final int before = algorithm.calculate(pattern);
+        final int before = NodeStructure.hash(pattern);
         Assertions.assertTrue(pattern.makeHole(original.getChild(0), 7));
-        final int after = algorithm.calculate(pattern);
+        final int after = NodeStructure.hash(pattern);
         Assertions.assertNotEquals(before, after);
         Assertions.assertEquals(pattern.hashCode(), after);
         Assertions.assertNotEquals(original, pattern);
+    }
+
+    @Test
+    void equalDifferenceTreesHaveEqualHashes() {
+        final DiffTree first = LittleTrees.createTreeWithDeleteAction();
+        final DiffTree second = LittleTrees.createTreeWithDeleteAction();
+        Assertions.assertEquals(
+            NodeStructure.hash(first.getRoot()), NodeStructure.hash(second.getRoot())
+        );
+        Assertions.assertEquals(
+            NodeStructure.hash(first.getRoot().getChild(0)),
+            NodeStructure.hash(second.getRoot().getChild(0))
+        );
     }
 }
