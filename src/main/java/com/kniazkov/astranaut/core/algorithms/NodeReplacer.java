@@ -23,52 +23,84 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import com.kniazkov.astranaut.core.base.Builder;
+import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Creator of a new tree with a modified subtree.
+ * Legacy replacement of all reference-identical subtrees.
+ * Use {@link OccurrenceReplacer} to change only one address.
  * @since 0.0.1
  */
 public class NodeReplacer {
     /**
      * Replaces a subtree of the initial tree with the newly created subtree.
+     * Replaces every occurrence of the source object, retaining this legacy contract.
      * @param tree The initial tree
      * @param source The subtree to be replaced
      * @param target The new subtree
      * @return Modified tree or an empty tree if it was not modified,
      *  and the index:
      *  - {@code -1} if the full tree was replaced or was not replaced at all;
-     *  - index of the root child which branch was modified if a subtree was replaced
+     *  - index of the last modified root child if a subtree was replaced
+     * @throws ConstructionException If an ancestor refuses reconstruction
+     * @checkstyle NonStaticMethodCheck (40 lines)
      */
     @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public Pair<Node, Integer> replace(final Node tree, final Node source, final Node target) {
-        Pair<Node, Integer> result = new Pair<>(DummyNode.INSTANCE, -1);
-        if (tree == source) {
-            result = new Pair<>(target, -1);
-        } else if (tree.getChildCount() > 0) {
-            final List<Node> list = new ArrayList<>(tree.getChildCount());
-            int pos = -1;
-            for (int idx = 0; idx < tree.getChildCount(); idx += 1) {
-                final Node child = tree.getChild(idx);
-                final Pair<Node, Integer> replacement = this.replace(child, source, target);
-                if (replacement.getKey() == DummyNode.INSTANCE) {
-                    list.add(child);
-                } else {
-                    list.add(replacement.getKey());
-                    pos = idx;
-                }
+        final Map<Node, Node> changed = new IdentityHashMap<>();
+        final List<Node> nodes = new ArrayList<>(0);
+        new DepthFirstWalker(tree).findAll(
+            node -> {
+                nodes.add(node);
+                return node == source;
             }
-            if (pos != -1) {
-                final Builder builder = tree.getType().createBuilder();
-                builder.setChildren(list);
-                result = new Pair<>(builder.build(), pos);
+        );
+        for (final Node node : nodes.reversed()) {
+            if (node == source) {
+                changed.put(node, target);
+            } else if (!changed.containsKey(node)) {
+                NodeReplacer.rebuild(node, changed);
             }
         }
+        Pair<Node, Integer> result = new Pair<>(DummyNode.INSTANCE, -1);
+        if (changed.containsKey(tree)) {
+            int position = -1;
+            for (int index = 0; tree != source && index < tree.getChildCount(); index += 1) {
+                if (changed.containsKey(tree.getChild(index))) {
+                    position = index;
+                }
+            }
+            result = new Pair<>(changed.get(tree), position);
+        }
         return result;
+    }
+
+    /**
+     * Rebuilds a changed ancestor once by identity, preserving metadata and tags.
+     * @param node Ancestor
+     * @param changed Rebuilt nodes keyed by reference identity, not structural equality
+     * @throws ConstructionException If the builder refuses the reconstructed ancestor
+     */
+    private static void rebuild(final Node node, final Map<Node, Node> changed) {
+        final List<Node> children = new ArrayList<>(node.getChildCount());
+        boolean modified = false;
+        for (int index = 0; index < node.getChildCount(); index += 1) {
+            final Node child = node.getChild(index);
+            children.add(changed.getOrDefault(child, child));
+            modified = modified || changed.containsKey(child);
+        }
+        if (modified) {
+            changed.put(
+                node, OccurrenceReplacer.rebuild(node, children).orElseThrow(
+                    () -> new ConstructionException("Builder refused subtree replacement")
+                )
+            );
+        }
     }
 }
