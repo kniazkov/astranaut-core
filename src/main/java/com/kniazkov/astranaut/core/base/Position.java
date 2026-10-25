@@ -24,6 +24,7 @@
 package com.kniazkov.astranaut.core.base;
 
 import com.kniazkov.astranaut.core.utils.Pair;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -79,21 +80,7 @@ public interface Position extends Comparable<Position> {
      * @throws IllegalArgumentException If no positions are provided or sources differ
      */
     static Pair<Position, Position> bounds(final Position... positions) {
-        if (positions.length == 0) {
-            throw new IllegalArgumentException();
-        }
-        Position first = positions[0];
-        Position last = positions[0];
-        for (int index = 1; index < positions.length; index = index + 1) {
-            final Position position = positions[index];
-            if (position.compareTo(first) < 0) {
-                first = position;
-            }
-            if (position.compareTo(last) > 0) {
-                last = position;
-            }
-        }
-        return new Pair<>(first, last);
+        return Position.bounds(Arrays.asList(positions));
     }
 
     /**

@@ -93,6 +93,10 @@ backslashes and control characters round-trip. This debug format records names, 
 and ordered children; it does not encode tags, properties or source provenance. Use
 the dedicated serialization API for that richer structure.
 
+The draft builder uses the same formatter as built nodes, including for children with
+no custom `toString`. Formatting an incomplete builder does not call `build`, validate
+or mutate its state.
+
 The optional type-to-nodes index is populated only after successful parsing; a malformed
 description does not leave partially parsed nodes in the caller's map. Equal but distinct
 node objects remain separate index entries.

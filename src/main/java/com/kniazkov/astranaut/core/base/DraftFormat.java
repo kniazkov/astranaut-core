@@ -25,6 +25,7 @@ package com.kniazkov.astranaut.core.base;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 /**
  * Iterative description writer with unambiguous quoted data.
@@ -43,26 +44,37 @@ final class DraftFormat {
      * @return Description
      */
     static String format(final Node root) {
+        return DraftFormat.format(root.getTypeName(), root.getData(), root.getChildrenList());
+    }
+
+    /**
+     * Formats node fields or an incomplete builder using the same traversal and escaping.
+     * @param name Type name, possibly empty for an incomplete builder
+     * @param data Data
+     * @param children Ordered children
+     * @return Description
+     */
+    static String format(final String name, final String data, final List<Node> children) {
         final StringBuilder text = new StringBuilder();
         final Deque<Frame> stack = new ArrayDeque<>();
-        stack.push(new Frame(root));
+        stack.push(new Frame(name, data, children));
         while (!stack.isEmpty()) {
             final Frame frame = stack.peek();
             if (frame.index == -1) {
-                text.append(frame.node.getTypeName());
-                DraftFormat.appendData(text, frame.node.getData());
+                text.append(frame.name);
+                DraftFormat.appendData(text, frame.data);
                 frame.index = 0;
-                if (frame.node.getChildCount() > 0) {
+                if (!frame.children.isEmpty()) {
                     text.append('(');
                 }
-            } else if (frame.index < frame.node.getChildCount()) {
+            } else if (frame.index < frame.children.size()) {
                 if (frame.index > 0) {
                     text.append(", ");
                 }
-                stack.push(new Frame(frame.node.getChild(frame.index)));
+                stack.push(new Frame(frame.children.get(frame.index)));
                 frame.index += 1;
             } else {
-                if (frame.node.getChildCount() > 0) {
+                if (!frame.children.isEmpty()) {
                     text.append(')');
                 }
                 stack.pop();
@@ -76,7 +88,7 @@ final class DraftFormat {
      * @param text Destination
      * @param data Exact data
      */
-    static void appendData(final StringBuilder text, final String data) {
+    private static void appendData(final StringBuilder text, final String data) {
         if (!data.isEmpty()) {
             text.append("<\"");
             for (int index = 0; index < data.length(); index += 1) {
@@ -117,14 +129,24 @@ final class DraftFormat {
     }
 
     /**
-     * One traversal frame, with constant space per depth level.
+     * One traversal frame for ordered children.
      * @since 0.0.1
      */
     private static final class Frame {
         /**
-         * Current node.
+         * Type name, or the current name of an incomplete builder.
          */
-        private final Node node;
+        private final String name;
+
+        /**
+         * Data.
+         */
+        private final String data;
+
+        /**
+         * Immutable random-access snapshot, also for builders backed by linked lists.
+         */
+        private final List<Node> children;
 
         /**
          * Next child, minus one before writing the header.
@@ -136,7 +158,19 @@ final class DraftFormat {
          * @param node Node
          */
         private Frame(final Node node) {
-            this.node = node;
+            this(node.getTypeName(), node.getData(), node.getChildrenList());
+        }
+
+        /**
+         * Creates a frame from node or builder fields.
+         * @param name Type name
+         * @param data Data
+         * @param children Ordered children
+         */
+        private Frame(final String name, final String data, final List<Node> children) {
+            this.name = name;
+            this.data = data;
+            this.children = List.copyOf(children);
             this.index = -1;
         }
     }
