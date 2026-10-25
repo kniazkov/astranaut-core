@@ -26,7 +26,6 @@ package com.kniazkov.astranaut.core.algorithms;
 import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -52,7 +51,7 @@ public class NodeReplacer {
      * @checkstyle NonStaticMethodCheck (40 lines)
      */
     @SuppressWarnings("PMD.CompareObjectsWithEquals")
-    public Pair<Node, Integer> replace(final Node tree, final Node source, final Node target) {
+    public Result replace(final Node tree, final Node source, final Node target) {
         final Map<Node, Node> changed = new IdentityHashMap<>();
         final List<Node> nodes = new ArrayList<>(0);
         new DepthFirstWalker(tree).findAll(
@@ -68,7 +67,7 @@ public class NodeReplacer {
                 NodeReplacer.rebuild(node, changed);
             }
         }
-        Pair<Node, Integer> result = new Pair<>(DummyNode.INSTANCE, -1);
+        Result result = new Result(DummyNode.INSTANCE, -1);
         if (changed.containsKey(tree)) {
             int position = -1;
             for (int index = 0; tree != source && index < tree.getChildCount(); index += 1) {
@@ -76,7 +75,7 @@ public class NodeReplacer {
                     position = index;
                 }
             }
-            result = new Pair<>(changed.get(tree), position);
+            result = new Result(changed.get(tree), position);
         }
         return result;
     }
@@ -102,5 +101,14 @@ public class NodeReplacer {
                 )
             );
         }
+    }
+
+    /**
+     * Result of the legacy all-occurrences replacement operation.
+     * @param root Rebuilt root, or DummyNode when no occurrence was replaced
+     * @param lastChangedChild Last changed root child, or -1 for root/no replacement
+     * @since 0.0.1
+     */
+    public record Result(Node root, int lastChangedChild) {
     }
 }

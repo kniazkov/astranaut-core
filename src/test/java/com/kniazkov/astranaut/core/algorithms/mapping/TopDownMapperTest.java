@@ -33,8 +33,9 @@ import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Provider;
 import com.kniazkov.astranaut.core.base.Transformer;
 import com.kniazkov.astranaut.core.base.Tree;
-import com.kniazkov.astranaut.core.utils.FilesReader;
 import com.kniazkov.astranaut.core.utils.JsonDeserializer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -499,7 +500,7 @@ class TopDownMapperTest {
      */
     private String getFileContent(final String name) {
         final String file = TopDownMapperTest.TESTS_PATH.concat(name);
-        final String source = new FilesReader(file).readAsStringUnchecked();
+        final String source = Assertions.assertDoesNotThrow(() -> Files.readString(Path.of(file)));
         Assertions.assertFalse(source.isEmpty());
         return source;
     }

@@ -27,6 +27,7 @@ import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeOccurrence;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Performs a depth-first traversal of the syntax tree.
@@ -56,9 +57,9 @@ public class DepthFirstWalker {
      * @param visitor Visitor that processes nodes
      * @return Found node (optional)
      */
-    public Optional<Node> findFirst(final Visitor visitor) {
+    public Optional<Node> findFirst(final Predicate<? super Node> visitor) {
         return new OccurrenceWalker(new NodeOccurrence(this.root))
-            .findFirst(occurrence -> visitor.process(occurrence.getNode()))
+            .findFirst(occurrence -> visitor.test(occurrence.getNode()))
             .map(NodeOccurrence::getNode);
     }
 
@@ -69,9 +70,9 @@ public class DepthFirstWalker {
      * @param visitor Visitor that processes nodes
      * @return List of found nodes (can be empty, but not {@code null})
      */
-    public List<Node> findAll(final Visitor visitor) {
+    public List<Node> findAll(final Predicate<? super Node> visitor) {
         return new OccurrenceWalker(new NodeOccurrence(this.root))
-            .findAll(occurrence -> visitor.process(occurrence.getNode()))
+            .findAll(occurrence -> visitor.test(occurrence.getNode()))
             .stream().map(NodeOccurrence::getNode).toList();
     }
 
@@ -84,16 +85,4 @@ public class DepthFirstWalker {
             .stream().map(NodeOccurrence::getNode).toList();
     }
 
-    /**
-     * Payload interface for the traversal algorithm.
-     * @since 0.0.1
-     */
-    public interface Visitor {
-        /**
-         * Processes a node.
-         * @param node Node
-         * @return Whether to stop traversal after node processing
-         */
-        boolean process(Node node);
-    }
 }

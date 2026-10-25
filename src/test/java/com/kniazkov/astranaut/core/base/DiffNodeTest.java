@@ -25,8 +25,9 @@ package com.kniazkov.astranaut.core.base;
 
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
-import com.kniazkov.astranaut.core.utils.FilesReader;
 import com.kniazkov.astranaut.core.utils.JsonDeserializer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -266,7 +267,7 @@ class DiffNodeTest {
      */
     private String getFileContent(final String name) {
         final String file = DiffNodeTest.TESTS_PATH.concat(name);
-        final String source = new FilesReader(file).readAsStringUnchecked();
+        final String source = Assertions.assertDoesNotThrow(() -> Files.readString(Path.of(file)));
         Assertions.assertFalse(source.isEmpty());
         return source;
     }

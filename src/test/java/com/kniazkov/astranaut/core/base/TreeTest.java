@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import com.kniazkov.astranaut.core.utils.MapUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -144,9 +143,7 @@ class TreeTest {
          */
         private TestType(final String name, final String language) {
             this.name = name;
-            this.properties = new MapUtils<String, String>()
-                .put("language", language)
-                .make();
+            this.properties = Map.of("language", language);
         }
 
         @Override

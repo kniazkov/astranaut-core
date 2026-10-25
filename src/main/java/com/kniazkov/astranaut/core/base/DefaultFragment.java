@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.Objects;
 
 /**
@@ -58,10 +57,10 @@ public final class DefaultFragment implements Fragment {
 
     /**
      * Constructor.
-     * @param pair Pair of positions (begin, end)
+     * @param bounds Ordered source positions
      */
-    public DefaultFragment(final Pair<Position, Position> pair) {
-        this(pair.getKey(), pair.getValue());
+    public DefaultFragment(final Position.Bounds bounds) {
+        this(bounds.begin(), bounds.end());
     }
 
     @Override

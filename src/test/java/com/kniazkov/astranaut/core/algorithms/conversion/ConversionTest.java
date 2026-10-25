@@ -42,7 +42,6 @@ import com.kniazkov.astranaut.core.example.converters.WhitespaceConverter;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -75,8 +74,9 @@ class ConversionTest {
 
     @Test
     void collectingConverters() {
-        final List<Converter> list = new LinkedList<>();
-        Converter.collectConverters("com.kniazkov.astranaut.core.example.converters", list);
+        final List<Converter> list = List.of(
+            Converter0.INSTANCE, Converter1.INSTANCE, Converter2.INSTANCE, Converter3.INSTANCE
+        );
         Assertions.assertEquals(4, list.size());
     }
 

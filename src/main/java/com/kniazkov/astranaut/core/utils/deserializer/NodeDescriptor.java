@@ -31,10 +31,10 @@ import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Insert;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Replace;
-import com.kniazkov.astranaut.core.utils.Promise;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Node descriptor represented as it is stored in the JSON file.
@@ -158,7 +158,7 @@ public class NodeDescriptor {
             Node result = DummyNode.INSTANCE;
             final Builder builder = this.factory.createBuilder(descriptor.type);
             if (builder != null) {
-                Promise<Node> parent = null;
+                Consumer<Node> parent = null;
                 if (descriptor.data != null) {
                     builder.setData(descriptor.data);
                 }
@@ -172,7 +172,7 @@ public class NodeDescriptor {
                     result = builder.build();
                 }
                 if (parent != null) {
-                    parent.set(result);
+                    parent.accept(result);
                 }
             }
             return result;
@@ -184,9 +184,9 @@ public class NodeDescriptor {
          * @param list Resulting list of converted nodes
          * @return List of child nodes
          */
-        private Promise<Node> convertChildren(final NodeDescriptor descriptor,
+        private Consumer<Node> convertChildren(final NodeDescriptor descriptor,
             final List<Node> list) {
-            Promise<Node> parent = null;
+            Consumer<Node> parent = null;
             for (final NodeDescriptor child : descriptor.children) {
                 final Node converted = this.convert(child);
                 if (converted instanceof Insert) {

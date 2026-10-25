@@ -24,7 +24,6 @@
 package com.kniazkov.astranaut.core.base;
 
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
-import com.kniazkov.astranaut.core.utils.Promise;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * List of actions to be added to the tree to produce a difference tree.
@@ -65,13 +65,11 @@ public class ActionList {
      * Adds the node to the list of nodes to be inserted when the parent node is unknown.
      * @param node Node to be inserted
      * @param after Node after which to insert
-     * @return A promise to set a parent node to be fulfilled later.
+     * @return A callback accepting the parent node when it becomes available.
      */
     @SuppressWarnings("PMD.UselessQualifiedThis")
-    public Promise<Node> insertNodeAfter(final Node node, final Node after) {
-        return new Promise<>(
-            into -> ActionList.this.insertNodeAfter(node, into, after)
-        );
+    public Consumer<Node> insertNodeAfter(final Node node, final Node after) {
+        return into -> ActionList.this.insertNodeAfter(node, into, after);
     }
 
     /**

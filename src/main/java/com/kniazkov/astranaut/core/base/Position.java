@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,20 +75,20 @@ public interface Position extends Comparable<Position> {
     /**
      * Returns the first and last position from the given list of positions.
      * @param positions Vararg of Position objects
-     * @return Pair of first and last position (by order)
+     * @return Bounds containing first and last position (by order)
      * @throws IllegalArgumentException If no positions are provided or sources differ
      */
-    static Pair<Position, Position> bounds(final Position... positions) {
+    static Bounds bounds(final Position... positions) {
         return Position.bounds(Arrays.asList(positions));
     }
 
     /**
      * Returns the first and last position from the given list of positions.
      * @param positions List of Position objects
-     * @return Pair of first and last position (by order)
+     * @return Bounds containing first and last position (by order)
      * @throws IllegalArgumentException If list is empty or sources differ
      */
-    static Pair<Position, Position> bounds(final List<Position> positions) {
+    static Bounds bounds(final List<Position> positions) {
         if (positions.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -104,6 +103,15 @@ public interface Position extends Comparable<Position> {
                 last = position;
             }
         }
-        return new Pair<>(first, last);
+        return new Bounds(first, last);
+    }
+
+    /**
+     * Ordered extremal source positions.
+     * @param begin First position
+     * @param end Last position
+     * @since 0.0.1
+     */
+    record Bounds(Position begin, Position end) {
     }
 }

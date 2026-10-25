@@ -144,8 +144,7 @@ class TreeVisualizerTest {
                 visualizer.visualize(new File(img.toString()));
             }
         );
-        final FilesReader reader = new FilesReader(img.toString());
-        final String content = reader.readAsStringUnchecked();
+        final String content = Assertions.assertDoesNotThrow(() -> Files.readString(img));
         Assertions.assertTrue(content.contains("fill=\"yellow\""));
         Assertions.assertTrue(content.contains("stroke=\"red\""));
     }
@@ -162,8 +161,7 @@ class TreeVisualizerTest {
                 visualizer.visualize(new File(img.toString()));
             }
         );
-        final FilesReader reader = new FilesReader(img.toString());
-        final String content = reader.readAsStringUnchecked();
+        final String content = Assertions.assertDoesNotThrow(() -> Files.readString(img));
         Assertions.assertTrue(
             content.contains(
                 "q123456789 123456789 123456789 123456789 123456789 123456789..."
@@ -183,8 +181,7 @@ class TreeVisualizerTest {
                 visualizer.visualize(new File(img.toString()));
             }
         );
-        final FilesReader reader = new FilesReader(img.toString());
-        final String content = reader.readAsStringUnchecked();
+        final String content = Assertions.assertDoesNotThrow(() -> Files.readString(img));
         Assertions.assertTrue(
             content.contains(
                 "q123456789012345678901234567890123456789012345678901234567890123..."
@@ -224,10 +221,7 @@ class TreeVisualizerTest {
 
         @Override
         public Map<String, String> getProperties() {
-            return new MapUtils<String, String>()
-                .put("color", "red")
-                .put("bgcolor", "yellow")
-                .make();
+            return Map.of("color", "red", "bgcolor", "yellow");
         }
 
         /**

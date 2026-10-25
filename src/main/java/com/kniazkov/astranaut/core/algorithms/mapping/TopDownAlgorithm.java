@@ -25,7 +25,6 @@ package com.kniazkov.astranaut.core.algorithms.mapping;
 
 import com.kniazkov.astranaut.core.base.ExtNode;
 import com.kniazkov.astranaut.core.base.NodeStructure;
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -396,14 +395,14 @@ final class TopDownAlgorithm {
     private void mapTheBestPairOfSimilarNodes(final Unprocessed unprocessed,
         final List<ExtNode> left, final List<ExtNode> right) {
         TopDownAlgorithm best = null;
-        Pair<ExtNode, ExtNode> pair = null;
+        MatchedNodes pair = null;
         for (final ExtNode first : left) {
             for (final ExtNode second : right) {
                 final TopDownAlgorithm mapping = new TopDownAlgorithm();
                 mapping.mapSubtreesWithTheSameLocalHash(first, second);
                 if (best == null || mapping.identical > best.identical) {
                     best = mapping;
-                    pair = new Pair<>(first, second);
+                    pair = new MatchedNodes(first, second);
                 }
             }
         }
@@ -413,7 +412,7 @@ final class TopDownAlgorithm {
         this.inserted.addAll(best.inserted);
         this.replaced.putAll(best.replaced);
         this.deleted.addAll(best.deleted);
-        unprocessed.removeNodes(pair.getKey(), pair.getValue());
+        unprocessed.removeNodes(pair.left(), pair.right());
     }
 
     /**
@@ -433,5 +432,14 @@ final class TopDownAlgorithm {
         this.skipLeftSubtree(left);
         this.skipRightSubtree(right);
         unprocessed.removeNodes(left, right);
+    }
+
+    /**
+     * Selected occurrences from the two trees.
+     * @param left Left occurrence
+     * @param right Right occurrence
+     * @since 0.0.1
+     */
+    private record MatchedNodes(ExtNode left, ExtNode right) {
     }
 }

@@ -51,11 +51,11 @@ public class DefaultTransformer implements Transformer {
 
     /**
      * Constructor.
-     * @param converters List of converters that are used in the conversion
+     * @param converters Converters in rule priority order; snapshotted at construction
      * @param factory Factory that is used to create the nodes of the resulting trees
      */
     public DefaultTransformer(final List<Converter> converters, final Factory factory) {
-        this.converters = converters;
+        this.converters = List.copyOf(converters);
         this.factory = factory;
     }
 

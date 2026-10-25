@@ -26,7 +26,6 @@ package com.kniazkov.astranaut.core.algorithms.mapping;
 import com.kniazkov.astranaut.core.algorithms.ExtNodeCreator;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.ExtNode;
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -96,36 +95,36 @@ class SectionTest {
         final ExtNode left = creator.create(DraftNode.create("A(J,K,L)"));
         final ExtNode right = creator.create(DraftNode.create("A(M,N,O)"));
         final Section section = new Section(left, right);
-        Pair<Section, Section> pair = section.removeNodes(left, right);
-        Assertions.assertNull(pair.getKey());
+        Section.Division pair = section.removeNodes(left, right);
+        Assertions.assertNull(pair.before());
         Assertions.assertEquals(
             6,
-            pair.getValue().getLeft().size() + pair.getValue().getRight().size()
+            pair.after().getLeft().size() + pair.after().getRight().size()
         );
         section.setFlag(Section.FLAG_NO_IDENTICAL);
         pair = section.removeNodes(left.getExtChild(1), right.getExtChild(1));
         Assertions.assertEquals(
             2,
-            pair.getKey().getLeft().size() + pair.getKey().getRight().size()
+            pair.before().getLeft().size() + pair.before().getRight().size()
         );
-        Assertions.assertTrue(pair.getKey().isFlagSet(Section.FLAG_NO_IDENTICAL));
-        Assertions.assertTrue(pair.getValue().isFlagSet(Section.FLAG_NO_IDENTICAL));
-        Assertions.assertSame(pair.getKey().getLeft().get(0), left.getExtChild(0));
-        Assertions.assertSame(pair.getKey().getRight().get(0), right.getExtChild(0));
+        Assertions.assertTrue(pair.before().isFlagSet(Section.FLAG_NO_IDENTICAL));
+        Assertions.assertTrue(pair.after().isFlagSet(Section.FLAG_NO_IDENTICAL));
+        Assertions.assertSame(pair.before().getLeft().get(0), left.getExtChild(0));
+        Assertions.assertSame(pair.before().getRight().get(0), right.getExtChild(0));
         Assertions.assertEquals(
             2,
-            pair.getValue().getLeft().size() + pair.getValue().getRight().size()
+            pair.after().getLeft().size() + pair.after().getRight().size()
         );
-        Assertions.assertSame(pair.getValue().getLeft().get(0), left.getExtChild(2));
-        Assertions.assertSame(pair.getValue().getRight().get(0), right.getExtChild(2));
-        Assertions.assertSame(left.getExtChild(1), pair.getValue().getPrevious());
-        pair = pair.getKey().removeNodes(left.getExtChild(0), right.getExtChild(0));
-        Assertions.assertNull(pair.getKey());
-        Assertions.assertNull(pair.getValue());
+        Assertions.assertSame(pair.after().getLeft().get(0), left.getExtChild(2));
+        Assertions.assertSame(pair.after().getRight().get(0), right.getExtChild(2));
+        Assertions.assertSame(left.getExtChild(1), pair.after().getPrevious());
+        pair = pair.before().removeNodes(left.getExtChild(0), right.getExtChild(0));
+        Assertions.assertNull(pair.before());
+        Assertions.assertNull(pair.after());
         pair = section.removeNodes(left.getExtChild(0), right.getExtChild(2));
-        Assertions.assertTrue(pair.getKey().getLeft().isEmpty());
-        Assertions.assertEquals(2, pair.getKey().getRight().size());
-        Assertions.assertEquals(2, pair.getValue().getLeft().size());
-        Assertions.assertTrue(pair.getValue().getRight().isEmpty());
+        Assertions.assertTrue(pair.before().getLeft().isEmpty());
+        Assertions.assertEquals(2, pair.before().getRight().size());
+        Assertions.assertEquals(2, pair.after().getLeft().size());
+        Assertions.assertTrue(pair.after().getRight().isEmpty());
     }
 }

@@ -25,7 +25,6 @@ package com.kniazkov.astranaut.core.algorithms.conversion;
 
 import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.utils.ObjectsLoader;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,23 +65,4 @@ public interface Converter {
         return false;
     }
 
-    /**
-     * Collects converter objects from the specified package.
-     * @param pkg Package name
-     * @param list Resulting list of converters
-     */
-    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-    static void collectConverters(final String pkg, final List<Converter> list) {
-        final String prefix = String.format("%s.Converter", pkg);
-        final ObjectsLoader loader = new ObjectsLoader(prefix);
-        int index = 0;
-        while (true) {
-            final Object object = loader.loadSingleton(index);
-            if (!(object instanceof Converter)) {
-                break;
-            }
-            list.add((Converter) object);
-            index = index + 1;
-        }
-    }
 }
