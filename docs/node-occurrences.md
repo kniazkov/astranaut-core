@@ -63,7 +63,7 @@ require a capable builder. The algorithm never guesses a different edge binding.
 
 Legacy `NodeReplacer` intentionally replaces **all reference-identical occurrences**.
 It is now iterative, preserves metadata and tags, and throws `ConstructionException`
-if an ancestor refuses rebuilding. Its legacy `Pair`/`DummyNode` result protocol remains
+if an ancestor refuses rebuilding. Its named `NodeReplacer.Result` record keeps the legacy `DummyNode` result protocol
 for existing callers. New code should use occurrence addresses instead.
 
 ## Explicit parallel strategy
