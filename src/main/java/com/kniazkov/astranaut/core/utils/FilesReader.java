@@ -24,7 +24,8 @@
 package com.kniazkov.astranaut.core.utils;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,28 +54,20 @@ public final class FilesReader {
      * @throws IOException If the file can't be read
      */
     public String readAsString() throws IOException {
-        final StringBuilder builder = new StringBuilder();
-        try (InputStream stream = Files.newInputStream(this.path)) {
-            for (int chr = stream.read(); chr != -1; chr = stream.read()) {
-                if (chr != '\r') {
-                    builder.append((char) chr);
-                }
-            }
-        }
-        return builder.toString();
+        return Files.readString(this.path, StandardCharsets.UTF_8);
     }
 
     /**
-     * Reads file content as a string. If the file can't be read, returns empty string.
-     * @return The file content
+     * Reads exact UTF-8 text, preserving the cause and path on failure.
+     * @return File content, possibly empty
+     * @throws UncheckedIOException If reading or UTF-8 decoding fails
      */
-    public String readAsStringNoExcept() {
-        String string = "";
+    public String readAsStringUnchecked() {
         try {
-            string = this.readAsString();
-        } catch (final IOException ignored) {
+            return this.readAsString();
+        } catch (final IOException exception) {
+            throw new UncheckedIOException(String.format("Cannot read %s", this.path), exception);
         }
-        return string;
     }
 
     /**
@@ -88,8 +81,8 @@ public final class FilesReader {
         final CustomExceptionCreator<T> creator) throws T {
         try {
             return this.readAsString();
-        } catch (final IOException ignored) {
-            throw creator.create();
+        } catch (final IOException exception) {
+            throw creator.create(exception);
         }
     }
 
@@ -101,8 +94,9 @@ public final class FilesReader {
     public interface CustomExceptionCreator<T extends Exception> {
         /**
          * Creates new exception object.
+         * @param cause Original I/O failure
          * @return The new exception object
          */
-        T create();
+        T create(IOException cause);
     }
 }

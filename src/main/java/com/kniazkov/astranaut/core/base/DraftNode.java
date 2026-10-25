@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -112,6 +112,7 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
      *  child nodes (in the same format) in parentheses separated by commas.
      * @param description Description
      * @return Root node of the tree created by description
+     * @throws IllegalArgumentException If the description is incomplete or malformed
      */
     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static Node create(final String description) {
@@ -126,11 +127,15 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
      * @param description Description
      * @param nodes Collection in which to place the nodes to be created, sorted by type name
      * @return Root node of the tree created by description
+     * @throws IllegalArgumentException If the description is incomplete or malformed
      */
     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static Node create(final String description, final Map<String, Set<Node>> nodes) {
-        final CharacterIterator iterator = new StringCharacterIterator(description);
-        return DraftNode.create(iterator, nodes);
+        final Node root = new DraftParser(description).parse();
+        if (nodes != null) {
+            DraftNode.register(root, nodes);
+        }
+        return root;
     }
 
     /**
@@ -150,105 +155,20 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
     }
 
     /**
-     * Creates a tree based on its description (recursive method).
-     * @param iterator Iterator by description characters
-     * @param nodes Collection in which to place the nodes to be created, sorted by type name
-     * @return Node of the tree with its children, created by description
+     * Registers completed nodes only after the entire input has been validated.
+     * @param root Parsed tree
+     * @param nodes Caller-owned index, retaining separate equal objects
      */
-    private static Node create(
-        final CharacterIterator iterator,
-        final Map<String, Set<Node>> nodes) {
-        final Node result;
-        final StringBuilder name = new StringBuilder();
-        char symbol = iterator.current();
-        if (Character.isLetter(symbol)) {
-            name.append(symbol);
-            symbol = iterator.next();
+    private static void register(final Node root, final Map<String, Set<Node>> nodes) {
+        final Deque<Node> pending = new ArrayDeque<>();
+        pending.push(root);
+        while (!pending.isEmpty()) {
+            final Node node = pending.pop();
+            nodes.computeIfAbsent(
+                node.getTypeName(), key -> Collections.newSetFromMap(new IdentityHashMap<>())
+            ).add(node);
+            node.forEachChild(pending::push);
         }
-        while (Character.isLetterOrDigit(symbol)) {
-            name.append(symbol);
-            symbol = iterator.next();
-        }
-        if (name.length() > 0) {
-            final DraftNode.Constructor builder = new DraftNode.Constructor();
-            builder.setName(name.toString());
-            if (symbol == '<') {
-                builder.setData(DraftNode.parseData(iterator));
-                symbol = iterator.current();
-            }
-            if (symbol == '(') {
-                builder.setChildren(DraftNode.parseChildrenList(iterator, nodes));
-            }
-            result = builder.build();
-            if (nodes != null) {
-                final Set<Node> set =
-                    nodes.computeIfAbsent(
-                        result.getTypeName(),
-                        key -> Collections.newSetFromMap(new IdentityHashMap<>())
-                    );
-                set.add(result);
-            }
-        } else {
-            result = null;
-        }
-        return result;
-    }
-
-    /**
-     * Parses data from description.
-     * @param iterator Iterator by description characters
-     * @return Node data, extracted from description
-     */
-    private static String parseData(final CharacterIterator iterator) {
-        final StringBuilder data = new StringBuilder();
-        char symbol = iterator.next();
-        if (symbol == '\"' || symbol == '\'') {
-            final char quote = symbol;
-            symbol = iterator.next();
-            while (symbol != quote) {
-                data.append(symbol);
-                symbol = iterator.next();
-            }
-            symbol = iterator.next();
-            if (symbol == '>') {
-                iterator.next();
-            }
-        } else {
-            do {
-                symbol = iterator.next();
-            } while (symbol != '>' && symbol != CharacterIterator.DONE);
-            iterator.next();
-        }
-        return data.toString();
-    }
-
-    /**
-     * Parses children list from description.
-     * @param iterator Iterator by description characters
-     * @param nodes Collection in which to place the nodes to be created, sorted by type name
-     * @return Children list, created by description
-     */
-    private static List<Node> parseChildrenList(
-        final CharacterIterator iterator,
-        final Map<String, Set<Node>> nodes) {
-        final List<Node> children = new LinkedList<>();
-        char next;
-        do {
-            iterator.next();
-            final Node child = DraftNode.create(iterator, nodes);
-            if (child != null) {
-                children.add(child);
-            }
-            next = iterator.current();
-            if (next != ')' && next != ',' && next != ' ') {
-                do {
-                    next = iterator.next();
-                } while (next != ')' && next != CharacterIterator.DONE);
-                break;
-            }
-        } while (next != ')');
-        iterator.next();
-        return children;
     }
 
     /**
@@ -357,9 +277,7 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
         public String toString() {
             final StringBuilder builder = new StringBuilder();
             builder.append(this.name);
-            if (!this.data.isEmpty()) {
-                builder.append("<\"").append(this.data).append("\">");
-            }
+            DraftFormat.appendData(builder, this.data);
             if (!this.children.isEmpty()) {
                 boolean flag = false;
                 builder.append('(');

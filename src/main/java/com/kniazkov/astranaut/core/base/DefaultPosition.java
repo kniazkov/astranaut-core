@@ -50,9 +50,14 @@ public final class DefaultPosition implements Position {
      * @param source Object representing the source code that has this position
      * @param row The row (line) number of this position
      * @param column The column number of this position
+     * @throws IllegalArgumentException If coordinates are not positive
      */
+    @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
     public DefaultPosition(final Source source, final int row, final int column) {
-        this.source = source;
+        this.source = Objects.requireNonNull(source);
+        if (row < 1 || column < 1) {
+            throw new IllegalArgumentException("Source coordinates must be positive");
+        }
         this.row = row;
         this.column = column;
     }
@@ -81,7 +86,7 @@ public final class DefaultPosition implements Position {
             final Position other = (Position) obj;
             result = this.row == other.getRow()
                 && this.column == other.getColumn()
-                && this.source.equals(other.getSource());
+                && this.source == other.getSource();
         } else {
             result = false;
         }
@@ -90,6 +95,6 @@ public final class DefaultPosition implements Position {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.source, this.row, this.column);
+        return Objects.hash(System.identityHashCode(this.source), this.row, this.column);
     }
 }

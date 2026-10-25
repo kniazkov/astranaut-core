@@ -27,7 +27,9 @@ import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.List;
 
 /**
- * Represents a position in source code.
+ * Represents an immutable position in an immutable source snapshot.
+ * Rows and UTF-16 columns are one-based; tabs count as one unit.
+ * EmptyFragment alone uses a private zero-coordinate sentinel.
  *  It provides methods to retrieve the source, row, and column of the position.
  *  Positions are comparable based on their source, row, and column. If positions
  *  have different sources, they are considered incomparable.
@@ -58,8 +60,9 @@ public interface Position extends Comparable<Position> {
     int getColumn();
 
     @Override
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     default int compareTo(final Position other) {
-        if (!this.getSource().equals(other.getSource())) {
+        if (this.getSource() != other.getSource()) {
             throw new IllegalArgumentException();
         }
         int result = Integer.compare(this.getRow(), other.getRow());

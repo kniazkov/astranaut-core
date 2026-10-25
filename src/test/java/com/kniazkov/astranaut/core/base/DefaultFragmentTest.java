@@ -44,8 +44,8 @@ class DefaultFragmentTest {
         final Position begin = new DefaultPosition(DefaultFragmentTest.SOURCE, 1, 1);
         final Position end = new DefaultPosition(DefaultFragmentTest.SOURCE, 1, 2);
         final Fragment fragment = new DefaultFragment(begin, end);
-        Assertions.assertSame(begin, fragment.getBegin());
-        Assertions.assertSame(end, fragment.getEnd());
+        Assertions.assertEquals(begin, fragment.getBegin());
+        Assertions.assertEquals(end, fragment.getEnd());
         Assertions.assertTrue(fragment.equals(fragment));
         Assertions.assertNotEquals(0, fragment.hashCode());
         final Fragment other = new DefaultFragment(begin, end);

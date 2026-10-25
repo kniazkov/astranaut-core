@@ -24,8 +24,8 @@
 package com.kniazkov.astranaut.core.utils.parsing;
 
 import com.kniazkov.astranaut.core.base.Char;
+import com.kniazkov.astranaut.core.base.DefaultFragment;
 import com.kniazkov.astranaut.core.base.DefaultPosition;
-import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Position;
 import java.util.Iterator;
@@ -57,9 +57,9 @@ final class StringSourceIterator implements Iterator<Char> {
     private int column;
 
     /**
-     * The current character being processed.
+     * Number of UTF-16 units already processed.
      */
-    private char symbol;
+    private int offset;
 
     /**
      * Constructs an iterator for the given {@link StringSource}.
@@ -70,12 +70,12 @@ final class StringSourceIterator implements Iterator<Char> {
         this.source = source;
         this.row = 1;
         this.column = 1;
-        this.symbol = source.getSymbol(1, 1);
+        this.offset = 0;
     }
 
     @Override
     public boolean hasNext() {
-        return this.symbol != 0;
+        return this.offset < this.source.length();
     }
 
     @Override
@@ -84,18 +84,19 @@ final class StringSourceIterator implements Iterator<Char> {
             throw new NoSuchElementException();
         }
         final Position position = new DefaultPosition(this.source, this.row, this.column);
-        final Fragment fragment = new CharFragment(position);
-        final Char.Constructor builder = new Char.Constructor();
-        builder.setFragment(fragment);
-        builder.setValue(this.symbol);
-        final Char node = (Char) builder.build();
-        if (this.symbol == '\n') {
-            this.row = this.row + 1;
+        final char symbol = this.source.getSymbol(this.row, this.column);
+        if (symbol == '\n') {
+            this.row += 1;
             this.column = 1;
         } else {
-            this.column = this.column + 1;
+            this.column += 1;
         }
-        this.symbol = this.source.getSymbol(this.row, this.column);
-        return node;
+        this.offset += 1;
+        final Char.Constructor builder = new Char.Constructor();
+        builder.setFragment(
+            new DefaultFragment(position, new DefaultPosition(this.source, this.row, this.column))
+        );
+        builder.setValue(symbol);
+        return (Char) builder.build();
     }
 }

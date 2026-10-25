@@ -24,6 +24,7 @@
 package com.kniazkov.astranaut.core.base;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Node representing one character of the source text.
@@ -43,17 +44,20 @@ public final class Char extends NodeWithStructuralEquality implements Node {
     /**
      * Fragment of source code that is associated with the node.
      */
-    private Fragment fragment;
+    private final Fragment fragment;
 
     /**
      * Symbol itself.
      */
-    private char symbol;
+    private final char symbol;
 
     /**
-     * Private constructor.
+     * Takes an immutable snapshot of a validated builder.
+     * @param builder Builder state
      */
-    private Char() {
+    private Char(final Constructor builder) {
+        this.fragment = builder.fragment;
+        this.symbol = builder.symbol;
     }
 
     @Override
@@ -68,7 +72,7 @@ public final class Char extends NodeWithStructuralEquality implements Node {
 
     /**
      * Returns the character stored in the node.
-     * @return Non-zero character
+     * @return One UTF-16 unit, including NUL
      */
     public char getSymbol() {
         return this.symbol;
@@ -120,9 +124,14 @@ public final class Char extends NodeWithStructuralEquality implements Node {
          */
         private char symbol;
 
+        /**
+         * Whether a value was explicitly provided, independently of its numeric value.
+         */
+        private boolean present;
+
         @Override
         public void setFragment(final Fragment obj) {
-            this.fragment = obj;
+            this.fragment = Objects.requireNonNull(obj);
         }
 
         /**
@@ -131,13 +140,14 @@ public final class Char extends NodeWithStructuralEquality implements Node {
          */
         public void setValue(final char value) {
             this.symbol = value;
+            this.present = true;
         }
 
         @Override
         public boolean setData(final String str) {
             final boolean result;
-            if (str.length() == 1 && str.charAt(0) != 0) {
-                this.symbol = str.charAt(0);
+            if (str.length() == 1) {
+                this.setValue(str.charAt(0));
                 result = true;
             } else {
                 result = false;
@@ -152,7 +162,7 @@ public final class Char extends NodeWithStructuralEquality implements Node {
 
         @Override
         public boolean isValid() {
-            return this.symbol != 0;
+            return this.present;
         }
 
         @Override
@@ -160,10 +170,7 @@ public final class Char extends NodeWithStructuralEquality implements Node {
             if (!this.isValid()) {
                 throw new ConstructionException("Required builder state is missing");
             }
-            final Char node = new Char();
-            node.fragment = this.fragment;
-            node.symbol = this.symbol;
-            return node;
+            return new Char(this);
         }
     }
 }

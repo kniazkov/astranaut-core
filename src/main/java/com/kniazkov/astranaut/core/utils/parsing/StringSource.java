@@ -24,52 +24,46 @@
 package com.kniazkov.astranaut.core.utils.parsing;
 
 import com.kniazkov.astranaut.core.base.Char;
+import com.kniazkov.astranaut.core.base.DefaultPosition;
 import com.kniazkov.astranaut.core.base.Position;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Objects;
 
 /**
- * Implementation of the Source interface that stores source code as a set of strings.
+ * Immutable exact text with one-based UTF-16 coordinates. LF starts a new row;
+ * CR, tabs, NUL and surrogate halves each occupy one column and are preserved.
+ * EOF is a valid position, but is not a character. CRLF is not normalized.
  * @since 0.0.1
  */
 public class StringSource implements CharParser {
     /**
-     * Source code divided into lines.
+     * Exact immutable text.
      */
-    private final String[] lines;
+    private final String code;
 
     /**
-     * Constructs a {@code StringSource} instance by splitting the given source code into lines.
-     * @param code Source code as one big line
+     * UTF-16 offsets of line starts, including the empty line after a final LF.
+     */
+    private final int[] starts;
+
+    /**
+     * Takes an immutable text snapshot.
+     * @param code Exact source text
      */
     public StringSource(final String code) {
-        this.lines = code.split("\n");
+        this.code = Objects.requireNonNull(code);
+        this.starts = StringSource.lineStarts(code);
     }
 
     @Override
     public final String getFragmentAsString(final Position start, final Position end) {
-        final String result;
-        do {
-            if (start.compareTo(end) > 0) {
-                result = this.getFragmentAsString(end, start);
-                break;
-            }
-            final int row = start.getRow();
-            final int count = end.getRow() - row + 1;
-            if (count == 1) {
-                result = this.getLineByRow(row, start.getColumn(), end.getColumn());
-                break;
-            }
-            final List<String> list = new ArrayList<>(count);
-            list.add(this.getLineByRow(row, start.getColumn(), Integer.MAX_VALUE));
-            for (int offset = 1; offset < count - 1; offset = offset + 1) {
-                list.add(this.getLineByRow(row + offset));
-            }
-            list.add(this.getLineByRow(end.getRow(), 1, end.getColumn()));
-            result = String.join("\n", list);
-        } while (false);
-        return result;
+        final int first = this.offsetOf(start);
+        final int last = this.offsetOf(end);
+        if (first > last) {
+            throw new IllegalArgumentException("Reversed source range");
+        }
+        return this.code.substring(first, last);
     }
 
     @Override
@@ -78,71 +72,88 @@ public class StringSource implements CharParser {
     }
 
     /**
-     * Retrieves a character from the specified row and column in the source code.
-     * @param row The 1-based row index.
-     * @param column The 1-based column index.
-     * @return The character at the given position, {@code '\n'} if the column is out of bounds,
-     *  or {@code 0} if the row is invalid.
+     * Gets the exact text length in UTF-16 units.
+     * @return Length, excluding EOF
      */
-    public char getSymbol(final int row, final int column) {
-        char symbol = 0;
-        do {
-            if (row < 1 || column < 1 || row > this.lines.length) {
-                break;
-            }
-            final String line = this.lines[row - 1];
-            final boolean exceeds = column > line.length();
-            if (exceeds && row == this.lines.length) {
-                break;
-            }
-            if (exceeds) {
-                symbol = '\n';
-                break;
-            }
-            symbol = line.charAt(column - 1);
-        } while (false);
-        return symbol;
+    public final int length() {
+        return this.code.length();
     }
 
     /**
-     * Retrieves a specific line from the stored source code.
-     *  If the requested row index is out of bounds, an empty string is returned.
-     * @param row The 1-based index of the line to retrieve.
-     * @return The requested line, or an empty string if the index is out of range.
+     * Converts a zero-based UTF-16 offset, including EOF, to canonical coordinates.
+     * A boundary after LF belongs to the next row, column one.
+     * @param offset Offset from zero through length
+     * @return Immutable position
+     * @throws IndexOutOfBoundsException If the offset is outside the text
      */
-    private String getLineByRow(final int row) {
-        final int index = row - 1;
-        final String line;
-        if (index < 0 || index >= this.lines.length) {
-            line = "";
-        } else {
-            line = this.lines[index];
+    public final Position positionAt(final int offset) {
+        Objects.checkFromToIndex(offset, offset, this.code.length());
+        int row = Arrays.binarySearch(this.starts, offset);
+        if (row < 0) {
+            row = -row - 2;
         }
-        return line;
+        return new DefaultPosition(this, row + 1, offset - this.starts[row] + 1);
     }
 
     /**
-     * Retrieves a substring of a specific line from the stored source code.
-     *  The method extracts a portion of the line based on the given column range.
-     *  If the specified range extends beyond the line boundaries, it is adjusted
-     *  to fit within the available content.
-     * @param row The 1-based index of the line to retrieve.
-     * @param first The 1-based starting column (inclusive).
-     * @param last The 1-based ending column (inclusive).
-     * @return The substring of the specified line, or an empty string if out of bounds.
+     * Converts adapter coordinates to a zero-based UTF-16 offset, including EOF.
+     * No clamping or cross-line aliases are accepted.
+     * @param position Position in this source instance
+     * @return UTF-16 offset
+     * @throws IllegalArgumentException If the position belongs to a different source
+     * @throws IndexOutOfBoundsException If coordinates are outside this source
      */
-    private String getLineByRow(final int row, final int first, final int last) {
-        final String line = this.getLineByRow(row);
-        int begin = first - 1;
-        if (begin < 0) {
-            begin = 0;
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
+    public final int offsetOf(final Position position) {
+        if (Objects.requireNonNull(position).getSource() != this) {
+            throw new IllegalArgumentException("Position belongs to a different source");
         }
-        int end = last;
-        final int length = line.length();
-        if (end > length) {
-            end = length;
+        final int row = position.getRow();
+        Objects.checkIndex(row - 1, this.starts.length);
+        final int begin = this.starts[row - 1];
+        int limit = this.code.length() - begin;
+        if (row < this.starts.length) {
+            limit = this.starts[row] - begin - 1;
         }
-        return line.substring(begin, end);
+        final int column = position.getColumn();
+        if (column < 1 || column - 1 > limit) {
+            throw new IndexOutOfBoundsException("Column outside source row");
+        }
+        return begin + column - 1;
     }
 
+    /**
+     * Reads one UTF-16 unit. Invalid coordinates and EOF are not sentinel characters.
+     * @param row One-based row
+     * @param column One-based column
+     * @return Character, including NUL when present in the source
+     * @throws IndexOutOfBoundsException If coordinates are invalid or point to EOF
+     * @throws IllegalArgumentException If row or column is not positive
+     */
+    public final char getSymbol(final int row, final int column) {
+        return this.code.charAt(this.offsetOf(new DefaultPosition(this, row, column)));
+    }
+
+    /**
+     * Creates the immutable index without splitting or losing line terminators.
+     * @param code Exact text
+     * @return Line starts
+     */
+    private static int[] lineStarts(final String code) {
+        int count = 1;
+        for (int index = 0; index < code.length(); index += 1) {
+            if (code.charAt(index) == '\n') {
+                count += 1;
+            }
+        }
+        final int[] offsets = new int[count];
+        int row = 1;
+        for (int index = 0; index < code.length(); index += 1) {
+            if (code.charAt(index) == '\n') {
+                offsets[row] = index + 1;
+                row += 1;
+            }
+        }
+        return offsets;
+    }
 }

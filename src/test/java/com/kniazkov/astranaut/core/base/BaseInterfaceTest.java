@@ -256,12 +256,12 @@ class BaseInterfaceTest {
 
     @Test
     void testDeepCompare() {
-        final String description = "X(Q,W,E,R<\"data\",T(Y))";
+        final String description = "X(Q,W,E,R<\"data\">,T(Y))";
         final Node node = DraftNode.create(description);
         Assertions.assertTrue(node.deepCompare(node));
         Assertions.assertTrue(node.deepCompare(DraftNode.create(description)));
-        Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,V,E,R<\"data\",T(Y))")));
-        Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,W,E,R<\"test\",T(Y))")));
+        Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,V,E,R<\"data\">,T(Y))")));
+        Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,W,E,R<\"test\">,T(Y))")));
         Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,W,E,R,T(Y))")));
         Assertions.assertFalse(node.deepCompare(DraftNode.create("X(Q,W,E,R)")));
         final Node labeled = new LabeledTreeBuilder(node)

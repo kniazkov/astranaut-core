@@ -44,11 +44,16 @@ public final class DefaultFragment implements Fragment {
     /**
      * Constructor.
      * @param begin The first position of the fragment
-     * @param end The last position of the fragment
+     * @param end The exclusive end position of the fragment
+     * @throws IllegalArgumentException If sources differ or the range is reversed
      */
+    @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
     public DefaultFragment(final Position begin, final Position end) {
-        this.begin = begin;
-        this.end = end;
+        this.begin = new DefaultPosition(begin.getSource(), begin.getRow(), begin.getColumn());
+        this.end = new DefaultPosition(end.getSource(), end.getRow(), end.getColumn());
+        if (this.begin.compareTo(this.end) > 0) {
+            throw new IllegalArgumentException("Reversed source range");
+        }
     }
 
     /**

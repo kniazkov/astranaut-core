@@ -145,7 +145,7 @@ class TreeVisualizerTest {
             }
         );
         final FilesReader reader = new FilesReader(img.toString());
-        final String content = reader.readAsStringNoExcept();
+        final String content = reader.readAsStringUnchecked();
         Assertions.assertTrue(content.contains("fill=\"yellow\""));
         Assertions.assertTrue(content.contains("stroke=\"red\""));
     }
@@ -163,7 +163,7 @@ class TreeVisualizerTest {
             }
         );
         final FilesReader reader = new FilesReader(img.toString());
-        final String content = reader.readAsStringNoExcept();
+        final String content = reader.readAsStringUnchecked();
         Assertions.assertTrue(
             content.contains(
                 "q123456789 123456789 123456789 123456789 123456789 123456789..."
@@ -184,7 +184,7 @@ class TreeVisualizerTest {
             }
         );
         final FilesReader reader = new FilesReader(img.toString());
-        final String content = reader.readAsStringNoExcept();
+        final String content = reader.readAsStringUnchecked();
         Assertions.assertTrue(
             content.contains(
                 "q123456789012345678901234567890123456789012345678901234567890123..."

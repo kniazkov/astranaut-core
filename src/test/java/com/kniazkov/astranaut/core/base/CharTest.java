@@ -41,7 +41,7 @@ class CharTest {
         ctor.setValue('a');
         Assertions.assertFalse(ctor.setData(""));
         Assertions.assertFalse(ctor.setData("abc"));
-        Assertions.assertFalse(ctor.setData("\0"));
+        Assertions.assertTrue(ctor.setData("\0"));
         Assertions.assertTrue(ctor.setData("b"));
         Assertions.assertFalse(ctor.setChildren(Collections.singletonList(DummyNode.INSTANCE)));
         Assertions.assertTrue(ctor.setChildren(Collections.emptyList()));
