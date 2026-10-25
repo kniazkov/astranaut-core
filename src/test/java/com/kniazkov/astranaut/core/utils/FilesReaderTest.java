@@ -23,6 +23,8 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
@@ -42,7 +44,7 @@ class FilesReaderTest {
         Assertions.assertTrue(flag);
         Assertions.assertTrue(Files.exists(path));
         final FilesReader reader = new FilesReader(path.toString());
-        final String expected = "test string";
+        final String expected = "test\r string";
         Assertions.assertDoesNotThrow(
             () -> {
                 final String result = reader.readAsString();
@@ -58,10 +60,9 @@ class FilesReaderTest {
     }
 
     @Test
-    void readWithoutException() {
+    void reportsUnreadableFiles() {
         final FilesReader reader = new FilesReader("path.to.file.that.does.not.exist");
-        final String result = reader.readAsStringNoExcept();
-        Assertions.assertTrue(result.isEmpty());
+        Assertions.assertThrows(UncheckedIOException.class, reader::readAsStringUnchecked);
     }
 
     @Test
@@ -79,5 +80,13 @@ class FilesReaderTest {
      */
     private static final class CustomException extends Exception {
         private static final long serialVersionUID = -1;
+
+        /**
+         * Preserves the original I/O failure.
+         * @param cause I/O failure
+         */
+        private CustomException(final IOException cause) {
+            super(cause);
+        }
     }
 }

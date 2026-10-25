@@ -65,7 +65,7 @@ class ParserTest {
         final Fragment fragment = xxx.getFragment();
         Assertions.assertEquals("x", fragment.getCode());
         Assertions.assertEquals(
-            ParserTest.TEST_FILE.concat(", 4.13-4.13"),
+            ParserTest.TEST_FILE.concat(", 4.13-4.14"),
             fragment.getPositionAsString()
         );
     }
@@ -116,11 +116,11 @@ class ParserTest {
         );
         Assertions.assertEquals("printf(\"x\");", fragment.getCode());
         Assertions.assertEquals(
-            ParserTest.TEST_FILE.concat(", 4.5-4.16"),
+            ParserTest.TEST_FILE.concat(", 4.5-4.17"),
             fragment.getPositionAsString()
         );
         Assertions.assertEquals(
-            ParserTest.TEST_FILE.concat(", 4.5-4.16"),
+            ParserTest.TEST_FILE.concat(", 4.5-4.17"),
             fragment.toString()
         );
         fragment = new DefaultFragment(
@@ -129,14 +129,17 @@ class ParserTest {
         );
         Assertions.assertEquals("{\n    printf(\"x\");\n}", fragment.getCode());
         Assertions.assertEquals(
-            ParserTest.TEST_FILE.concat(", 3.13-5.1"),
+            ParserTest.TEST_FILE.concat(", 3.13-5.2"),
             fragment.getPositionAsString()
         );
-        fragment = new DefaultFragment(
-            last.getFragment().getEnd(),
-            first.getFragment().getBegin()
+        final Char opening = first;
+        final Char closing = last;
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> new DefaultFragment(
+                closing.getFragment().getEnd(), opening.getFragment().getBegin()
+            )
         );
-        Assertions.assertEquals("{\n    printf(\"x\");\n}", fragment.getCode());
     }
 
     @Test
@@ -146,7 +149,7 @@ class ParserTest {
         final Tree tree = source.parseIntoTree();
         Assertions.assertEquals(3, tree.getRoot().orElseThrow().getChildCount());
         Assertions.assertEquals(
-            "1.1-1.1",
+            "1.1-1.2",
             tree.getRoot().orElseThrow().getChild(0).getFragment().getPositionAsString()
         );
     }
@@ -156,35 +159,39 @@ class ParserTest {
         final FileSource source = new FileSource(ParserTest.TEST_FILE);
         Iterator<Char> iterator = source.iterator();
         final Fragment first = iterator.next().getFragment();
-        Assertions.assertEquals(first.toString(), ParserTest.TEST_FILE.concat(", 1.1"));
+        Assertions.assertEquals(first.toString(), ParserTest.TEST_FILE.concat(", 1.1-1.2"));
         final StringSource other = new StringSource("qwe");
         iterator = other.iterator();
         final Fragment second = iterator.next().getFragment();
-        Assertions.assertEquals(second.toString(), "1.1");
+        Assertions.assertEquals(second.toString(), "1.1-1.2");
     }
 
     @Test
     void getSymbol() {
         final StringSource source = new StringSource("ab\nc");
-        Assertions.assertEquals(0, source.getSymbol(0, 1));
-        Assertions.assertEquals(0, source.getSymbol(1, 0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> source.getSymbol(0, 1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> source.getSymbol(1, 0));
         Assertions.assertEquals('a', source.getSymbol(1, 1));
         Assertions.assertEquals('b', source.getSymbol(1, 2));
         Assertions.assertEquals('\n', source.getSymbol(1, 3));
-        Assertions.assertEquals('\n', source.getSymbol(1, 4));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> source.getSymbol(1, 4));
         Assertions.assertEquals('c', source.getSymbol(2, 1));
-        Assertions.assertEquals(0, source.getSymbol(2, 2));
-        Assertions.assertEquals(0, source.getSymbol(3, 1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> source.getSymbol(2, 2));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> source.getSymbol(3, 1));
     }
 
     @Test
     void wrongColumnAndRow() {
         final StringSource source = new StringSource("a\nb\nc");
-        final Fragment fragment = new DefaultFragment(
-            new DefaultPosition(source, -1, -1),
-            new DefaultPosition(source, 4, 4)
+        Assertions.assertThrows(
+            IllegalArgumentException.class, () -> new DefaultPosition(source, -1, -1)
         );
-        Assertions.assertEquals("\n\na\nb\nc\n", fragment.getCode());
+        Assertions.assertThrows(
+            IndexOutOfBoundsException.class,
+            () -> source.getFragmentAsString(
+                new DefaultPosition(source, 1, 1), new DefaultPosition(source, 4, 4)
+            )
+        );
     }
 
     @SuppressWarnings("PMD.SimplifiableTestAssertion")

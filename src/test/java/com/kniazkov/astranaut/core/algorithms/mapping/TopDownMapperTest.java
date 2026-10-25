@@ -499,7 +499,7 @@ class TopDownMapperTest {
      */
     private String getFileContent(final String name) {
         final String file = TopDownMapperTest.TESTS_PATH.concat(name);
-        final String source = new FilesReader(file).readAsStringNoExcept();
+        final String source = new FilesReader(file).readAsStringUnchecked();
         Assertions.assertFalse(source.isEmpty());
         return source;
     }

@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Describes a fragment of source code.
+ * Immutable provenance as a half-open range [begin, end) in one immutable source.
+ * EmptyFragment means absent provenance; an empty range still has a real location.
  * @since 0.0.1
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
@@ -39,8 +40,8 @@ public interface Fragment {
     Position getBegin();
 
     /**
-     * Returns the last position of the fragment.
-     * @return The last position.
+     * Returns the exclusive end position of the fragment.
+     * @return The exclusive end position.
      */
     Position getEnd();
 
@@ -127,24 +128,28 @@ public interface Fragment {
      *  Returns an empty fragment if the list is empty, or the fragment of the single node
      *  if there's only one. For multiple nodes, uses the earliest and latest positions
      *  (ignoring nodes with empty fragments) to create a proper range.
+     * Include every matched node, including discarded delimiters, in this list.
      * @param nodes List of nodes
-     * @return Combined fragment covering the given nodes
+     * @return Combined range, or absent provenance when real sources differ
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     static Fragment fromNodes(final List<Node> nodes) {
-        final Fragment result;
-        if (nodes.isEmpty()) {
-            result = EmptyFragment.INSTANCE;
-        } else if (nodes.size() == 1) {
-            result = nodes.get(0).getFragment();
-        } else {
-            final List<Position> positions = new ArrayList<>(nodes.size());
-            for (final Node node : nodes) {
-                final Fragment fragment = node.getFragment();
-                if (!fragment.equals(EmptyFragment.INSTANCE)) {
-                    positions.add(fragment.getBegin());
-                    positions.add(fragment.getEnd());
-                }
+        final List<Position> positions = new ArrayList<>(nodes.size());
+        Source source = null;
+        boolean common = true;
+        for (final Node node : nodes) {
+            final Fragment fragment = node.getFragment();
+            if (!fragment.equals(EmptyFragment.INSTANCE)) {
+                final Source current = fragment.getBegin().getSource();
+                common = common && (source == null || source == current)
+                    && current == fragment.getEnd().getSource();
+                source = current;
+                positions.add(fragment.getBegin());
+                positions.add(fragment.getEnd());
             }
+        }
+        Fragment result = EmptyFragment.INSTANCE;
+        if (common) {
             result = Fragment.fromPositions(positions);
         }
         return result;

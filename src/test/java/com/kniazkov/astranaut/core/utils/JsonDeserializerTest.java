@@ -325,7 +325,7 @@ class JsonDeserializerTest {
      */
     private String getFileContent(final String name) {
         final String file = JsonDeserializerTest.TESTS_PATH.concat(name);
-        final String source = new FilesReader(file).readAsStringNoExcept();
+        final String source = new FilesReader(file).readAsStringUnchecked();
         Assertions.assertFalse(source.isEmpty());
         return source;
     }

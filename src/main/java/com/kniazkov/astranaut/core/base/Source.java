@@ -24,12 +24,16 @@
 package com.kniazkov.astranaut.core.base;
 
 /**
- * Represents a source code file.
+ * An immutable source snapshot. Implementations must not reread mutable external content.
+ * Coordinates use one-based rows and UTF-16 columns; tabs occupy one unit.
+ * LF starts the next row; CRLF remains two units of original text.
  * @since 0.0.1
  */
 public interface Source {
     /**
-     * Return a string for a source code fragment within the specified range.
+     * Returns exact text in the half-open range [start, end), without normalization.
+     * Both positions must belong to this source instance. Invalid or reversed ranges
+     * must be rejected instead of clamped. Equal positions denote empty text.
      * @param start Start position
      * @param end End position
      * @return Text of the fragment

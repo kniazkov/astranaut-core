@@ -37,10 +37,11 @@ public final class FileSource extends StringSource {
 
     /**
      * Constructs a {@code FileSource} by reading the content of the specified file.
-     * @param path The path to the file to be read.
+     * @param path The path to the UTF-8 file to snapshot
+     * @throws java.io.UncheckedIOException If reading or UTF-8 decoding fails
      */
     public FileSource(final String path) {
-        super(new FilesReader(path).readAsStringNoExcept());
+        super(new FilesReader(path).readAsStringUnchecked());
         this.path = path;
     }
 
