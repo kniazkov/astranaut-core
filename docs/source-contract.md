@@ -4,7 +4,7 @@
 when a fragment is accessed. `FileSource` reads the complete file once, using strict
 UTF-8 decoding. I/O failures and malformed UTF-8 throw `UncheckedIOException` with the
 original cause and file path. An empty file is a successful, empty snapshot.
-`FilesReader.readAsString()` exposes the checked `IOException` instead.
+`Files.readString(Path.of(filename))` exposes the checked `IOException` instead.
 
 No text is silently removed or normalized: CR, LF, trailing line terminators, blank
 lines, tabs, NUL and supplementary Unicode characters all survive reading and parsing.

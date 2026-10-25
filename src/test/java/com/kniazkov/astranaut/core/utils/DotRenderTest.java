@@ -29,6 +29,8 @@ import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.utils.visualizer.DotGenerator;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -48,7 +50,7 @@ class DotRenderTest {
     void testSingleNode() throws IOException {
         final Node root = this.build("SingleNode");
         final String expected =
-            new FilesReader(DotRenderTest.DIR.concat("testSingleNode.dot")).readAsString();
+            Files.readString(Path.of(DotRenderTest.DIR.concat("testSingleNode.dot")));
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }
@@ -56,9 +58,9 @@ class DotRenderTest {
     @Test
     void testSingleNodeWithData() throws IOException {
         final Node root = this.build("Node", "data");
-        final String expected = new FilesReader(
-            DotRenderTest.DIR.concat("testSingleNodeWithData.dot")
-        ).readAsString();
+        final String expected = Files.readString(
+            Path.of(DotRenderTest.DIR.concat("testSingleNodeWithData.dot"))
+        );
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }
@@ -66,9 +68,9 @@ class DotRenderTest {
     @Test
     void testSingleNodeWithEscapedData() throws IOException {
         final Node root = this.build("Node", "abc\r\n\tdef");
-        final String expected = new FilesReader(
-            DotRenderTest.DIR.concat("testSingleNodeWithEscapedData.dot")
-        ).readAsString();
+        final String expected = Files.readString(
+            Path.of(DotRenderTest.DIR.concat("testSingleNodeWithEscapedData.dot"))
+        );
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }
@@ -80,9 +82,9 @@ class DotRenderTest {
         children.add(this.build("ChildNode1", "value"));
         children.add(this.build("ChildNode2"));
         final Node root = this.build("RootNode", children);
-        final String expected = new FilesReader(
-            DotRenderTest.DIR.concat("testNodeWithChildren.dot")
-        ).readAsString();
+        final String expected = Files.readString(
+            Path.of(DotRenderTest.DIR.concat("testNodeWithChildren.dot"))
+        );
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }
@@ -100,9 +102,9 @@ class DotRenderTest {
         firstl.add(firstch);
         firstl.add(this.build("Child1"));
         final Node root = this.build("Root", firstl);
-        final String expected = new FilesReader(
-            DotRenderTest.DIR.concat("testNodeWithNestedChildren.dot")
-        ).readAsString();
+        final String expected = Files.readString(
+            Path.of(DotRenderTest.DIR.concat("testNodeWithNestedChildren.dot"))
+        );
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }
@@ -113,9 +115,9 @@ class DotRenderTest {
         children.add(this.build("Child"));
         children.add(DummyNode.INSTANCE);
         final Node root = this.build("TestNode", children);
-        final String expected = new FilesReader(
-            DotRenderTest.DIR.concat("testNodeWithNullChild.dot")
-        ).readAsString();
+        final String expected = Files.readString(
+            Path.of(DotRenderTest.DIR.concat("testNodeWithNullChild.dot"))
+        );
         final String result = this.renderDot(root);
         Assertions.assertEquals(expected, result);
     }

@@ -35,7 +35,6 @@ import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
-import com.kniazkov.astranaut.core.utils.ListUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -238,11 +237,7 @@ public final class Return extends NodeWithStructuralEquality implements Statemen
                 .orElse(null);
             final Return node = new Return();
             node.fragment = this.fragment;
-            node.children = new ListUtils<Node>()
-                .add(
-                    expression
-                )
-                .make();
+            node.children = Stream.<Node>of(expression).filter(Objects::nonNull).toList();
             node.expression = expression;
             return node;
         }

@@ -30,7 +30,9 @@ import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.json.JsonArray;
 import com.kniazkov.json.JsonObject;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -128,7 +130,12 @@ public final class JsonSerializer {
         final String json = this.serialize();
         boolean success = true;
         try {
-            new FilesWriter(filename).writeString(json);
+            final Path path = Path.of(filename);
+            final Path parent = path.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.writeString(path, json);
         } catch (final IOException | InvalidPathException ignored) {
             success = false;
         }

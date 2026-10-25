@@ -32,6 +32,7 @@ import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
 import com.kniazkov.astranaut.core.example.LittleTrees;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,10 +123,12 @@ class JsonSerializerTest {
         try {
             serializer.serializeToFile(actual.toString());
             expected =
-                new FilesReader(
-                    JsonSerializerTest.TESTS_PATH.concat("serialization_to_file_expected.json")
-                ).readAsString();
-            result = new FilesReader(actual.toString()).readAsString();
+                Files.readString(
+                    Path.of(
+                        JsonSerializerTest.TESTS_PATH.concat("serialization_to_file_expected.json")
+                    )
+                );
+            result = Files.readString(actual);
         } catch (final IOException exception) {
             oops = true;
         }
@@ -134,7 +137,7 @@ class JsonSerializerTest {
     }
 
     @Test
-    void testFilesWriterException() {
+    void testFileWriteFailure() {
         final Tree tree = EmptyTree.INSTANCE;
         final JsonSerializer serializer = new JsonSerializer(tree);
         final boolean result = serializer.serializeToFile("/");
@@ -171,9 +174,8 @@ class JsonSerializerTest {
         String expected = "";
         try {
             expected =
-                new FilesReader(
-                    JsonSerializerTest.TESTS_PATH.concat(filename)
-                ).readAsString().replace("\r", "");
+                Files.readString(Path.of(JsonSerializerTest.TESTS_PATH.concat(filename)))
+                    .replace("\r", "");
         } catch (final IOException exception) {
             oops = true;
         }
@@ -224,7 +226,7 @@ class JsonSerializerTest {
 
             @Override
             public Map<String, String> getProperties() {
-                return new MapUtils<String, String>().put("language", "elven").make();
+                return Map.of("language", "elven");
             }
 
             @Override

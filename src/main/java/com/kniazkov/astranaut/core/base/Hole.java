@@ -23,7 +23,7 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import com.kniazkov.astranaut.core.utils.MapUtils;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -61,10 +61,7 @@ public final class Hole extends NodeWithStructuralEquality
         this.prototype = prototype;
         this.type = new TypeImpl(prototype.getType());
         this.number = number;
-        this.properties = new MapUtils<String, String>()
-            .put(prototype.getProperties())
-            .put("color", "purple")
-            .make();
+        this.properties = Hole.snapshotProperties(prototype);
     }
 
     @Override
@@ -115,6 +112,17 @@ public final class Hole extends NodeWithStructuralEquality
     @Override
     public Node getPrototype() {
         return this.prototype;
+    }
+
+    /**
+     * Snapshots the prototype properties, overriding the display color.
+     * @param prototype Original node
+     * @return Immutable properties
+     */
+    private static Map<String, String> snapshotProperties(final Node prototype) {
+        final Map<String, String> result = new HashMap<>(prototype.getProperties());
+        result.put("color", "purple");
+        return Map.copyOf(result);
     }
 
     /**

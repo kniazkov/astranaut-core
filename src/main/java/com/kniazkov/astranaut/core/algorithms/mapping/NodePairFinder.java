@@ -26,6 +26,7 @@ package com.kniazkov.astranaut.core.algorithms.mapping;
 import com.kniazkov.astranaut.core.base.ExtNode;
 import com.kniazkov.astranaut.core.base.NodeStructure;
 import java.util.List;
+import java.util.function.ToIntFunction;
 
 /**
  * Auxiliary algorithm for top-down mapping.
@@ -37,12 +38,12 @@ final  class NodePairFinder {
     /**
      * Converter that takes the absolute hash of a node.
      */
-    static final Converter ABSOLUTE_HASH = ExtNode::getAbsoluteHash;
+    static final ToIntFunction<ExtNode> ABSOLUTE_HASH = ExtNode::getAbsoluteHash;
 
     /**
      * Converter that takes the local hash of a node.
      */
-    static final Converter LOCAL_HASH = ExtNode::getLocalHash;
+    static final ToIntFunction<ExtNode> LOCAL_HASH = ExtNode::getLocalHash;
 
     /**
      * Significant difference between node indices, that is, if the node indices
@@ -63,14 +64,14 @@ final  class NodePairFinder {
     /**
      * Comparison criterion, including collision confirmation.
      */
-    private final Converter converter;
+    private final ToIntFunction<ExtNode> converter;
 
     /**
      * Constructor.
      * @param section Section containing unprocessed nodes
      * @param converter Converter than converts nodes to numbers
      */
-    NodePairFinder(final Section section, final Converter converter) {
+    NodePairFinder(final Section section, final ToIntFunction<ExtNode> converter) {
         this.left = List.copyOf(section.getLeft());
         this.right = List.copyOf(section.getRight());
         this.converter = converter;
@@ -165,27 +166,13 @@ final  class NodePairFinder {
      * @return Whether the candidate is a true match
      */
     private boolean matches(final ExtNode first, final ExtNode second) {
-        boolean result = this.converter.convertNode(first) == this.converter.convertNode(second);
+        boolean result = this.converter.applyAsInt(first) == this.converter.applyAsInt(second);
         if (result && this.converter == NodePairFinder.ABSOLUTE_HASH) {
             result = NodeStructure.equal(first, second);
         } else if (result) {
             result = NodeStructure.locallyEqual(first, second);
         }
         return result;
-    }
-
-    /**
-     * Converts a node to a number.
-     *  This number will be used when comparing nodes and finding matches.
-     * @since 0.0.1
-     */
-    interface Converter {
-        /**
-         * Converts node to a number.
-         * @param node Node
-         * @return A number
-         */
-        int convertNode(ExtNode node);
     }
 
     /**

@@ -29,7 +29,6 @@ import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +72,7 @@ public class LabeledTreeBuilder {
      */
     public Tree build(final Set<Node> selected, final String name, final String value) {
         return this.root.map(
-            node -> new Tree(new LabeledNode(node, selected, new Pair<>(name, value)))
+            node -> new Tree(new LabeledNode(node, selected, Map.entry(name, value)))
         ).orElse(EmptyTree.INSTANCE);
     }
 
@@ -105,7 +104,7 @@ public class LabeledTreeBuilder {
          * @param property Property to be added
          */
         private LabeledNode(final Node original,
-            final Set<Node> selected, final Pair<String, String> property) {
+            final Set<Node> selected, final Map.Entry<String, String> property) {
             this.original = original;
             this.children = LabeledNode.initChildrenList(original, selected, property);
             this.properties = LabeledNode.initProperties(original, selected, property);
@@ -173,7 +172,7 @@ public class LabeledTreeBuilder {
          * @return List of labeled child nodes
          */
         private static List<LabeledNode> initChildrenList(final Node original,
-            final Set<Node> selected, final Pair<String, String> property) {
+            final Set<Node> selected, final Map.Entry<String, String> property) {
             final int count = original.getChildCount();
             final List<LabeledNode> list = new ArrayList<>(count);
             for (int index = 0; index < count; index = index + 1) {
@@ -190,7 +189,7 @@ public class LabeledTreeBuilder {
          * @return Property collection with the added property
          */
         private static Map<String, String> initProperties(final Node original,
-            final Set<Node> selected, final Pair<String, String> property) {
+            final Set<Node> selected, final Map.Entry<String, String> property) {
             final Map<String, String> result;
             if (selected.contains(original)) {
                 result = new TreeMap<>(original.getProperties());

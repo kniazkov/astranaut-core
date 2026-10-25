@@ -35,7 +35,6 @@ import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.SchemaBuilder;
 import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
-import com.kniazkov.astranaut.core.utils.ListUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -267,12 +266,7 @@ public final class SimpleAssignment extends NodeWithStructuralEquality implement
                 .orElse(null);
             final SimpleAssignment node = new SimpleAssignment();
             node.fragment = this.fragment;
-            node.children = new ListUtils<Node>()
-                .add(
-                    left,
-                    right
-                )
-                .make();
+            node.children = Stream.<Node>of(left, right).filter(Objects::nonNull).toList();
             node.left = left;
             node.right = right;
             return node;

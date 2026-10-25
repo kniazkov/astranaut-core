@@ -23,7 +23,6 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
@@ -61,11 +60,11 @@ class PositionTest {
             new DefaultPosition(source, 4, 4),
             new DefaultPosition(source, 3, 3),
         };
-        Pair<Position, Position> pair = Position.bounds(list);
-        Assertions.assertEquals(1, pair.getKey().getRow());
-        Assertions.assertEquals(4, pair.getValue().getRow());
+        Position.Bounds pair = Position.bounds(list);
+        Assertions.assertEquals(1, pair.begin().getRow());
+        Assertions.assertEquals(4, pair.end().getRow());
         pair = Position.bounds(Arrays.asList(list));
-        Assertions.assertEquals(1, pair.getKey().getRow());
-        Assertions.assertEquals(4, pair.getValue().getRow());
+        Assertions.assertEquals(1, pair.begin().getRow());
+        Assertions.assertEquals(4, pair.end().getRow());
     }
 }

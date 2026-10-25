@@ -120,9 +120,7 @@ class SourceContractTest {
         final String text = "Кириллица 😀\t\r\n\n\0end\n";
         Files.writeString(file, text, StandardCharsets.UTF_8);
         final FileSource source = new FileSource(file.toString());
-        final FilesReader reader = new FilesReader(file.toString());
-        Assertions.assertEquals(text, reader.readAsString());
-        Assertions.assertEquals(text, reader.readAsStringUnchecked());
+        Assertions.assertEquals(text, Files.readString(file));
         Files.writeString(file, "changed", StandardCharsets.UTF_8);
         Files.delete(file);
         Assertions.assertEquals(
@@ -136,7 +134,7 @@ class SourceContractTest {
         Assertions.assertNotNull(missing.getCause());
         Assertions.assertTrue(missing.getMessage().contains(file.toString()));
         Files.write(file, new byte[] {(byte) 0xc3, 0x28});
-        Assertions.assertThrows(IOException.class, reader::readAsString);
+        Assertions.assertThrows(IOException.class, () -> Files.readString(file));
         Assertions.assertThrows(UncheckedIOException.class, () -> new FileSource(file.toString()));
         Files.writeString(file, "", StandardCharsets.UTF_8);
         Assertions.assertEquals(0, new FileSource(file.toString()).length());

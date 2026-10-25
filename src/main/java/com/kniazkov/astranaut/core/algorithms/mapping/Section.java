@@ -24,7 +24,6 @@
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
 import com.kniazkov.astranaut.core.base.ExtNode;
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -165,25 +164,25 @@ final class Section {
      *  corresponding to the left node
      * @return Set of new sections, containing two, one or zero sections.
      */
-    Pair<Section, Section> removeNodes(final ExtNode node, final ExtNode corresponding) {
-        final Pair<List<ExtNode>, List<ExtNode>> xleft = Section.splitSubset(this.left, node);
-        final Pair<List<ExtNode>, List<ExtNode>> xright =
+    Division removeNodes(final ExtNode node, final ExtNode corresponding) {
+        final Split xleft = Section.splitSubset(this.left, node);
+        final Split xright =
             Section.splitSubset(this.right, corresponding);
         final Section first;
-        if (xleft.getKey().isEmpty() && xright.getKey().isEmpty()) {
+        if (xleft.before().isEmpty() && xright.before().isEmpty()) {
             first = null;
         } else {
-            first = new Section(this.previous, xleft.getKey(), xright.getKey());
+            first = new Section(this.previous, xleft.before(), xright.before());
             first.flags = this.flags;
         }
         final Section second;
-        if (xleft.getValue().isEmpty() && xright.getValue().isEmpty()) {
+        if (xleft.after().isEmpty() && xright.after().isEmpty()) {
             second = null;
         } else {
-            second = new Section(node, xleft.getValue(), xright.getValue());
+            second = new Section(node, xleft.after(), xright.after());
             second.flags = this.flags;
         }
-        return new Pair<>(first, second);
+        return new Division(first, second);
     }
 
     /**
@@ -292,21 +291,21 @@ final class Section {
      * @param node Delimiter node
      * @return Pair of resulting lists
      */
-    private static Pair<List<ExtNode>, List<ExtNode>> splitSubset(final List<ExtNode> list,
+    private static Split splitSubset(final List<ExtNode> list,
         final ExtNode node) {
-        final Pair<List<ExtNode>, List<ExtNode>> result;
+        final Split result;
         final int size = list.size();
         final int index = Section.indexOf(list, node);
         if (index < 0) {
-            result = new Pair<>(Collections.emptyList(), list);
+            result = new Split(Collections.emptyList(), list);
         } else if (index == 0 && size == 1) {
-            result = new Pair<>(Collections.emptyList(), Collections.emptyList());
+            result = new Split(Collections.emptyList(), Collections.emptyList());
         } else if (index == 0) {
-            result = new Pair<>(Collections.emptyList(), list.subList(1, size));
+            result = new Split(Collections.emptyList(), list.subList(1, size));
         } else if (index == size - 1) {
-            result = new Pair<>(list.subList(0, index), Collections.emptyList());
+            result = new Split(list.subList(0, index), Collections.emptyList());
         } else {
-            result = new Pair<>(list.subList(0, index), list.subList(index + 1, size));
+            result = new Split(list.subList(0, index), list.subList(index + 1, size));
         }
         return result;
     }
@@ -327,5 +326,23 @@ final class Section {
             }
         }
         return result;
+    }
+
+    /**
+     * Remaining independent sections on either side of a matched pair.
+     * @param before Earlier section, or null when empty
+     * @param after Later section, or null when empty
+     * @since 0.0.1
+     */
+    record Division(Section before, Section after) {
+    }
+
+    /**
+     * Read-only portions of a section around an excluded node.
+     * @param before Earlier nodes
+     * @param after Later nodes
+     * @since 0.0.1
+     */
+    private record Split(List<ExtNode> before, List<ExtNode> after) {
     }
 }

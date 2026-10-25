@@ -23,7 +23,10 @@
  */
 package com.kniazkov.astranaut.core.utils.parsing;
 
-import com.kniazkov.astranaut.core.utils.FilesReader;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * A {@link CharParser} implementation that reads characters from a file.
@@ -41,12 +44,26 @@ public final class FileSource extends StringSource {
      * @throws java.io.UncheckedIOException If reading or UTF-8 decoding fails
      */
     public FileSource(final String path) {
-        super(new FilesReader(path).readAsStringUnchecked());
+        super(FileSource.read(path));
         this.path = path;
     }
 
     @Override
     public String getFileName() {
         return this.path;
+    }
+
+    /**
+     * Reads exact UTF-8 text once, preserving the file path and cause on failure.
+     * @param path File path
+     * @return Source snapshot
+     * @throws UncheckedIOException If reading or UTF-8 decoding fails
+     */
+    private static String read(final String path) {
+        try {
+            return Files.readString(Path.of(path));
+        } catch (final IOException exception) {
+            throw new UncheckedIOException(String.format("Cannot read %s", path), exception);
+        }
     }
 }

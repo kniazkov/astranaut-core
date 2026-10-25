@@ -195,7 +195,7 @@ class OccurrenceAlgorithmsTest {
         Assertions.assertSame(
             parent.getFragment(), new ExtNodeCreator().create(parent).getFragment()
         );
-        final Node legacy = new NodeReplacer().replace(parent, shared, replacement).getKey();
+        final Node legacy = new NodeReplacer().replace(parent, shared, replacement).root();
         Assertions.assertSame(replacement, legacy.getChild(0));
         Assertions.assertSame(replacement, legacy.getChild(1));
         Assertions.assertSame(parent.getFragment(), legacy.getFragment());

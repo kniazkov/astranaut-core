@@ -24,7 +24,6 @@
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
 import com.kniazkov.astranaut.core.base.ExtNode;
-import com.kniazkov.astranaut.core.utils.Pair;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -126,12 +125,12 @@ final class Unprocessed {
                 break;
             }
             iterator.remove();
-            final Pair<Section, Section> pair = found.removeNodes(node, corresponding);
-            if (pair.getKey() != null) {
-                iterator.add(pair.getKey());
+            final Section.Division pair = found.removeNodes(node, corresponding);
+            if (pair.before() != null) {
+                iterator.add(pair.before());
             }
-            if (pair.getValue() != null) {
-                iterator.add(pair.getValue());
+            if (pair.after() != null) {
+                iterator.add(pair.after());
             }
         } while (false);
     }
