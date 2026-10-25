@@ -80,10 +80,40 @@ class DraftParsingTest {
     }
 
     @Test
+    void builderAndNodeUseTheSameFormatForChildrenWithoutCustomToString() {
+        final Char.Constructor character = new Char.Constructor();
+        character.setValue('x');
+        final Node child = character.build();
+        final DraftNode.Constructor builder = new DraftNode.Constructor();
+        Assertions.assertEquals("", builder.toString());
+        builder.setChildren(List.of(child, child));
+        Assertions.assertFalse(builder.isValid());
+        Assertions.assertEquals("(Char<\"x\">, Char<\"x\">)", builder.toString());
+        builder.setName("Root");
+        final Node node = builder.build();
+        final String expected = "Root(Char<\"x\">, Char<\"x\">)";
+        Assertions.assertEquals(expected, builder.toString());
+        Assertions.assertEquals(expected, node.toString());
+        Assertions.assertEquals(node, DraftNode.create(builder.toString()));
+        Assertions.assertSame(child, node.getChild(0));
+        Assertions.assertSame(child, node.getChild(1));
+        builder.setData("changed");
+        Assertions.assertEquals(expected, node.toString());
+        Assertions.assertEquals(builder.build().toString(), builder.toString());
+    }
+
+    @Test
     void parsesAndFormatsThirtyThousandNestedNodesWithoutTheJavaStack() {
         final String description = "A(".repeat(30_000)
             .concat("Leaf").concat(")".repeat(30_000));
-        final Node root = DraftNode.create(description);
+        final Map<String, Set<Node>> index = new TreeMap<>();
+        final Node root = DraftNode.create(description, index);
+        Assertions.assertEquals(30_000, index.get("A").size());
+        Assertions.assertEquals(1, index.get("Leaf").size());
+        final DraftNode.Constructor builder = new DraftNode.Constructor();
+        builder.setName(root.getTypeName());
+        builder.setChildren(root.getChildrenList());
+        Assertions.assertEquals(description, builder.toString());
         Assertions.assertEquals(30_001, new DepthCalculator().calculate(root));
         Assertions.assertEquals(description, root.toString());
         Assertions.assertEquals(root, DraftNode.create(root.toString()));

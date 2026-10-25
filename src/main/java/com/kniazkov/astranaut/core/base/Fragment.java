@@ -24,6 +24,7 @@
 package com.kniazkov.astranaut.core.base;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -92,15 +93,7 @@ public interface Fragment {
      * @return Corresponding fragment instance
      */
     static Fragment fromPositions(final Position... positions) {
-        final Fragment fragment;
-        if (positions.length == 0) {
-            fragment = EmptyFragment.INSTANCE;
-        } else if (positions.length == 1) {
-            fragment = new DefaultFragment(positions[0], positions[0]);
-        } else {
-            fragment = new DefaultFragment(Position.bounds(positions));
-        }
-        return fragment;
+        return Fragment.fromPositions(Arrays.asList(positions));
     }
 
     /**

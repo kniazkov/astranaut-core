@@ -23,10 +23,9 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.ArrayDeque;
+import com.kniazkov.astranaut.core.algorithms.DepthFirstWalker;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -160,15 +159,14 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
      * @param nodes Caller-owned index, retaining separate equal objects
      */
     private static void register(final Node root, final Map<String, Set<Node>> nodes) {
-        final Deque<Node> pending = new ArrayDeque<>();
-        pending.push(root);
-        while (!pending.isEmpty()) {
-            final Node node = pending.pop();
-            nodes.computeIfAbsent(
-                node.getTypeName(), key -> Collections.newSetFromMap(new IdentityHashMap<>())
-            ).add(node);
-            node.forEachChild(pending::push);
-        }
+        new DepthFirstWalker(root).findFirst(
+            node -> {
+                nodes.computeIfAbsent(
+                    node.getTypeName(), key -> Collections.newSetFromMap(new IdentityHashMap<>())
+                ).add(node);
+                return false;
+            }
+        );
     }
 
     /**
@@ -275,22 +273,7 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
 
         @Override
         public String toString() {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(this.name);
-            DraftFormat.appendData(builder, this.data);
-            if (!this.children.isEmpty()) {
-                boolean flag = false;
-                builder.append('(');
-                for (final Node child : this.children) {
-                    if (flag) {
-                        builder.append(", ");
-                    }
-                    flag = true;
-                    builder.append(child.toString());
-                }
-                builder.append(')');
-            }
-            return builder.toString();
+            return DraftFormat.format(this.name, this.data, this.children);
         }
     }
 
