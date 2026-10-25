@@ -24,10 +24,11 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeOccurrence;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,14 +50,34 @@ public final class NodeSelector {
     }
 
     /**
-     * Selects nodes from the tree based on some criterion.
+     * Selects nodes without pruning; this legacy view deduplicates by object identity.
      * @param criteria Node selection criteria
      * @return Set containing selected nodes
      */
     public Set<Node> select(final Criteria criteria) {
-        final Walker walker = new Walker(criteria);
-        walker.walk(this.root);
-        return walker.set;
+        final Set<Node> result = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (final NodeOccurrence occurrence : this.selectOccurrences(criteria)) {
+            result.add(occurrence.getNode());
+        }
+        return result;
+    }
+
+    /**
+     * Selects occurrences in preorder without pruning matching branches.
+     * @param criteria Criteria with stable, nearest-first ancestors
+     * @return Immutable ordered addresses, including all shared occurrences
+     */
+    public List<NodeOccurrence> selectOccurrences(final Criteria criteria) {
+        final List<NodeOccurrence> result = new ArrayList<>(0);
+        new OccurrenceWalker(new NodeOccurrence(this.root)).findFirst(
+            occurrence -> {
+                if (criteria.isApplicable(occurrence.getNode(), occurrence.getAncestors())) {
+                    result.add(occurrence);
+                }
+                return false;
+            }
+        );
+        return List.copyOf(result);
     }
 
     /**
@@ -75,55 +96,4 @@ public final class NodeSelector {
         boolean isApplicable(Node node, Iterable<Node> parents);
     }
 
-    /**
-     * Walker that traverses the syntax tree and selects nodes.
-     * @since 0.0.1
-     */
-    private static final class Walker {
-        /**
-         * Node selection criteria.
-         */
-        private final Criteria criteria;
-
-        /**
-         * Set containing selected nodes.
-         */
-        private final Set<Node> set;
-
-        /**
-         * Constructor.
-         * @param criteria Node selection criteria
-         */
-        private Walker(final Criteria criteria) {
-            this.criteria = criteria;
-            this.set = Collections.newSetFromMap(new IdentityHashMap<>());
-        }
-
-        /**
-         * Starts the tree traversal.
-         * @param root Root node of the tree
-         */
-        void walk(final Node root) {
-            this.check(root, new LinkedList<>());
-        }
-
-        /**
-         * Checks the node and recursively all children of the node against the criterion.
-         * @param node The node
-         * @param parents Stack containing the parents of the node
-         */
-        void check(final Node node, final Deque<Node> parents) {
-            if (this.criteria.isApplicable(node, parents)) {
-                this.set.add(node);
-            }
-            final int count = node.getChildCount();
-            if (count > 0) {
-                parents.addFirst(node);
-                for (int index = 0; index < count; index = index + 1) {
-                    this.check(node.getChild(index), parents);
-                }
-                parents.removeFirst();
-            }
-        }
-    }
 }

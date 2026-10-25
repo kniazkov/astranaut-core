@@ -24,11 +24,15 @@
 package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.ExtNode;
+import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeStructure;
 import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.Type;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Creates extended nodes ({@link ExtNode}) from 'regular' nodes ({@link Node}).
@@ -39,40 +43,28 @@ public final class ExtNodeCreator {
      * Creates an extended node from a 'regular' node.
      * @param node Original node
      * @return Extended node
+     * @checkstyle NonStaticMethodCheck (45 lines)
      */
     public ExtNode create(final Node node) {
-        return this.create(node, null, NodeStructure.hashes(node));
-    }
-
-    /**
-     * Creates an extended node from a 'regular' node (recursive method).
-     * @param node Original node
-     * @param parent Parent node of the node to be created
-     * @param hashes Operation-local hash snapshot
-     * @return Extended node
-     */
-    private ExtNodeImpl create(final Node node, final ExtNode parent,
-        final Map<Node, Integer> hashes) {
-        final ExtNodeImpl ext = new ExtNodeImpl();
-        ext.prototype = node;
-        ext.parent = parent;
-        ext.index = -1;
-        ext.hash = hashes.get(node);
-        final int count = node.getChildCount();
-        ext.children = new ExtNodeImpl[count];
-        int index;
-        for (index = 0; index < count; index = index + 1) {
-            final ExtNodeImpl child = this.create(node.getChild(index), ext, hashes);
-            child.index = index;
-            ext.children[index] = child;
+        final Map<Node, Integer> hashes = NodeStructure.hashes(node);
+        final ExtNodeImpl root = new ExtNodeImpl(node, null, hashes.get(node));
+        final Deque<ExtNodeImpl> pending = new ArrayDeque<>();
+        pending.push(root);
+        while (!pending.isEmpty()) {
+            final ExtNodeImpl parent = pending.pop();
+            for (int index = 0; index < parent.children.length; index += 1) {
+                final Node prototype = parent.prototype.getChild(index);
+                final ExtNodeImpl child = new ExtNodeImpl(prototype, parent, hashes.get(prototype));
+                child.index = index;
+                parent.children[index] = child;
+                if (index > 0) {
+                    child.left = parent.children[index - 1];
+                    parent.children[index - 1].right = child;
+                }
+                pending.push(child);
+            }
         }
-        for (index = 1; index < count; index = index + 1) {
-            ext.children[index].left = ext.children[index - 1];
-        }
-        for (index = 0; index < count - 1; index = index + 1) {
-            ext.children[index].right = ext.children[index + 1];
-        }
-        return ext;
+        return root;
     }
 
     /**
@@ -83,12 +75,12 @@ public final class ExtNodeCreator {
         /**
          * Prototype (not-extended) node.
          */
-        private Node prototype;
+        private final Node prototype;
 
         /**
          * Parent node of this node, which is the node that has this node as on of its children.
          */
-        private ExtNode parent;
+        private final ExtNode parent;
 
         /**
          * Index (sequence number) of this node in the list of children of this node's parent.
@@ -110,12 +102,31 @@ public final class ExtNodeCreator {
         /**
          * Absolute hash.
          */
-        private int hash;
+        private final int hash;
 
         /**
          * Array of child nodes wrapped in the extended node interface.
          */
-        private ExtNodeImpl[] children;
+        private final ExtNodeImpl[] children;
+
+        /**
+         * Creates a wrapper. Links are completed before the root is published.
+         * @param prototype Original node
+         * @param parent Parent wrapper
+         * @param hash Cached structural hash
+         */
+        private ExtNodeImpl(final Node prototype, final ExtNode parent, final int hash) {
+            this.prototype = prototype;
+            this.parent = parent;
+            this.hash = hash;
+            this.children = new ExtNodeImpl[prototype.getChildCount()];
+            this.index = -1;
+        }
+
+        @Override
+        public Fragment getFragment() {
+            return this.prototype.getFragment();
+        }
 
         @Override
         public Node getPrototype() {
@@ -174,6 +185,7 @@ public final class ExtNodeCreator {
 
         @Override
         public java.util.Optional<Node> getChild(final String tag) {
+            Objects.requireNonNull(tag);
             java.util.Optional<Node> result = java.util.Optional.empty();
             for (int idx = 0; idx < this.children.length; idx += 1) {
                 if (this.getChildTag(idx).filter(tag::equals).isPresent()) {
