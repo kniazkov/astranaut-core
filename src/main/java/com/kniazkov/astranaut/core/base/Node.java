@@ -208,24 +208,7 @@ public interface Node {
      */
     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     static String toString(final Node node) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(node.getTypeName());
-        final String data = node.getData();
-        if (!data.isEmpty()) {
-            builder.append("<\"").append(data).append("\">");
-        }
-        final int count = node.getChildCount();
-        if (count > 0) {
-            builder.append('(');
-            for (int index = 0; index < count; index = index + 1) {
-                if (index > 0) {
-                    builder.append(", ");
-                }
-                builder.append(node.getChild(index).toString());
-            }
-            builder.append(')');
-        }
-        return builder.toString();
+        return DraftFormat.format(node);
     }
 
 }

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 class DepthFirstWalkerTest {
     @Test
     void testFindFirst() {
-        final Node root = DraftNode.create("A(B,C,D(E<\"eee\">,F<\"fff\">)))");
+        final Node root = DraftNode.create("A(B,C,D(E<\"eee\">,F<\"fff\">))");
         final DepthFirstWalker traversal = new DepthFirstWalker(root);
         final Optional<Node> node = traversal.findFirst(node1 -> !node1.getData().isEmpty());
         Assertions.assertTrue(node.isPresent());
@@ -54,7 +54,7 @@ class DepthFirstWalkerTest {
 
     @Test
     void testFindAll() {
-        final Node root = DraftNode.create("A(B,C<\"ccc\">,D(E<\"eee\">)))");
+        final Node root = DraftNode.create("A(B,C<\"ccc\">,D(E<\"eee\">))");
         final DepthFirstWalker traversal = new DepthFirstWalker(root);
         final List<Node> list = traversal.findAll(node1 -> !node1.getData().isEmpty());
         Assertions.assertNotNull(list);
