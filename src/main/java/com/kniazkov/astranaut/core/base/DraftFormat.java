@@ -144,7 +144,7 @@ final class DraftFormat {
         private final String data;
 
         /**
-         * Ordered children.
+         * Immutable random-access snapshot, also for builders backed by linked lists.
          */
         private final List<Node> children;
 
@@ -170,7 +170,7 @@ final class DraftFormat {
         private Frame(final String name, final String data, final List<Node> children) {
             this.name = name;
             this.data = data;
-            this.children = children;
+            this.children = List.copyOf(children);
             this.index = -1;
         }
     }
