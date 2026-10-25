@@ -159,6 +159,30 @@ public final class ParallelOccurrenceWalker {
     }
 
     /**
+     * Maps direct branches in child order, using this strategy's threshold and task bound.
+     * Actions must be independent and safe for concurrent calls. Small inputs run on the caller.
+     * @param root Parent occurrence
+     * @param action Branch action
+     * @param <T> Result type
+     * @return Immutable ordered branch results
+     */
+    public <T> List<T> mapChildren(final NodeOccurrence root,
+        final Function<NodeOccurrence, T> action) {
+        Objects.requireNonNull(action);
+        final List<T> result;
+        if (this.shouldSplit(root)) {
+            result = this.map(root, action);
+        } else {
+            final List<T> values = new ArrayList<>(root.getNode().getChildCount());
+            for (int index = 0; index < root.getNode().getChildCount(); index += 1) {
+                values.add(action.apply(root.getChild(index)));
+            }
+            result = List.copyOf(values);
+        }
+        return result;
+    }
+
+    /**
      * Probes at most threshold occurrences without invoking user callbacks.
      * @param root Root
      * @return Whether splitting is useful under the explicit caller policy

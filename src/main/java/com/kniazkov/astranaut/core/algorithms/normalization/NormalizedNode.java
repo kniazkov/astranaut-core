@@ -23,71 +23,56 @@
  */
 package com.kniazkov.astranaut.core.algorithms.normalization;
 
-import com.kniazkov.astranaut.core.base.Builder;
-import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
-import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Type;
-import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Represents a normalized node.
- *  A normalized node is a node without properties. All properties of the original node
- *  are extracted into separate child nodes.
+ * Independent immutable normalized representation, without a denormalization contract.
+ * Child zero contains node properties, child one contains the type's own properties;
+ * Remaining children are explicit edges retaining source order and tags.
+ * Both metadata groups always exist.
  * @since 0.0.1
  */
-public final class NormalizedNode extends NodeWithStructuralEquality implements PrototypeBasedNode {
+public final class NormalizedNode extends NodeWithStructuralEquality {
     /**
-     * Independent type descriptor.
+     * Independent layout descriptor.
      */
-    private final Type type;
+    private final NormalizationType type;
 
     /**
-     * The original, non-normalized node.
+     * Immutable node state.
      */
-    private final Node original;
+    private final State state;
 
     /**
-     * List of normalized child nodes.
-     */
-    private final List<NormalizedNode> children;
-
-    /**
-     * List of properties.
-     */
-    private Properties properties;
-
-    /**
-     * Constructor.
-     * @param original The original, non-normalized node.
+     * Normalizes an acyclic tree without recursive Java calls.
+     * @param original Original root
      */
     public NormalizedNode(final Node original) {
-        this(
-            original,
-            NormalizedNode.initProperties(original),
-            NormalizedNode.initChildrenList(original)
-        );
+        this(new Normalizer().normalize(original));
     }
 
     /**
-     * Private constructor (for internal usage).
-     * @param original The original, non-normalized node
-     * @param properties List of properties
-     * @param children List of normalized child nodes
+     * Copies only references to immutable state.
+     * @param normalized Normalized root
      */
-    private NormalizedNode(final Node original, final Properties properties,
-        final List<NormalizedNode> children) {
-        this.original = original;
-        this.type = new TypeImpl(original.getType());
-        this.properties = properties;
-        this.children = List.copyOf(children);
+    private NormalizedNode(final NormalizedNode normalized) {
+        this(normalized.type, normalized.state);
+    }
+
+    /**
+     * Publishes validated state owned by a normalizer or builder.
+     * @param type Layout
+     * @param state State
+     */
+    NormalizedNode(final NormalizationType type, final State state) {
+        this.type = type;
+        this.state = state;
     }
 
     @Override
@@ -97,39 +82,53 @@ public final class NormalizedNode extends NodeWithStructuralEquality implements 
 
     @Override
     public Fragment getFragment() {
-        return this.original.getFragment();
+        return this.state.fragment();
     }
 
     @Override
     public String getData() {
-        return this.original.getData();
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return Collections.emptyMap();
+        return this.state.data();
     }
 
     @Override
     public int getChildCount() {
-        int count = this.children.size();
-        if (this.properties != null) {
-            count = count + 1;
-        }
-        return count;
+        return this.state.children().size();
     }
 
     @Override
     public Node getChild(final int index) {
-        final Node node;
-        if (this.properties == null) {
-            node = this.children.get(index);
-        } else if (index == 0) {
-            node = this.properties;
-        } else {
-            node = this.children.get(index - 1);
+        return this.state.children().get(index);
+    }
+
+    @Override
+    public Optional<String> getChildTag(final int index) {
+        Objects.checkIndex(index, this.getChildCount());
+        Optional<String> result = Optional.empty();
+        if (index >= 2) {
+            result = ((NormalizedEdge) this.getChild(index)).getTag();
         }
-        return node;
+        return result;
+    }
+
+    @Override
+    public Optional<Node> getChild(final String tag) {
+        Objects.requireNonNull(tag);
+        Optional<Node> result = Optional.empty();
+        for (int index = 2; index < this.getChildCount(); index += 1) {
+            if (this.getChildTag(index).filter(tag::equals).isPresent()) {
+                result = Optional.of(this.getChild(index));
+                break;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the source type name for diagnostics, without restoring its concrete class.
+     * @return Original name
+     */
+    public String getOriginalTypeName() {
+        return this.type.originalName();
     }
 
     @Override
@@ -137,224 +136,24 @@ public final class NormalizedNode extends NodeWithStructuralEquality implements 
         return Node.toString(this);
     }
 
-    @Override
-    public Node getPrototype() {
-        return this.original;
-    }
-
     /**
-     * Initiates list of properties, extracted from original node.
-     * @param original Original node
-     * @return Node containing list of properties or {@code null} if the original node
-     *  does not contain any properties
-     */
-    private static Properties initProperties(final Node original) {
-        Properties object = null;
-        final Map<String, String> map = original.getProperties();
-        if (!map.isEmpty()) {
-            object = new Properties(map);
-        }
-        return object;
-    }
-
-    /**
-     * Prepares a list of child normalized nodes.
-     * @param original Original node
-     * @return List of child normalized nodes
-     */
-    private static List<NormalizedNode> initChildrenList(final Node original) {
-        final int count = original.getChildCount();
-        final List<NormalizedNode> list = new ArrayList<>(count);
-        for (int index = 0; index < count; index = index + 1) {
-            list.add(new NormalizedNode(original.getChild(index)));
-        }
-        return Collections.unmodifiableList(list);
-    }
-
-    /**
-     * Builds a normalizer node.
+     * Snapshot detached from all mutable builder state.
+     * @param data Node data
+     * @param fragment Original provenance
+     * @param children Ordered children including metadata
      * @since 0.0.1
      */
-    private static final class NormalizerNodeBuilder implements Builder {
+    record State(String data, Fragment fragment, List<Node> children) {
         /**
-         * Builder for original, non-normalized node.
+         * Takes a defensive snapshot.
+         * @param data Node data
+         * @param fragment Provenance
+         * @param children Children
          */
-        private final Builder original;
-
-        /**
-         * Properties extracted from the children list.
-         */
-        private Optional<Properties> properties;
-
-        /**
-         * List of normalized child nodes.
-         */
-        private List<NormalizedNode> children;
-
-        /**
-         * Constructor.
-         * @param original Builder for original, non-normalized node
-         */
-        private NormalizerNodeBuilder(final Builder original) {
-            this.original = original;
-            this.properties = Optional.empty();
-            this.children = Collections.emptyList();
-        }
-
-        @Override
-        public void setFragment(final Fragment fragment) {
-            this.original.setFragment(fragment);
-        }
-
-        @Override
-        public boolean setData(final String str) {
-            return this.original.setData(str);
-        }
-
-        @Override
-        public boolean setChildren(final List<Node> list) {
-            final List<Node> nodes;
-            Properties props = null;
-            int size = list.size();
-            if (size > 0 && list.get(0) instanceof Properties) {
-                props = (Properties) list.get(0);
-                nodes = list.subList(1, size);
-                size = size - 1;
-            } else {
-                nodes = list;
-            }
-            final List<Node> originals = new ArrayList<>(size);
-            final List<NormalizedNode> normalized = new ArrayList<>(size);
-            for (final Node node : nodes) {
-                if (node instanceof NormalizedNode) {
-                    final NormalizedNode child = (NormalizedNode) node;
-                    originals.add(child.original);
-                    normalized.add(child);
-                } else {
-                    originals.add(node);
-                    normalized.add(new NormalizedNode(node));
-                }
-            }
-            final boolean result = this.original.setChildren(originals);
-            if (result) {
-                this.properties = Optional.ofNullable(props);
-                this.children = normalized;
-            }
-            return result;
-        }
-
-        @Override
-        public boolean setChild(final int index, final Node child) {
-            java.util.Objects.requireNonNull(child);
-            boolean result = false;
-            final int offset = this.childOffset(index);
-            if (offset == -1 && this.properties.isPresent() && child instanceof Properties) {
-                this.properties = Optional.of((Properties) child);
-                result = true;
-            } else if (offset >= 0 && offset < this.children.size()) {
-                final NormalizedNode normalized = NormalizerNodeBuilder.normalize(child);
-                result = this.original.setChild(offset, normalized.original);
-                if (result) {
-                    final List<NormalizedNode> updated = new ArrayList<>(this.children);
-                    updated.set(offset, normalized);
-                    this.children = List.copyOf(updated);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean removeChild(final int index) {
-            boolean result = false;
-            final int offset = this.childOffset(index);
-            if (offset == -1 && this.properties.isPresent()) {
-                this.properties = Optional.empty();
-                result = true;
-            } else if (offset >= 0 && offset < this.children.size()) {
-                result = this.original.removeChild(offset);
-                if (result) {
-                    final List<NormalizedNode> updated = new ArrayList<>(this.children);
-                    updated.remove(offset);
-                    this.children = List.copyOf(updated);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean isValid() {
-            return this.original.isValid();
-        }
-
-        @Override
-        public Node build() {
-            if (!this.isValid()) {
-                throw new ConstructionException("Required builder state is missing");
-            }
-            return new NormalizedNode(
-                this.original.build(),
-                this.properties.orElse(null),
-                this.children
-            );
-        }
-
-        /**
-         * Converts a public insertion index into an original child index.
-         * @param index Public index
-         * @return Original child index; minus one denotes properties, minus two invalid
-         */
-        private int childOffset(final int index) {
-            int result = index;
-            if (index < 0) {
-                result = -2;
-            } else if (this.properties.isPresent()) {
-                result = index - 1;
-            }
-            return result;
-        }
-
-        /**
-         * Wraps an ordinary child without wrapping normalized nodes again.
-         * @param node Child
-         * @return Normalized child
-         */
-        private static NormalizedNode normalize(final Node node) {
-            final NormalizedNode result;
-            if (node instanceof NormalizedNode normalized) {
-                result = normalized;
-            } else {
-                result = new NormalizedNode(node);
-            }
-            return result;
-        }
-    }
-
-    /**
-     * Type descriptor independent of node instances.
-     * @since 0.0.1
-     */
-    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
-        /**
-         * Immutable type definition.
-         */
-        private final Type original;
-
-        /**
-         * Creates the descriptor.
-         * @param original Original type
-         */
-        private TypeImpl(final Type original) {
-            this.original = original;
-        }
-
-        @Override
-        public String getName() {
-            return this.original.getName();
-        }
-
-        @Override
-        public Builder createBuilder() {
-            return new NormalizerNodeBuilder(this.original.createBuilder());
+        State {
+            data = Objects.requireNonNull(data);
+            fragment = Objects.requireNonNull(fragment);
+            children = List.copyOf(children);
         }
     }
 }

@@ -26,57 +26,77 @@ package com.kniazkov.astranaut.core.algorithms.normalization;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.DraftNode;
+import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.example.LittleTrees;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Mutation and snapshot contracts of normalization builders.
+ * Atomic editing and snapshot contracts for normalized builders.
  * @since 0.0.1
  */
 class NormalizationBuilderTest {
     @Test
-    void editsPropertyListsWithoutMutatingPublishedNodes() {
+    void propertyListsAreSortedUniqueSnapshots() {
         final Builder builder = new Properties(Map.of()).getType().createBuilder();
         final Property first = new Property("first", "one");
         final Property second = new Property("second", "two");
-        Assertions.assertTrue(builder.setChildren(List.of(first, second)));
+        final List<Node> input = new ArrayList<>(List.of(second, first));
+        Assertions.assertTrue(builder.setChildren(input));
+        input.clear();
         final Node old = builder.build();
-        Assertions.assertTrue(builder.setChild(0, second));
+        Assertions.assertEquals(List.of(first, second), old.getChildrenList());
+        Assertions.assertFalse(builder.setChild(0, first));
+        Assertions.assertFalse(builder.setChildren(List.of(first, first)));
         Assertions.assertFalse(builder.setChild(1, DraftNode.create("wrong")));
-        Assertions.assertTrue(builder.removeChild(1));
-        Assertions.assertFalse(builder.removeChild(1));
-        Assertions.assertEquals(List.of(second), builder.build().getChildrenList());
-        Assertions.assertSame(first, old.getChild(0));
+        Assertions.assertEquals(old, builder.build());
+        Assertions.assertTrue(builder.removeChild(0));
+        Assertions.assertFalse(builder.removeChild(4));
+        Assertions.assertEquals(List.of(first), builder.build().getChildrenList());
         Assertions.assertEquals(2, old.getChildCount());
     }
 
     @Test
-    void removesRequiredNormalizedChildrenWithoutBuildingInvalidNodes() {
-        final Node left = LittleTrees.createVariable("x");
-        final Node right = LittleTrees.createIntegerLiteral(1);
-        final Builder builder = new NormalizedNode(LittleTrees.createAddition(left, right))
-            .getType().createBuilder();
-        final Properties props = new Properties(Map.of("color", "red"));
-        Assertions.assertTrue(builder.setChildren(List.of(props, left, right)));
-        final Node old = builder.build();
-        Assertions.assertFalse(builder.removeChild(-1));
-        Assertions.assertFalse(builder.setChild(-1, props));
-        Assertions.assertFalse(builder.setChild(0, right));
-        Assertions.assertTrue(builder.setChild(0, props));
-        Assertions.assertTrue(builder.setChild(2, new NormalizedNode(left)));
-        Assertions.assertTrue(builder.removeChild(1));
+    void normalizedBuildersPreserveLayoutsWithoutOriginalConstraints() {
+        final Node child = DraftNode.create("Child");
+        final Node root = new NormalizedNode(
+            new NormalizedNodeTest.Fixture(
+                Map.of(), List.of(child, child), List.of(Optional.of("a"), Optional.of("b"))
+            )
+        );
+        final Builder builder = root.getType().createBuilder();
         Assertions.assertFalse(builder.isValid());
         Assertions.assertThrows(ConstructionException.class, builder::build);
-        Assertions.assertTrue(builder.removeChild(0));
-        Assertions.assertFalse(builder.removeChild(4));
-        Assertions.assertEquals(3, old.getChildCount());
-        Assertions.assertTrue(builder.setChildren(List.of(left, right)));
-        Assertions.assertTrue(builder.setChild(0, right));
+        Assertions.assertTrue(builder.setChildren(root.getChildrenList()));
+        final Node old = builder.build();
+        Assertions.assertTrue(builder.setData("data allowed by normalized model"));
+        builder.setFragment(EmptyFragment.INSTANCE);
+        Assertions.assertFalse(builder.setChildren(List.of(child)));
+        Assertions.assertFalse(builder.setChild(0, child));
+        Assertions.assertFalse(builder.setChild(-1, child));
+        Assertions.assertFalse(builder.setChild("unknown", child));
+        Assertions.assertTrue(builder.setChild("a", new NormalizedEdge(Optional.of("a"), child)));
+        Assertions.assertSame(child, builder.build().getChild("a").orElseThrow().getChild(0));
+        Assertions.assertTrue(builder.removeChild("a"));
         Assertions.assertTrue(builder.isValid());
-        Assertions.assertEquals(2, builder.build().getChildCount());
+        Assertions.assertFalse(
+            builder.setChild("a", new NormalizedEdge(Optional.of("a"), child))
+        );
+        Assertions.assertTrue(builder.setChildren(root.getChildrenList()));
+        Assertions.assertTrue(
+            builder.setChild(
+                2, new NormalizedEdge(Optional.of("a"), DraftNode.create("Replacement"))
+            )
+        );
+        Assertions.assertEquals(
+            "Replacement", builder.build().getChild("a").orElseThrow().getChild(0).getTypeName()
+        );
+        Assertions.assertTrue(builder.removeChild(0));
+        Assertions.assertFalse(builder.isValid());
+        Assertions.assertEquals(root, old);
     }
 }

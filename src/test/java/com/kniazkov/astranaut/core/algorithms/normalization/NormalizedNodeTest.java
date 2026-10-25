@@ -23,107 +23,198 @@
  */
 package com.kniazkov.astranaut.core.algorithms.normalization;
 
+import com.kniazkov.astranaut.core.algorithms.DepthCalculator;
+import com.kniazkov.astranaut.core.algorithms.OccurrenceReplacer;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DraftNode;
-import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.example.LittleTrees;
-import java.util.Arrays;
-import java.util.Collections;
+import com.kniazkov.astranaut.core.base.NodeOccurrence;
+import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
+import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.base.TypeWithNameBasedEquality;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test for {@link NormalizedNode} class.
+ * Independent normalization, metadata, occurrence and stack-safety contracts.
  * @since 0.0.1
  */
 class NormalizedNodeTest {
-    /**
-     * The 'color' property.
-     */
-    private static final String COLOR_PROPERTY = "color";
-
     @Test
-    void testBaseMethods() {
-        final Node original = LittleTrees.createAddition(
-            LittleTrees.createVariable("x"),
-            LittleTrees.createIntegerLiteral(1)
-        );
-        Assertions.assertNotNull(original.getProperties().get(NormalizedNodeTest.COLOR_PROPERTY));
-        final NormalizedNode normalized = new NormalizedNode(original);
-        Assertions.assertTrue(normalized.getProperties().isEmpty());
-        Assertions.assertSame(original.getFragment(), normalized.getFragment());
-        Assertions.assertEquals(original.getTypeName(), normalized.getTypeName());
-        Assertions.assertEquals(original.getData(), normalized.getData());
-        Assertions.assertEquals(original.getChildCount() + 1, normalized.getChildCount());
-        final Node properties = normalized.getChild(0);
-        Assertions.assertTrue(properties instanceof  Properties);
-        Assertions.assertEquals(original.getProperties().size(), properties.getChildCount());
-        Node property = null;
-        for (final Node node : properties.getChildrenList()) {
-            if (node.getTypeName().equals(NormalizedNodeTest.COLOR_PROPERTY)) {
-                property = node;
-                break;
-            }
-        }
-        Assertions.assertNotNull(property);
+    void propertiesBecomeOrderedStructuralChildrenWithoutCallingOriginalBuilder() {
+        final Map<String, String> map = new LinkedHashMap<>();
+        map.put("z", "last");
+        map.put("a", "first");
+        final Node left = new Fixture(map, List.of(), List.of());
+        final Node right = new Fixture(Map.of("a", "first", "z", "last"), List.of(), List.of());
+        final Node different = new Fixture(Map.of("a", "other"), List.of(), List.of());
+        Assertions.assertEquals(left, different);
+        final NormalizedNode normal = new Normalizer().normalize(left);
+        Assertions.assertEquals(normal, new Normalizer().normalize(right));
+        Assertions.assertNotEquals(normal, new Normalizer().normalize(different));
+        Assertions.assertTrue(normal.getProperties().isEmpty());
+        Assertions.assertTrue(normal.getType().getProperties().isEmpty());
+        Assertions.assertEquals("Fixture", normal.getOriginalTypeName());
+        Assertions.assertNotEquals(left.getType(), normal.getType());
+        Assertions.assertEquals("a", ((Property) normal.getChild(0).getChild(0)).getName());
         Assertions.assertEquals(
-            original.getProperties().get(NormalizedNodeTest.COLOR_PROPERTY),
-            property.getData()
+            Map.of("own", "type"), ((Properties) normal.getChild(1)).collectAllProperties()
         );
-        for (int index = 1; index < normalized.getChildCount(); index = index + 1) {
-            final Node left =  original.getChild(index - 1);
-            final Node right = normalized.getChild(index);
-            Assertions.assertTrue(
-                left.getTypeName().equals(right.getTypeName())
-                    && left.getData().equals(right.getData())
-            );
-        }
-        Assertions.assertTrue(normalized.toString().startsWith(original.getTypeName()));
-        Assertions.assertSame(original, normalized.getPrototype());
+        final Builder builder = normal.getType().createBuilder();
+        Assertions.assertTrue(builder.setChildren(normal.getChildrenList()));
+        Assertions.assertEquals(normal, builder.build());
     }
 
     @Test
-    void testOriginalWithoutProperties() {
-        final Node original = DraftNode.create("A(B,C)");
-        Assertions.assertTrue(original.getProperties().isEmpty());
-        final Node normalized = new NormalizedNode(original);
-        Assertions.assertEquals(original.getChildCount(), normalized.getChildCount());
-        for (int index = 0; index < normalized.getChildCount(); index = index + 1) {
-            final Node left =  original.getChild(index);
-            final Node right = normalized.getChild(index);
-            Assertions.assertTrue(
-                left.getTypeName().equals(right.getTypeName())
-                    && left.getData().equals(right.getData())
-            );
-        }
+    void keepsSharedChildrenTagsAndRebuildsPropertiesThroughOrdinaryOperations() {
+        final Node child = DraftNode.create("Leaf<'value'>");
+        final Node root = new Fixture(
+            Map.of("color", "red"), List.of(child, child),
+            List.of(Optional.of("left"), Optional.of("right"))
+        );
+        final NormalizedNode normalized = new NormalizedNode(root);
+        Assertions.assertSame(
+            normalized.getChild(2).getChild(0), normalized.getChild(3).getChild(0)
+        );
+        Assertions.assertSame(normalized.getChild(2), normalized.getChild("left").orElseThrow());
+        Assertions.assertEquals(Optional.of("right"), normalized.getChildTag(3));
+        Assertions.assertTrue(normalized.getChildTag(0).isEmpty());
+        Assertions.assertTrue(normalized.getChild("missing").isEmpty());
+        final Node changed = new OccurrenceReplacer().replace(
+            new NodeOccurrence(normalized).getChild(0).getChild(0), new Property("color", "blue")
+        ).orElseThrow();
+        Assertions.assertEquals("blue", changed.getChild(0).getChild(0).getData());
+        Assertions.assertEquals("red", normalized.getChild(0).getChild(0).getData());
+        Assertions.assertSame(normalized.getChild(2), changed.getChild(2));
+        Assertions.assertEquals(Optional.of("left"), changed.getChildTag(2));
+        final Node retagged = new Fixture(
+            root.getProperties(), List.of(child, child),
+            List.of(Optional.of("other"), Optional.of("right"))
+        );
+        Assertions.assertNotEquals(normalized, new NormalizedNode(retagged));
     }
 
     @Test
-    void testBuilder() {
-        final Node original = LittleTrees.createAddition(
-            LittleTrees.createVariable("x"),
-            LittleTrees.createIntegerLiteral(1)
-        );
-        final Node normalized = new NormalizedNode(original);
-        final Builder builder = normalized.getType().createBuilder();
-        builder.setFragment(EmptyFragment.INSTANCE);
-        Assertions.assertTrue(builder.setData(""));
-        Assertions.assertFalse(builder.isValid());
-        Assertions.assertThrows(IllegalStateException.class, builder::build);
-        final Node left = LittleTrees.createIntegerLiteral(2);
-        Assertions.assertFalse(builder.setChildren(Collections.emptyList()));
-        Assertions.assertFalse(builder.setChildren(Collections.singletonList(left)));
-        final Node right = new NormalizedNode(LittleTrees.createIntegerLiteral(3));
-        Assertions.assertTrue(builder.setChildren(Arrays.asList(left, right)));
-        final Map<String, String> map = new TreeMap<>();
-        map.put(NormalizedNodeTest.COLOR_PROPERTY, "red");
-        final Properties properties = new Properties(map);
-        Assertions.assertTrue(builder.setChildren(Arrays.asList(properties, left, right)));
-        Assertions.assertTrue(builder.isValid());
-        final Node created = builder.build();
-        Assertions.assertNotNull(created);
+    void normalizesDeepTreesAndReusesAlreadyNormalizedRoots() {
+        Node node = DraftNode.create("Leaf");
+        for (int index = 0; index < 30_000; index += 1) {
+            node = DraftNode.create("Branch", "", node);
+        }
+        final Normalizer normalizer = new Normalizer();
+        final Node normalized = normalizer.normalize(node);
+        Assertions.assertEquals(60_002, new DepthCalculator().calculate(normalized));
+        Assertions.assertSame(normalized, normalizer.normalize(normalized));
+    }
+
+    @Test
+    void distinguishesEmptyPropertyNamesAndServiceLookingTypeNames() {
+        final Property empty = new Property("", "");
+        final Property unicode = new Property("😀", "");
+        Assertions.assertNotEquals(empty.getType(), unicode.getType());
+        Assertions.assertNotEquals(new Properties(Map.of()).getType(), empty.getType());
+        final Node root = new NormalizedNode(DraftNode.create("AstranautProperties"));
+        Assertions.assertNotEquals(root.getType(), new Properties(Map.of()).getType());
+        Assertions.assertEquals(2, root.getChildCount());
+        Assertions.assertEquals(0, root.getChild(0).getChildCount());
+        Assertions.assertEquals(0, root.getChild(1).getChildCount());
+    }
+
+    /**
+     * Adapter fixture whose type deliberately has no usable source builder.
+     * @since 0.0.1
+     */
+    static final class Fixture extends NodeWithStructuralEquality {
+        /**
+         * Node metadata.
+         */
+        private final Map<String, String> properties;
+
+        /**
+         * Ordered child occurrences.
+         */
+        private final List<Node> children;
+
+        /**
+         * Tags on those occurrences.
+         */
+        private final List<Optional<String>> tags;
+
+        /**
+         * Creates an immutable adapter.
+         * @param properties Metadata
+         * @param children Children
+         * @param tags Edge tags
+         */
+        Fixture(final Map<String, String> properties, final List<Node> children,
+            final List<Optional<String>> tags) {
+            this.properties = Map.copyOf(properties);
+            this.children = List.copyOf(children);
+            this.tags = List.copyOf(tags);
+        }
+
+        @Override
+        public Type getType() {
+            return new FixtureType();
+        }
+
+        @Override
+        public String getData() {
+            return "";
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return this.properties;
+        }
+
+        @Override
+        public int getChildCount() {
+            return this.children.size();
+        }
+
+        @Override
+        public Node getChild(final int index) {
+            return this.children.get(index);
+        }
+
+        @Override
+        public Optional<String> getChildTag(final int index) {
+            return this.tags.get(index);
+        }
+
+        @Override
+        public Optional<Node> getChild(final String tag) {
+            final int index = this.tags.indexOf(Optional.of(tag));
+            Optional<Node> result = Optional.empty();
+            if (index >= 0) {
+                result = Optional.of(this.children.get(index));
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Source descriptor with its own metadata.
+     * @since 0.0.1
+     */
+    private static final class FixtureType extends TypeWithNameBasedEquality implements Type {
+        @Override
+        public String getName() {
+            return "Fixture";
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return Map.of("own", "type");
+        }
+
+        @Override
+        public Builder createBuilder() {
+            throw new UnsupportedOperationException("Source builder must not be invoked");
+        }
     }
 }
