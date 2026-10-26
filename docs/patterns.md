@@ -100,13 +100,14 @@ than rebuilding or coercing them. Reconstruction uses the same implementation as
 ## Migration boundary
 
 This is the core representation and single-attempt API for issue #16. The existing
-mined-patch matcher keeps its historic child-subsequence search until the rewrite
-engine migration (#17); it now isolates candidate trials and no longer interprets
+mined-patch matcher keeps its historic child-subsequence search behind the common
+rule engine; it isolates candidate trials and no longer interprets
 repeated hole numbers as data equality. It is not the DSL-expression interpreter.
 
 Astranaut itself is unchanged in this PR. Its generator should emit these immutable
 expressions and call the transactional matcher, or explicitly use `fork()`/commit
 around speculative generated conditions. Existing generated direct `&&`/`||`
 mutations of one `Extracted` do not gain transactional semantics automatically.
-Whole-tree bottom-up application, ancestor rollback, stabilization and JSON format
-migration remain the separate engine/serialization issues (#17, #18, #20).
+Whole-tree bottom-up application and ancestor rollback are implemented by the
+[common rule engine](rule-engine.md). Stabilization and JSON format migration remain
+separate issues (#18, #20).
