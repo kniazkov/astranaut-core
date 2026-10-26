@@ -25,6 +25,7 @@ package com.kniazkov.astranaut.core.algorithms.conversion;
 
 import com.kniazkov.astranaut.core.algorithms.RewriteRule;
 import com.kniazkov.astranaut.core.algorithms.RuleEngine;
+import com.kniazkov.astranaut.core.algorithms.RuleStabilizer;
 import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
@@ -34,8 +35,8 @@ import java.util.List;
 
 /**
  * Compatibility facade for generated converters using the common atomic engine.
- * Retains repeated passes until structural stability; cycle diagnostics are a separate
- * stabilization policy. Use RuleEngine directly when exactly one pass is wanted.
+ * Repeats passes until structural stability and diagnoses cycles.
+ * Use RuleEngine directly when exactly one pass is wanted.
  * @since 0.0.1
  */
 public class DefaultTransformer implements Transformer {
@@ -58,14 +59,7 @@ public class DefaultTransformer implements Transformer {
 
     @Override
     public Tree transform(final Tree original) {
-        Tree current = original;
-        boolean changed;
-        do {
-            final Tree next = this.engine.apply(current);
-            changed = !current.deepCompare(next);
-            current = next;
-        } while (changed);
-        return current;
+        return new RuleStabilizer(this.engine).apply(original);
     }
 
     @Override

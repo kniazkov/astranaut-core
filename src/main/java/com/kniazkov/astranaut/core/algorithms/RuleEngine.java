@@ -90,9 +90,11 @@ public final class RuleEngine {
      * lower-priority rules. New roots may be empty, but never contain multiple nodes.
      * @param source Source tree
      * @return Result of one pass
+     * @throws java.util.concurrent.CancellationException If interrupted
      */
     public Tree apply(final Tree source) {
         Objects.requireNonNull(source);
+        Interruption.check();
         Tree result = source;
         if (source.getRoot().isPresent()) {
             final Node wrapper = DraftNode.create(
@@ -102,6 +104,7 @@ public final class RuleEngine {
             final Frame root = new Frame(wrapper, 0);
             stack.add(root);
             while (!stack.isEmpty()) {
+                Interruption.check();
                 final Frame frame = stack.getLast();
                 if (frame.next < frame.node.getChildCount()) {
                     final int index = frame.next;
@@ -117,6 +120,7 @@ public final class RuleEngine {
                 result = new Tree(root.node.getChild(0));
             }
         }
+        Interruption.check();
         return result;
     }
 
@@ -126,10 +130,12 @@ public final class RuleEngine {
      */
     private void rewrite(final List<Frame> stack) {
         final Frame frame = stack.getLast();
+        List<Node> siblings = frame.node.getChildrenList();
         final List<Boolean> settled = new ArrayList<>(
-            Collections.nCopies(frame.node.getChildCount(), false)
+            Collections.nCopies(siblings.size(), false)
         );
         for (final RewriteRule rule : this.rules) {
+            Interruption.check();
             final int direction;
             int index;
             if (rule.isRightToLeft()) {
@@ -141,6 +147,7 @@ public final class RuleEngine {
             }
             List<Optional<Replacement>> cache = List.of();
             while (index >= 0 && index < settled.size()) {
+                Interruption.check();
                 if (settled.get(index)) {
                     index += direction;
                     continue;
@@ -149,13 +156,14 @@ public final class RuleEngine {
                     cache = this.proposals(frame.node, rule, settled);
                 }
                 final Optional<Replacement> proposal = RuleEngine.proposal(
-                    rule, new Candidates(frame.node.getChildrenList(), cache), index
+                    rule, new Candidates(siblings, cache), index
                 );
                 final boolean changed = proposal.isPresent()
                     && RuleEngine.accept(
                         stack, settled, new Attempt(index, proposal.orElseThrow())
                     );
                 if (changed) {
+                    siblings = frame.node.getChildrenList();
                     cache = List.of();
                     if (direction > 0) {
                         index += proposal.orElseThrow().nodes().size();
@@ -224,7 +232,9 @@ public final class RuleEngine {
         final int index) {
         Optional<Replacement> result;
         try {
+            Interruption.check();
             result = Objects.requireNonNull(rule.apply(nodes, index));
+            Interruption.check();
         } catch (final ConstructionException ignored) {
             result = Optional.empty();
         }
@@ -278,6 +288,7 @@ public final class RuleEngine {
                 final List<Node> rebuilt = new ArrayList<>(stack.size());
                 Optional<Node> current = RuleEngine.build(parent, content, stack.size() == 1);
                 for (int depth = stack.size() - 1; current.isPresent() && depth >= 0; depth -= 1) {
+                    Interruption.check();
                     rebuilt.add(current.orElseThrow());
                     if (depth > 0) {
                         final Node outer = stack.get(depth - 1).node;
