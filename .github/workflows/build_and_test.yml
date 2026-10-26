@@ -23,7 +23,9 @@ jobs:
           sudo apt-get install -y --no-install-recommends graphviz
           dot -V
       - name: Build, test and run all quality checks
-        run: mvn -B -ntp clean verify
+        run: mvn -B -ntp clean install
+      - name: Verify independent JAR consumer on Java 21
+        run: mvn -B -ntp -f integration-tests/consumer/pom.xml clean verify
       - name: Ensure the build did not modify tracked files
         run: git diff --exit-code
       - name: Save reports and diagnostics
@@ -33,6 +35,7 @@ jobs:
           name: verification-reports
           path: |
             **/target/surefire-reports/
+            **/target/consumer-reports/
             **/target/site/jacoco/
             **/target/checkstyle-result.xml
             **/target/pmd.xml
