@@ -39,7 +39,6 @@ class PatternNodeTest {
         final Position end = new DefaultPosition(source, 1, 100);
         final Fragment fragment = new DefaultFragment(begin, end);
         final Node child = DraftNode.create("A");
-        final Node alien = DraftNode.create("B");
         final DraftNode.Constructor ctor = new DraftNode.Constructor();
         ctor.setFragment(fragment);
         ctor.setName("X");
@@ -49,11 +48,12 @@ class PatternNodeTest {
         final PatternNode pattern = new PatternNode(new DiffNode(node));
         Assertions.assertEquals(100, pattern.getFragment().getEnd().getColumn());
         Assertions.assertEquals("X<\"test\">(A)", pattern.toString());
-        Assertions.assertThrows(
-            UnsupportedOperationException.class,
-            () -> pattern.getType().createBuilder()
-        );
-        Assertions.assertFalse(pattern.makeHole(alien, 0));
-        Assertions.assertTrue(pattern.makeHole(child, 0));
+        final PatternNode edited = pattern.withHole(0, 0);
+        Assertions.assertInstanceOf(Hole.class, edited.getChild(0));
+        Assertions.assertEquals("A", pattern.getChild(0).getTypeName());
+        final Builder copy = edited.getType().createBuilder();
+        Assertions.assertTrue(copy.setData(edited.getData()));
+        Assertions.assertTrue(copy.setChildren(edited.getChildrenList()));
+        Assertions.assertEquals(edited, copy.build());
     }
 }

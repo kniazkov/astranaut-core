@@ -40,19 +40,21 @@ class HoleTest {
         final Hole hole = new Hole(node, 1);
         Assertions.assertSame(EmptyFragment.INSTANCE, hole.getFragment());
         Assertions.assertEquals(0, hole.getChildCount());
-        Assertions.assertNull(hole.getChild(0));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> hole.getChild(0));
         Assertions.assertEquals(
             "purple",
             hole.getProperties().getOrDefault("color", "")
         );
         Assertions.assertEquals(1, hole.getNumber());
-        Assertions.assertEquals("IntegerLiteral<#1>", hole.toString());
+        Assertions.assertEquals("AstranautTypedHole:IntegerLiteral<\"1\">", hole.toString());
         final Type type = hole.getType();
-        final String typename = "IntegerLiteral";
+        final String typename = "AstranautTypedHole:IntegerLiteral";
         Assertions.assertEquals(typename, type.getName());
         Assertions.assertEquals(typename, type.getName());
         Assertions.assertFalse(type.getProperties().containsKey("abracadabra"));
-        Assertions.assertEquals(typename, node.getTypeName());
-        Assertions.assertThrows(UnsupportedOperationException.class, type::createBuilder);
+        Assertions.assertTrue(hole.accepts(node));
+        final Builder copy = type.createBuilder();
+        Assertions.assertTrue(copy.setData(hole.getData()));
+        Assertions.assertEquals(hole, copy.build());
     }
 }

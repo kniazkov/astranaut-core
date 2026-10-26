@@ -49,7 +49,7 @@ public final class Insert extends NodeWithStructuralEquality implements Action {
      * @param child A child element that will be added.
      */
     public Insert(final Node child) {
-        this.child = child;
+        this.child = java.util.Objects.requireNonNull(child);
     }
 
     @Override
@@ -84,13 +84,8 @@ public final class Insert extends NodeWithStructuralEquality implements Action {
 
     @Override
     public Node getChild(final int index) {
-        final Node node;
-        if (index == 0) {
-            node = this.child;
-        } else {
-            node = null;
-        }
-        return node;
+        java.util.Objects.checkIndex(index, 1);
+        return this.child;
     }
 
     @Override

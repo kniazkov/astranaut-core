@@ -335,7 +335,25 @@ class PatcherTest {
         final Pattern pattern = patbuilder.getPattern();
         final Patcher patcher = DefaultPatcher.INSTANCE;
         final Tree patched = patcher.patch(before, pattern);
-        Assertions.assertFalse(after.deepCompare(patched));
-        Assertions.assertTrue(before.deepCompare(patched));
+        Assertions.assertTrue(after.deepCompare(patched));
+        Assertions.assertFalse(before.deepCompare(patched));
+    }
+
+    @Test
+    void failedCandidateDoesNotLeakAnInsertion() {
+        final Tree before = Tree.createDraft("Root(T<'bad'>,T<'good'>,Stop)");
+        final DraftNode.Constructor builder = new DraftNode.Constructor();
+        builder.setName("Root");
+        builder.setChildren(
+            java.util.List.of(
+                new com.kniazkov.astranaut.core.base.Hole(DraftNode.create("T"), 0),
+                new com.kniazkov.astranaut.core.base.Insert(DraftNode.create("New")),
+                DraftNode.create("Stop")
+            )
+        );
+        final Tree result = DefaultPatcher.INSTANCE.patch(before, new Pattern(builder.build()));
+        Assertions.assertTrue(
+            Tree.createDraft("Root(T<'bad'>,T<'good'>,New,Stop)").deepCompare(result)
+        );
     }
 }

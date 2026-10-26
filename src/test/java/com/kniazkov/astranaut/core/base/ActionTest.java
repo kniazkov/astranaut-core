@@ -67,7 +67,7 @@ class ActionTest {
         Assertions.assertEquals("", action.getData());
         Assertions.assertEquals(1, action.getChildCount());
         Assertions.assertEquals(inserted, action.getChild(0));
-        Assertions.assertNull(action.getChild(1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> action.getChild(1));
         final Type type = action.getType();
         Assertions.assertEquals(ActionTest.INSERT_TYPE, type.getName());
         Assertions.assertTrue(type.getChildDescriptors().isEmpty());
@@ -101,7 +101,7 @@ class ActionTest {
         Assertions.assertEquals(2, action.getChildCount());
         Assertions.assertEquals(before, action.getChild(0));
         Assertions.assertEquals(after, action.getChild(1));
-        Assertions.assertNull(action.getChild(2));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> action.getChild(2));
         final Type type = action.getType();
         Assertions.assertEquals(ActionTest.REPLACE_TYPE, type.getName());
         Assertions.assertTrue(type.getChildDescriptors().isEmpty());
@@ -134,7 +134,7 @@ class ActionTest {
         Assertions.assertEquals("", action.getData());
         Assertions.assertEquals(1, action.getChildCount());
         Assertions.assertEquals(deleted, action.getChild(0));
-        Assertions.assertNull(action.getChild(1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> action.getChild(1));
         final Type type = action.getType();
         Assertions.assertEquals(ActionTest.DELETE_TYPE, type.getName());
         Assertions.assertTrue(type.getChildDescriptors().isEmpty());
