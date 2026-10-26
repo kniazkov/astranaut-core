@@ -28,7 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -175,6 +178,7 @@ public final class ParallelOccurrenceWalker {
         } else {
             final List<T> values = new ArrayList<>(root.getNode().getChildCount());
             for (int index = 0; index < root.getNode().getChildCount(); index += 1) {
+                Interruption.check();
                 values.add(action.apply(root.getChild(index)));
             }
             result = List.copyOf(values);
@@ -189,11 +193,13 @@ public final class ParallelOccurrenceWalker {
      */
     private boolean shouldSplit(final NodeOccurrence root) {
         Objects.requireNonNull(root);
+        Interruption.check();
         boolean result = false;
         if (this.parallelism > 1 && root.getNode().getChildCount() > 1) {
             final int[] count = {0};
             result = new OccurrenceWalker(root).findFirst(
                 occurrence -> {
+                    Interruption.check();
                     count[0] += 1;
                     return count[0] >= this.threshold;
                 }
@@ -208,7 +214,8 @@ public final class ParallelOccurrenceWalker {
      * @param action Operation on each independent branch
      * @param <T> Branch result type
      * @return Ordered results
-     * @throws IllegalStateException If interrupted or a checked worker failure occurs
+     * @throws CancellationException If interrupted
+     * @throws IllegalStateException If a checked worker failure occurs
      */
     @SuppressWarnings("PMD.PreserveStackTrace")
     private <T> List<T> map(final NodeOccurrence root, final Function<NodeOccurrence, T> action) {
@@ -217,33 +224,37 @@ public final class ParallelOccurrenceWalker {
         final AtomicReferenceArray<T> results = new AtomicReferenceArray<>(count);
         final List<Future<?>> futures = new ArrayList<>(workers);
         final TaskGroup group = new TaskGroup();
+        final CompletionService<Boolean> completed = new ExecutorCompletionService<>(this.executor);
         try {
             for (int worker = 0; worker < workers; worker += 1) {
                 final int stripe = worker;
                 futures.add(
-                    this.executor.submit(
+                    completed.submit(
                         () -> {
                             if (group.enter()) {
                                 try {
-                                    for (int index = stripe; index < count
-                                        && !Thread.currentThread().isInterrupted();
-                                        index += workers) {
+                                    for (int index = stripe; index < count; index += workers) {
+                                        Interruption.check();
                                         results.set(index, action.apply(root.getChild(index)));
                                     }
                                 } finally {
                                     group.leave();
                                 }
                             }
+                            return true;
                         }
                     )
                 );
             }
-            for (final Future<?> future : futures) {
-                future.get();
+            for (int worker = 0; worker < workers; worker += 1) {
+                completed.take().get();
             }
         } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Occurrence operation interrupted", exception);
+            final CancellationException cancelled =
+                new CancellationException("Occurrence operation interrupted");
+            cancelled.initCause(exception);
+            throw cancelled;
         } catch (final ExecutionException exception) {
             throw ParallelOccurrenceWalker.propagate(exception.getCause());
         } finally {
