@@ -1,6 +1,13 @@
 {
-  "root": {
-    "type": "TestNode",
-    "data": "value"
-  }
+  "version": 1,
+  "kind": "tree",
+  "nodes": [
+    {
+      "kind": "node",
+      "type": "TestNode",
+      "data": "value",
+      "children": []
+    }
+  ],
+  "root": 0
 }

@@ -24,13 +24,14 @@
 package com.kniazkov.astranaut.core.base;
 
 import com.kniazkov.astranaut.core.algorithms.DepthFirstWalker;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -64,6 +65,11 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
     private final List<Node> children;
 
     /**
+     * Immutable occurrence tags.
+     */
+    private final List<Optional<String>> tags;
+
+    /**
      * Takes an immutable snapshot of a builder.
      * @param builder Builder to copy
      */
@@ -72,6 +78,7 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
         this.type = new TypeImpl(Objects.requireNonNull(builder.name));
         this.data = Objects.requireNonNull(builder.data);
         this.children = List.copyOf(builder.children);
+        this.tags = List.copyOf(builder.tags);
     }
 
     @Override
@@ -97,6 +104,21 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
     @Override
     public Node getChild(final int index) {
         return this.children.get(index);
+    }
+
+    @Override
+    public Optional<String> getChildTag(final int index) {
+        return this.tags.get(index);
+    }
+
+    @Override
+    public Optional<Node> getChild(final String tag) {
+        final int index = this.tags.indexOf(Optional.of(tag));
+        Optional<Node> result = Optional.empty();
+        if (index >= 0) {
+            result = Optional.of(this.children.get(index));
+        }
+        return result;
     }
 
     @Override
@@ -195,13 +217,19 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
         private final List<Node> children;
 
         /**
+         * Mutable occurrence tags aligned with children.
+         */
+        private final List<Optional<String>> tags;
+
+        /**
          * Constructor.
          */
         public Constructor() {
             this.fragment = EmptyFragment.INSTANCE;
             this.name = "";
             this.data = "";
-            this.children = new LinkedList<>();
+            this.children = new ArrayList<>(0);
+            this.tags = new ArrayList<>(0);
         }
 
         @Override
@@ -229,14 +257,52 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
          */
         public void addChild(final Node node) {
             this.children.add(Objects.requireNonNull(node));
+            this.tags.add(Optional.empty());
         }
 
         @Override
         public boolean setChildren(final List<Node> list) {
-            final List<Node> snapshot = List.copyOf(list);
-            this.children.clear();
-            this.children.addAll(snapshot);
+            return this.setChildren(list, Collections.nCopies(list.size(), Optional.empty()));
+        }
+
+        /**
+         * Replaces a complete occurrence layout atomically, including mixed named edges.
+         * @param nodes Children
+         * @param names Corresponding tags
+         * @return Whether lengths and unique tags are valid
+         */
+        public boolean setChildren(final List<Node> nodes, final List<Optional<String>> names) {
+            final List<Node> snapshot = List.copyOf(nodes);
+            final List<Optional<String>> layout = List.copyOf(names);
+            final long present = layout.stream().filter(Optional::isPresent).count();
+            final boolean valid = snapshot.size() == layout.size()
+                && layout.stream().flatMap(Optional::stream).distinct().count() == present;
+            if (valid) {
+                this.children.clear();
+                this.children.addAll(snapshot);
+                this.tags.clear();
+                this.tags.addAll(layout);
+            }
+            return valid;
+        }
+
+        @Override
+        public boolean setChild(final String tag, final Node child) {
+            Objects.requireNonNull(child);
+            final Optional<String> binding = Optional.of(tag);
+            final int index = this.tags.indexOf(binding);
+            if (index >= 0) {
+                this.children.set(index, child);
+            } else {
+                this.children.add(child);
+                this.tags.add(binding);
+            }
             return true;
+        }
+
+        @Override
+        public boolean removeChild(final String tag) {
+            return this.removeChild(this.tags.indexOf(Optional.of(tag)));
         }
 
         @Override
@@ -254,6 +320,7 @@ public final class DraftNode extends NodeWithStructuralEquality implements Node 
             final boolean result = index >= 0 && index < this.children.size();
             if (result) {
                 this.children.remove(index);
+                this.tags.remove(index);
             }
             return result;
         }

@@ -134,10 +134,11 @@ class BuilderContractTest {
         Assertions.assertTrue(builder.removeChild(1));
         Assertions.assertFalse(builder.setChild(1, first));
         Assertions.assertFalse(builder.removeChild(1));
-        Assertions.assertFalse(builder.setChild("unknown", first));
+        Assertions.assertTrue(builder.setChild("unknown", first));
+        Assertions.assertSame(first, builder.build().getChild("unknown").orElseThrow());
         Assertions.assertSame(first, old.getChild(0));
         Assertions.assertEquals(2, old.getChildCount());
-        Assertions.assertEquals(List.of(second), builder.build().getChildrenList());
+        Assertions.assertEquals(List.of(second, first), builder.build().getChildrenList());
     }
 
     @Test

@@ -29,17 +29,16 @@ Both inherit `Optional<Node>`.
 | `Transformer.transform(Tree)` | Empty result without invoking the Node callback |
 | `LabeledTreeBuilder` | Empty result |
 | Pattern matching / default patcher | No matches; input remains empty |
-| JSON serializer | Empty object `{}` without a root member |
-| JSON deserializer | Missing/null root yields an empty tree without requesting a factory |
+| JSON serializer | Versioned empty table with explicit `root: null` |
+| JSON deserializer | Explicit null root and empty table yield an empty tree without resolving types |
 | DOT / PNG / SVG | Empty graph, with no placeholder node |
 | `PatternBuilder`, `SubtreeBuilder` | Constructor rejects empty input with `IllegalArgumentException` |
 | `DiffTreeBuilder` / `build(Tree, DiffStrategy)` | Both empty states and root insertion/deletion are supported |
 
 A Node transformer returning null violates its contract and throws; it does not
 implicitly delete a tree. [Difference trees](differences.md) represent root insertion/deletion
-explicitly. The legacy deserializer's error/fallback policy is unchanged; invalid input
-may still become an empty tree or a DummyNode tree until #20 replaces that policy.
-An empty JSON object does not represent a DummyNode tree.
+explicitly. The [JSON reader](json.md) rejects malformed input with `TreeJsonException`.
+A missing root member or an empty JSON object is invalid; neither silently creates a tree.
 
 ## Immutability boundaries
 

@@ -124,11 +124,10 @@ for `node.getType().isSubtypeOf(type)`. Hierarchy queries and allocator type mat
 accept descriptors; the former string-based group query has been removed. Graph traversal uses sets of descriptors and their equals/hashCode contract.
 Names remain the identifiers in serialization and the basis of type equality.
 
-This stage does not claim that all legacy algorithms already implement the final
-architecture. The remaining immutable node-model migration in #11,
-immutable diff/pattern nodes, and tag-preserving transformations/JSON are subsequent
-steps. In particular, current serialization is not yet a tagged structural
-round-trip. Issues #11 and #26 remain open for their dependent integration checks.
+Immutable patterns and differences, occurrence-based transformations and
+[tag-preserving JSON round trips](json.md) now implement these contracts. Issues #11
+and #26 retain their remaining model and external-consumer integration checks;
+this does not claim that every legacy wrapper or the external generator is migrated.
 Structural equality and hashing with tags are implemented as described in
 [the structural equality guide](structural-equality.md).
 

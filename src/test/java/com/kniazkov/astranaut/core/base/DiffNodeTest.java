@@ -196,17 +196,7 @@ class DiffNodeTest {
         final String source = this.getFileContent(name);
         final JsonDeserializer deserializer = new JsonDeserializer(
             source,
-            new Provider() {
-                @Override
-                public Factory getFactory(final String language) {
-                    return GreenFactory.INSTANCE;
-                }
-
-                @Override
-                public Transformer getTransformer(final String language) {
-                    return node -> node;
-                }
-            }
+            type -> java.util.Optional.ofNullable(GreenFactory.INSTANCE.getType(type))
         );
         final Tree tree = deserializer.convert();
         final Node root = tree.getRoot().orElseThrow();

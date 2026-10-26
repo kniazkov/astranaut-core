@@ -89,8 +89,9 @@ provenance. Generic rebuilds preserve fragments through their builders.
 
 The representation can be traversed, compared, edited, diffed and serialized as
 ordinary nodes. Tests exercise `OccurrenceReplacer`, the existing top-down diff and
-JSON serialization. Edge data also preserves tags in the existing JSON serializer;
-the general JSON tag/unknown-type policy remains the separate work in issue #20.
+JSON serialization. Edge data retains normalized tags, while the
+[general JSON format](json.md) also stores ordinary occurrence tags explicitly and
+supports configurable unknown-type handling.
 Restoring normalization classes requires a factory registering their types, just as
 with other concrete node types.
 

@@ -109,5 +109,6 @@ expressions and call the transactional matcher, or explicitly use `fork()`/commi
 around speculative generated conditions. Existing generated direct `&&`/`||`
 mutations of one `Extracted` do not gain transactional semantics automatically.
 Whole-tree bottom-up application and ancestor rollback are implemented by the
-[common rule engine](rule-engine.md). Stabilization and JSON format migration remain
-separate issues (#18, #20).
+[common rule engine](rule-engine.md). Stabilization is described in
+[its guide](stabilization.md); [JSON version 1](json.md) preserves pattern scaffolds,
+operations and typed/untyped holes.

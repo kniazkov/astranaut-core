@@ -25,396 +25,146 @@ package com.kniazkov.astranaut.core.utils;
 
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DraftNode;
-import com.kniazkov.astranaut.core.base.DummyNode;
-import com.kniazkov.astranaut.core.base.EmptyTree;
-import com.kniazkov.astranaut.core.base.Factory;
-import com.kniazkov.astranaut.core.base.Fragment;
-import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.Provider;
-import com.kniazkov.astranaut.core.base.Transformer;
 import com.kniazkov.astranaut.core.base.Tree;
-import com.kniazkov.astranaut.core.base.Type;
 import com.kniazkov.astranaut.core.example.LittleTrees;
-import com.kniazkov.astranaut.core.example.green.Addition;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
 import com.kniazkov.astranaut.core.example.green.IntegerLiteral;
+import com.kniazkov.json.Json;
+import com.kniazkov.json.JsonObject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test for {@link JsonDeserializer} class.
+ * Strict wire parsing, concrete construction and explicit unknown-type policy.
  * @since 0.0.1
  */
-@SuppressWarnings("PMD.TooManyMethods")
 class JsonDeserializerTest {
-    /**
-     * The "Addition" type.
-     */
-    private static final String ADD = "Addition";
-
-    /**
-     * The "IntegerLiteral" type.
-     */
-    private static final String INT_LITERAL = "IntegerLiteral";
-
-    /**
-     * The folder with test resources.
-     */
-    private static final String TESTS_PATH = "src/test/resources/json/";
-
-    /**
-     * Small syntax tree description.
-     */
-    private static final String SMALL_TREE = "{ \"root\": { \"type\": \"Example\" } }";
-
-    /**
-     * Name of the file containing simple tree.
-     */
-    private static final String SIMPLE_TREE_NAME = "test_deserialization.json";
-
-    /**
-     * Provider for test purposes.
-     */
-    private static final Provider PROVIDER = new TestProvider() {
-        @Override
-        public Factory getFactory(final String language) {
-            return GreenFactory.INSTANCE;
-        }
-    };
-
     @Test
-    void deserializeJsonNull() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            "null",
-            JsonDeserializerTest.PROVIDER
+    void existingFixtureTreesRetainTheirStructures() throws Exception {
+        final List<String> files = List.of(
+            "tree_containing_insert_action.json", "tree_containing_insert_first_action.json",
+            "tree_containing_delete_action.json", "pattern_with_hole.json"
         );
-        Assertions.assertSame(EmptyTree.INSTANCE, deserializer.convert());
-    }
-
-    @Test
-    void deserializeMalformedJson() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            "~",
-            JsonDeserializerTest.PROVIDER
+        final List<Tree> expected = List.of(
+            LittleTrees.createTreeWithInsertAction(), LittleTrees.createTreeWithInsertFirstAction(),
+            LittleTrees.createTreeWithDeleteAction(), LittleTrees.createPatternWithHole()
         );
-        Assertions.assertSame(EmptyTree.INSTANCE, deserializer.convert());
-    }
-
-    @Test
-    void testDeserialization() {
-        final String source = this.getFileContent(JsonDeserializerTest.SIMPLE_TREE_NAME);
-        final Map<String, Type> types = new TreeMap<>();
-        types.put(JsonDeserializerTest.ADD, Addition.TYPE);
-        types.put(JsonDeserializerTest.INT_LITERAL, IntegerLiteral.TYPE);
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            source,
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree result = deserializer.convert();
-        final Node root = result.getRoot().orElseThrow();
-        Assertions.assertEquals(JsonDeserializerTest.ADD, root.getTypeName());
-        Assertions.assertEquals("", root.getData());
-        Assertions.assertEquals(2, root.getChildCount());
-        final Node first = root.getChild(0);
-        Assertions.assertEquals(JsonDeserializerTest.INT_LITERAL, first.getTypeName());
-        Assertions.assertEquals("2", first.getData());
-        Assertions.assertEquals(0, first.getChildCount());
-        final Node second = root.getChild(1);
-        Assertions.assertEquals(JsonDeserializerTest.INT_LITERAL, second.getTypeName());
-        Assertions.assertEquals("3", second.getData());
-        Assertions.assertEquals(0, second.getChildCount());
-    }
-
-    @Test
-    void loadIntoDraftNode() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            JsonDeserializerTest.SMALL_TREE,
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree tree = deserializer.convert();
-        Assertions.assertNotNull(tree);
-        Assertions.assertEquals("Example", tree.getRoot().orElseThrow().getTypeName());
-    }
-
-    @Test
-    void loadTreeWithInsertAction() {
-        final String source = this.getFileContent("tree_containing_insert_action.json");
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            source,
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree actual = deserializer.convert();
-        final Tree expected = LittleTrees.createTreeWithInsertAction();
-        Assertions.assertTrue(expected.deepCompare(actual));
-    }
-
-    @Test
-    void loadTreeWithInsertFirstAction() {
-        final String source = this.getFileContent("tree_containing_insert_first_action.json");
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            source,
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree actual = deserializer.convert();
-        final Tree expected = LittleTrees.createTreeWithInsertFirstAction();
-        Assertions.assertTrue(expected.deepCompare(actual));
-    }
-
-    @Test
-    void loadTreeWithDeleteAction() {
-        final String source = this.getFileContent("tree_containing_delete_action.json");
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            source,
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree actual = deserializer.convert();
-        final Tree expected = LittleTrees.createTreeWithDeleteAction();
-        Assertions.assertTrue(expected.deepCompare(actual));
-    }
-
-    @Test
-    void loadPatternWithHole() {
-        final String source = this.getFileContent("pattern_with_hole.json");
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            source,
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree actual = deserializer.convert();
-        final Tree expected = LittleTrees.createPatternWithHole();
-        Assertions.assertTrue(expected.deepCompare(actual));
-    }
-
-    @Test
-    void deserializeInvalidJson() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            ".[]test",
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(EmptyTree.INSTANCE, result);
-    }
-
-    @Test
-    void deserializeJsonWithWrongFormat() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            "null",
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(EmptyTree.INSTANCE, result);
-    }
-
-    @Test
-    void deserializeWithNullFactory() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            JsonDeserializerTest.SMALL_TREE,
-            new TestProvider() {
-                @Override
-                public Factory getFactory(final String language) {
-                    return null;
-                }
-            }
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(EmptyTree.INSTANCE, result);
-    }
-
-    @Test
-    void deserializeWithFactoryThatProducesNullBuilder() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            JsonDeserializerTest.SMALL_TREE,
-            new TestProvider() {
-                @Override
-                public Factory getFactory(final String language) {
-                    return new Factory() {
-                        @Override
-                        public Type getType(final String name) {
-                            return null;
-                        }
-
-                        @Override
-                        public Builder createBuilder(final String name) {
-                            return null;
-                        }
-                    };
-                }
-            }
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-    }
-
-    @Test
-    void deserializeWithFactoryThatProducesInvalidBuilder() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            JsonDeserializerTest.SMALL_TREE,
-            new TestProvider() {
-                @Override
-                public Factory getFactory(final String language) {
-                    return new Factory() {
-                        @Override
-                        public Type getType(final String name) {
-                            return null;
-                        }
-
-                        @Override
-                        public Builder createBuilder(final String name) {
-                            return new InvalidBuilder();
-                        }
-                    };
-                }
-            }
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-    }
-
-    @Test
-    void deserializeWithFactoryThatProducesBuilderDoesNotAcceptChildren() {
-        final String source = this.getFileContent(JsonDeserializerTest.SIMPLE_TREE_NAME);
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            source,
-            new TestProvider() {
-                @Override
-                public Factory getFactory(final String language) {
-                    return new Factory() {
-                        @Override
-                        public Type getType(final String name) {
-                            return null;
-                        }
-
-                        @Override
-                        public Builder createBuilder(final String name) {
-                            return new BuilderDoesNotAcceptChildren(name);
-                        }
-                    };
-                }
-            }
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-    }
-
-    @Test
-    void deserializeInvalidHoleWithoutNumber() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            "{ \"root\": { \"type\": \"Hole\", \"prototype\": { \"type\": \"Node\" } } }",
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-    }
-
-    @Test
-    void deserializeInvalidHoleWithoutPrototype() {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            "{ \"root\": { \"type\": \"Hole\", \"number\": 19 } } }",
-            JsonDeserializerTest.PROVIDER
-        );
-        final Tree result = deserializer.convert();
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-    }
-
-    /**
-     * Returns content of the specified file.
-     * @param name The name of the file
-     * @return The file content
-     */
-    private String getFileContent(final String name) {
-        final String file = JsonDeserializerTest.TESTS_PATH.concat(name);
-        final String source = Assertions.assertDoesNotThrow(() -> Files.readString(Path.of(file)));
-        Assertions.assertFalse(source.isEmpty());
-        return source;
-    }
-
-    /**
-     * Builder that doesn't accept children, for testing purposes.
-     * @since 0.0.1
-     */
-    private static final class BuilderDoesNotAcceptChildren implements Builder {
-        /**
-         * Type name of node to be created.
-         */
-        private final String name;
-
-        /**
-         * Constructor.
-         * @param name Type name of node to be created
-         */
-        private BuilderDoesNotAcceptChildren(final String name) {
-            this.name = name;
-        }
-
-        @Override
-        public void setFragment(final Fragment fragment) {
-            this.getClass();
-        }
-
-        @Override
-        public boolean setData(final String str) {
-            return true;
-        }
-
-        @Override
-        public boolean setChildren(final List<Node> list) {
-            return false;
-        }
-
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-
-        @Override
-        public Node build() {
-            return DraftNode.create(this.name);
+        for (int index = 0; index < files.size(); index += 1) {
+            final String source = Files.readString(
+                Path.of(
+                "src/test/resources/json", files.get(
+                index
+            )
+            )
+            );
+            final Tree restored = new JsonDeserializer(
+                source, name -> Optional.ofNullable(GreenFactory.INSTANCE.getType(name))
+            ).convert();
+            Assertions.assertTrue(expected.get(index).deepCompare(restored), files.get(index));
         }
     }
 
-    /**
-     * Invalid builder for test purposes.
-     * @since 0.0.1
-     */
-    private static final class InvalidBuilder implements Builder {
-        @Override
-        public void setFragment(final Fragment fragment) {
-            this.getClass();
-        }
+    @Test
+    void reconstructsConcreteNodesAndRejectsTheirInvalidData() throws Exception {
+        final Builder builder = IntegerLiteral.TYPE.createBuilder();
+        Assertions.assertTrue(builder.setData("123"));
+        final Tree original = new Tree(builder.build());
+        final String text = new JsonSerializer(original).serialize();
+        final TypeResolver resolver = name -> Optional.ofNullable(
+            GreenFactory.INSTANCE.getType(
+            name
+        )
+        );
+        final Tree restored = new JsonDeserializer(text, resolver, UnknownTypes.REJECT).convert();
+        Assertions.assertInstanceOf(IntegerLiteral.class, restored.getRoot().orElseThrow());
+        Assertions.assertTrue(original.deepCompare(restored));
+        final JsonObject document = Json.parse(text).objectValueOrThrow();
+        document.get("nodes").arrayValueOrThrow().getFirst().objectValueOrThrow()
+            .addString("data", "not an integer");
+        Assertions.assertThrows(
+            TreeJsonException.class,
+            () -> new JsonDeserializer(document.toString(), resolver).convert()
+        );
+    }
 
-        @Override
-        public boolean setData(final String str) {
-            return true;
-        }
+    @Test
+    void unknownTypesUseOnlyTheSelectedPolicy() {
+        final String text = new JsonSerializer(Tree.createDraft("Unknown")).serialize();
+        final TypeResolver absent = name -> Optional.empty();
+        Assertions.assertInstanceOf(
+            DraftNode.class,
+            new JsonDeserializer(text, absent).convert().getRoot().orElseThrow()
+        );
+        Assertions.assertThrows(
+            TreeJsonException.class,
+            () -> new JsonDeserializer(text, absent, UnknownTypes.REJECT).convert()
+        );
+        Assertions.assertThrows(
+            TreeJsonException.class,
+            () -> new JsonDeserializer(
+                text, absent,
+                (name, tags) -> DraftNode.create("Other").getType()
+            ).convert()
+        );
+    }
 
-        @Override
-        public boolean setChildren(final List<Node> list) {
-            return true;
-        }
-
-        @Override
-        public boolean isValid() {
-            return false;
-        }
-
-        @Override
-        public Node build() {
-            throw new UnsupportedOperationException();
+    @Test
+    void malformedDocumentsAreNotEmptyTrees() {
+        for (final String text : List.of("{}", "null", "[]", "~", "{", "{\"root\": {}}")) {
+            Assertions.assertThrows(
+                TreeJsonException.class,
+                () -> new JsonDeserializer(text, name -> Optional.empty()).convert(), text
+            );
         }
     }
 
-    /**
-     * Provider for test purposes.
-     * @since 0.0.1
-     */
-    private abstract static class TestProvider implements Provider {
-        @Override
-        public Transformer getTransformer(final String language) {
-            return node -> node;
+    @Test
+    void structuralFieldsAreRequiredAndNeverCoerced() throws Exception {
+        final String text = new JsonSerializer(Tree.createDraft("Root(A)")).serialize();
+        for (final String field : List.of("type", "kind", "data", "children")) {
+            final JsonObject document = Json.parse(text).objectValueOrThrow();
+            document.get(
+                "nodes"
+            ).arrayValueOrThrow().getFirst().objectValueOrThrow().remove(
+                field
+            );
+            Assertions.assertThrows(
+                TreeJsonException.class,
+                () -> new JsonDeserializer(
+                    document.toString(), name -> Optional.empty()
+                ).convert()
+            );
         }
+        for (final String index : List.of("-1", "0.5", "999999999999999999999999999999999", "0")) {
+            final JsonObject document = Json.parse(text).objectValueOrThrow();
+            final JsonObject leaf = document.get("nodes").arrayValueOrThrow().getFirst()
+                .objectValueOrThrow();
+            leaf.get(
+                "children"
+            ).arrayValueOrThrow().createObject().addElement(
+                "node", Json.parse(
+                index
+            )
+            );
+            Assertions.assertThrows(
+                TreeJsonException.class,
+                () -> new JsonDeserializer(
+                    document.toString(), name -> Optional.empty()
+                ).convert()
+            );
+        }
+    }
+
+    @Test
+    void limitsJsonNestingBeforeCallingTheRecursiveLibrary() {
+        final String text = "[".repeat(20_000).concat("0").concat("]".repeat(20_000));
+        Assertions.assertThrows(
+            TreeJsonException.class,
+            () -> new JsonDeserializer(text, name -> Optional.empty()).convert()
+        );
     }
 }

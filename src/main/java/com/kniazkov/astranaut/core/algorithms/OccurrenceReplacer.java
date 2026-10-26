@@ -25,6 +25,8 @@ package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ConstructionException;
+import com.kniazkov.astranaut.core.base.DraftNode;
+import com.kniazkov.astranaut.core.base.EmptyFragment;
 import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeOccurrence;
@@ -95,6 +97,17 @@ public final class OccurrenceReplacer {
     }
 
     /**
+     * Restores content without source provenance, including serialized occurrence tags.
+     * @param type Concrete output descriptor
+     * @param content Desired content
+     * @return Valid rebuilt node or refusal
+     */
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+    public static Optional<Node> rebuild(final Type type, final Content content) {
+        return OccurrenceReplacer.rebuild(new Source(type, EmptyFragment.INSTANCE), content);
+    }
+
+    /**
      * Restores an ancestor without accepting reordered or retagged children.
      * @param original Original ancestor
      * @param children Desired compact child sequence
@@ -155,6 +168,22 @@ public final class OccurrenceReplacer {
      * @return Whether the builder accepted the bindings
      */
     private static boolean bind(final Builder builder, final Content content) {
+        final boolean result;
+        if (builder instanceof DraftNode.Constructor draft) {
+            result = draft.setChildren(content.children(), content.tags());
+        } else {
+            result = OccurrenceReplacer.bindStandard(builder, content);
+        }
+        return result;
+    }
+
+    /**
+     * Binds generated or external builders without losing explicit named positions.
+     * @param builder Builder
+     * @param content Desired occurrence layout
+     * @return Whether accepted
+     */
+    private static boolean bindStandard(final Builder builder, final Content content) {
         final List<Node> children = content.children();
         boolean accepted = !children.isEmpty();
         for (int index = 0; accepted && index < children.size(); index += 1) {
@@ -163,6 +192,12 @@ public final class OccurrenceReplacer {
         }
         if (!accepted) {
             accepted = builder.setChildren(children);
+            for (int index = 0; accepted && index < children.size(); index += 1) {
+                final Optional<String> tag = content.tags().get(index);
+                if (tag.isPresent()) {
+                    accepted = builder.setChild(tag.orElseThrow(), children.get(index));
+                }
+            }
         }
         return accepted;
     }

@@ -188,12 +188,21 @@ public final class PatternNode extends NodeWithStructuralEquality
     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static PatternNode snapshot(final Node original, final List<Node> nodes,
         final List<Optional<String>> tags) {
-        if (nodes.size() != tags.size()
-            || tags.stream().flatMap(Optional::stream).distinct().count()
-                != tags.stream().filter(Optional::isPresent).count()) {
+        if (nodes.size() != tags.size()) {
             throw new IllegalArgumentException("Invalid scaffold occurrence tags");
         }
         return new PatternNode(original, new TypeImpl(original, tags), nodes);
+    }
+
+    /**
+     * Creates an independent scaffold descriptor without requiring a concrete prototype node.
+     * @param target Concrete output type
+     * @param tags Child occurrence layout
+     * @return Descriptor whose builder accepts pattern children
+     */
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+    public static Type descriptor(final Type target, final List<Optional<String>> tags) {
+        return new TypeImpl(target, tags);
     }
 
     /**
@@ -293,8 +302,17 @@ public final class PatternNode extends NodeWithStructuralEquality
          * @param tags Occurrence layout
          */
         private TypeImpl(final Node original, final List<Optional<String>> tags) {
-            this.original = PatternNode.targetType(original);
-            this.tags = List.copyOf(tags);
+            this(PatternNode.targetType(original), tags);
+        }
+
+        /**
+         * Captures a concrete descriptor and occurrence layout.
+         * @param original Target descriptor
+         * @param tags Occurrence tags
+         */
+        private TypeImpl(final Type original, final List<Optional<String>> tags) {
+            this.original = Objects.requireNonNull(original);
+            this.tags = TypeImpl.validTags(tags);
         }
 
         @Override
@@ -316,6 +334,22 @@ public final class PatternNode extends NodeWithStructuralEquality
         public Builder createBuilder() {
             return new Constructor(this);
         }
+
+        /**
+         * Validates immutable unique occurrence tags.
+         * @param tags Input tags
+         * @return Snapshot
+         * @throws IllegalArgumentException If tags repeat
+         */
+        private static List<Optional<String>> validTags(final List<Optional<String>> tags) {
+            final List<Optional<String>> result = List.copyOf(tags);
+            if (result.stream().flatMap(Optional::stream).distinct().count()
+                != result.stream().filter(Optional::isPresent).count()) {
+                throw new IllegalArgumentException("Duplicate scaffold tags");
+            }
+            return result;
+        }
+
     }
 
     /**

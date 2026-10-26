@@ -348,7 +348,7 @@ The **final generated piece** that ties everything together — a central regist
 ### **Why It’s Handy**  
 - **Single access point** – No hunting for factories/transformers.  
 - **Language-aware** – Swap implementations by name (e.g., `"java"` vs `"kotlin"`).  
-- **Required by some tools** – Like the built-in **JSON deserializer**.  
+- JSON reconstruction uses an explicit `TypeResolver`; it does not require a provider.
 
 ### **Key Details**  
 - **Minimal interface**: Just `getFactory()` and `getTransformer()`.  
@@ -507,65 +507,25 @@ Example:
 
 ![SIMPLE AST](src/main/documents/simple_ast.png)
 
-## **JsonSerializer & JsonDeserializer – JSON ↔ Tree Superpowers**  
+## JSON serialization
 
-**What they do:**  
-- **`JsonSerializer`**: Flattens your `Tree` into **human-readable JSON**.  
-- **`JsonDeserializer`**: Rebuilds a `Tree` from that JSON **(requires a `Provider`!)**.
+`JsonSerializer` writes a versioned node table with ordered, tagged edges. Its default
+mode writes structure; `Mode.EXTENDED` also includes readonly properties and source
+coordinates, without accessing source text. A flat table supports very deep ASTs.
 
-### **JSON Format**  
-```json  
-{
-  "root": {
-    "language": "java",       // Optional (for multi-language trees)
-    "type": "Root",           // Node type
-    "data": "optional_data",  // Only if node has data
-    "children": [             // Array of child nodes
-      {
-        "type": "IfStatement",
-        "children": [
-          {"type": "Condition", "data": "x > 0"},
-          {"type": "ThenBranch", "children": [...]}
-        ]
-      }
-    ]
-  }
-}
-```  
-
-### **JSON Example**
-```json
-{
-  "root": {
-    "language": "java",
-    "type": "Root",
-    "children": [
-      {
-        "type": "Addition",
-        "children": [
-          {
-            "type": "Addition",
-            "children": [
-              {
-                "type": "Identifier",
-                "data": "text"
-              },
-              {
-                "type": "IntegerLiteral",
-                "data": "123"
-              }
-            ]
-          },
-          {
-            "type": "IntegerLiteral",
-            "data": "456"
-          }
-        ]
-      }
-    ]
-  }
-}
+```java
+String json = new JsonSerializer(tree).serialize();
+TypeResolver resolver = name -> Optional.ofNullable(factory.getType(name));
+Tree restored = new JsonDeserializer(json, resolver).convert();
 ```
+
+Reading uses builders and ignores metadata. Unknown types become tagged `DraftNode`
+values by default; pass `UnknownTypes.REJECT` for strict type registration. Invalid JSON
+or refused construction throws `TreeJsonException`, never an empty/dummy fallback.
+
+The format supports empty trees, difference scaffolds, operations and both kinds of holes.
+It replaces the old unversioned nested JSON and the Provider-based reader API.
+See [the format, migration rules and examples](docs/json.md).
 
 # **Diff Trees And Their Friends - Patterns**  
 

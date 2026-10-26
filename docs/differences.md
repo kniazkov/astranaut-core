@@ -127,7 +127,7 @@ Tests cover 20,000-deep chains, wide trees with 20,000 shared occurrences, hash 
 root transitions, operation payloads, schema-free tagged adapters, snapshots, stale
 addresses, builder refusals and 300 generated graph pairs across pool sizes 1/2/4.
 `DiffBenchmark.java` provides a separate timing/heap probe; it does not enforce a speedup
-in CI. JSON's new structural format, including these scaffolds, remains the next task #20.
+in CI. The [version-one JSON format](json.md) preserves these scaffolds and operation payloads.
 
 
 ## Reproducible timing probe

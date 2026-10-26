@@ -1,12 +1,23 @@
 {
-  "root": {
-    "type": "Root",
-    "children": [
-      {
-        "type": "GandalfTheGrey",
-        "data": "Abracadabra"
-      }
-    ]
-  },
-  "language": "elven"
+  "version": 1,
+  "kind": "tree",
+  "nodes": [
+    {
+      "kind": "node",
+      "type": "GandalfTheGrey",
+      "data": "Abracadabra",
+      "children": []
+    },
+    {
+      "kind": "node",
+      "type": "Root",
+      "data": "",
+      "children": [
+        {
+          "node": 0
+        }
+      ]
+    }
+  ],
+  "root": 1
 }

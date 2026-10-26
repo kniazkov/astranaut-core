@@ -25,15 +25,10 @@ package com.kniazkov.astranaut.core.algorithms.mapping;
 
 import com.kniazkov.astranaut.core.algorithms.DiffStrategy;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
-import com.kniazkov.astranaut.core.base.DefaultFactory;
 import com.kniazkov.astranaut.core.base.DiffTree;
 import com.kniazkov.astranaut.core.base.DraftNode;
-import com.kniazkov.astranaut.core.base.Factory;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.Provider;
-import com.kniazkov.astranaut.core.base.Transformer;
 import com.kniazkov.astranaut.core.base.Tree;
-import com.kniazkov.astranaut.core.utils.JsonDeserializer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
@@ -354,21 +349,7 @@ class TopDownMapperTest {
      * @return Syntax tree
      */
     private Tree readSyntaxTreeFormFile(final String name) {
-        final JsonDeserializer deserializer = new JsonDeserializer(
-            this.getFileContent(name),
-            new Provider() {
-                @Override
-                public Factory getFactory(final String language) {
-                    return DefaultFactory.EMPTY;
-                }
-
-                @Override
-                public Transformer getTransformer(final String language) {
-                    return node -> node;
-                }
-            }
-        );
-        final Tree tree = deserializer.convert();
+        final Tree tree = LegacyParserFixture.read(this.getFileContent(name));
         Assertions.assertEquals("CompilationUnit", tree.getRoot().orElseThrow().getTypeName());
         return tree;
     }

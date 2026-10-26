@@ -1,61 +1,135 @@
 {
-  "root": {
-    "type": "StatementBlock",
-    "children": [
-      {
-        "type": "ExpressionStatement",
-        "children": [
-          {
-            "type": "SimpleAssignment",
-            "children": [
-              {
-                "type": "Variable",
-                "data": "x"
-              },
-              {
-                "type": "IntegerLiteral",
-                "data": "1"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "ExpressionStatement",
-        "children": [
-          {
-            "type": "SimpleAssignment",
-            "children": [
-              {
-                "type": "Variable",
-                "data": "y"
-              },
-              {
-                "type": "Replace",
-                "children": [
-                  {
-                    "type": "Variable",
-                    "data": "x"
-                  },
-                  {
-                    "type": "IntegerLiteral",
-                    "data": "33"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "Return",
-        "children": [
-          {
-            "type": "Variable",
-            "data": "x"
-          }
-        ]
-      }
-    ]
-  }
+  "version": 1,
+  "kind": "diff",
+  "nodes": [
+    {
+      "kind": "diff",
+      "type": "Variable",
+      "data": "x",
+      "children": []
+    },
+    {
+      "kind": "diff",
+      "type": "IntegerLiteral",
+      "data": "1",
+      "children": []
+    },
+    {
+      "kind": "diff",
+      "type": "SimpleAssignment",
+      "data": "",
+      "children": [
+        {
+          "node": 0,
+          "tag": "left"
+        },
+        {
+          "node": 1,
+          "tag": "right"
+        }
+      ]
+    },
+    {
+      "kind": "diff",
+      "type": "ExpressionStatement",
+      "data": "",
+      "children": [
+        {
+          "node": 2,
+          "tag": "expression"
+        }
+      ]
+    },
+    {
+      "kind": "diff",
+      "type": "Variable",
+      "data": "y",
+      "children": []
+    },
+    {
+      "kind": "node",
+      "type": "Variable",
+      "data": "x",
+      "children": []
+    },
+    {
+      "kind": "node",
+      "type": "IntegerLiteral",
+      "data": "33",
+      "children": []
+    },
+    {
+      "kind": "replace",
+      "type": "Replace",
+      "data": "",
+      "children": [
+        {
+          "node": 5
+        },
+        {
+          "node": 6
+        }
+      ]
+    },
+    {
+      "kind": "diff",
+      "type": "SimpleAssignment",
+      "data": "",
+      "children": [
+        {
+          "node": 4,
+          "tag": "left"
+        },
+        {
+          "node": 7,
+          "tag": "right"
+        }
+      ]
+    },
+    {
+      "kind": "diff",
+      "type": "ExpressionStatement",
+      "data": "",
+      "children": [
+        {
+          "node": 8,
+          "tag": "expression"
+        }
+      ]
+    },
+    {
+      "kind": "diff",
+      "type": "Variable",
+      "data": "x",
+      "children": []
+    },
+    {
+      "kind": "diff",
+      "type": "Return",
+      "data": "",
+      "children": [
+        {
+          "node": 10,
+          "tag": "expression"
+        }
+      ]
+    },
+    {
+      "kind": "diff",
+      "type": "StatementBlock",
+      "data": "",
+      "children": [
+        {
+          "node": 3
+        },
+        {
+          "node": 9
+        },
+        {
+          "node": 11
+        }
+      ]
+    }
+  ],
+  "root": 12
 }
