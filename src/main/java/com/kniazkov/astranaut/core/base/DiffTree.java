@@ -23,44 +23,42 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import com.kniazkov.astranaut.core.algorithms.DiffProjection;
+
 /**
- * Difference tree represents the difference between two syntax trees.
- * This tree structure contains both "regular" nodes and actions. An action is
- *  a special type of node that specifies the operations required to transform
- *  a subtree from the original syntax tree to the modified one.
- * Thus, a DifferentialTree encapsulates both the original tree and the modified
- *  tree, detailing the differences and the changes needed to transition from one
- *  to the other.
+ * Immutable difference tree with explicit empty, inserted, deleted or replaced roots.
+ * Ordinary payloads are opaque; actions are interpreted only in difference scaffolds.
  * @since 0.0.1
  */
 public final class DiffTree extends Tree {
     /**
-     * Non-empty difference root.
+     * Represents empty to empty.
      */
-    private final DiffNode difference;
-
-    /**
-     * Constructor.
-     * @param root Root node the difference tree
-     */
-    public DiffTree(final DiffNode root) {
-        super(root);
-        this.difference = root;
+    public DiffTree() {
+        super();
     }
 
     /**
-     * Returns the syntax tree before the changes were applied.
-     * @return The syntax tree before the changes
+     * Stores a difference root without changing it.
+     * @param root Root action, scaffold or unchanged ordinary node
+     */
+    public DiffTree(final Node root) {
+        super(root);
+    }
+
+    /**
+     * Restores the earlier structural state, failing explicitly on builder refusal.
+     * @return Earlier tree, possibly empty
      */
     public Tree getBefore() {
-        return new Tree(this.difference.getBefore());
+        return new DiffProjection(false).project(this);
     }
 
     /**
-     * Returns the syntax tree after the changes were applied.
-     * @return The syntax tree after the changes
+     * Restores the later structural state, failing explicitly on builder refusal.
+     * @return Later tree, possibly empty
      */
     public Tree getAfter() {
-        return new Tree(this.difference.getAfter());
+        return new DiffProjection(true).project(this);
     }
 }

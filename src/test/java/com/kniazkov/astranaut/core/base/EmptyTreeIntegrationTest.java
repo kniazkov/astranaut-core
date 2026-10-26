@@ -77,12 +77,16 @@ class EmptyTreeIntegrationTest {
     void rootBasedBuildersRejectEmptyInputExplicitly() {
         final Tree tree = new Tree();
         Assertions.assertThrows(IllegalArgumentException.class, () -> new PatternBuilder(tree));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DiffTreeBuilder(tree));
+        Assertions.assertTrue(
+            new DiffTreeBuilder(
+            tree
+        ).getDiffTree().getAfter().getRoot().isEmpty()
+        );
         Assertions.assertThrows(
             IllegalArgumentException.class, () -> new SubtreeBuilder(tree, SubtreeBuilder.INCLUDE)
         );
         final DiffTreeBuilder builder = new DiffTreeBuilder(Tree.createDraft("Root"));
-        Assertions.assertFalse(builder.build(tree, TopDownMapper.INSTANCE));
+        Assertions.assertTrue(builder.build(tree, TopDownMapper.INSTANCE));
         Assertions.assertTrue(
             builder.getDiffTree().getBefore().deepCompare(Tree.createDraft("Root"))
         );

@@ -112,22 +112,23 @@ public class ActionList {
      * Converts the tree to a difference tree using the list of actions.
      * @param tree Source tree
      * @return Difference tree
+     * @throws ConstructionException If any requested operation refuses
      */
     public DiffTree convertTreeToDiffTree(final Tree tree) {
         final DiffTreeBuilder builder = new DiffTreeBuilder(tree);
         if (this.insert != null) {
             for (final Insertion insertion : this.insert) {
-                builder.insertNode(insertion);
+                ActionList.requireAccepted(builder.insertNode(insertion));
             }
         }
         if (this.replace != null) {
             for (final Map.Entry<Node, Node> pair : this.replace.entrySet()) {
-                builder.replaceNode(pair.getKey(), pair.getValue());
+                ActionList.requireAccepted(builder.replaceNode(pair.getKey(), pair.getValue()));
             }
         }
         if (this.delete != null) {
             for (final Node node : this.delete) {
-                builder.deleteNode(node);
+                ActionList.requireAccepted(builder.deleteNode(node));
             }
         }
         return builder.getDiffTree();
@@ -154,4 +155,16 @@ public class ActionList {
             this.delete.addAll(other.delete);
         }
     }
+
+    /**
+     * Rejects a list containing any refused operation.
+     * @param accepted Operation result
+     * @throws ConstructionException If the operation refused
+     */
+    private static void requireAccepted(final boolean accepted) {
+        if (!accepted) {
+            throw new ConstructionException("Difference operation refused");
+        }
+    }
+
 }

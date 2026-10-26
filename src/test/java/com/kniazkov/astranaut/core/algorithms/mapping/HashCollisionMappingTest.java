@@ -23,10 +23,11 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
-import com.kniazkov.astranaut.core.algorithms.ExtNodeCreator;
 import com.kniazkov.astranaut.core.algorithms.IdenticalNodeFinder;
+import com.kniazkov.astranaut.core.base.DiffTree;
 import com.kniazkov.astranaut.core.base.DraftNode;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.Tree;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -40,26 +41,18 @@ class HashCollisionMappingTest {
         final Node left = DraftNode.create("Literal<\"Aa\">");
         final Node right = DraftNode.create("Literal<\"BB\">");
         Assertions.assertEquals(left.hashCode(), right.hashCode());
-        final Mapping mapping = TopDownMapper.INSTANCE.map(left, right);
-        Assertions.assertNull(mapping.getRight(left));
-        Assertions.assertNull(mapping.getLeft(right));
+        final DiffTree diff = TopDownMapper.INSTANCE.compare(new Tree(left), new Tree(right));
+        Assertions.assertEquals(left, diff.getBefore().getRoot().orElseThrow());
+        Assertions.assertEquals(right, diff.getAfter().getRoot().orElseThrow());
     }
 
     @Test
-    void pairFinderChecksActualStructureInBothModes() {
-        final ExtNodeCreator creator = new ExtNodeCreator();
-        final Section section = new Section(
-            creator.create(DraftNode.create("Root(Literal<\"Aa\">)")),
-            creator.create(DraftNode.create("Root(Literal<\"BB\">)"))
-        );
-        Assertions.assertEquals(
-            0, new NodePairFinder(section, NodePairFinder.ABSOLUTE_HASH)
-                .findMatchingSequence().getCount()
-        );
-        Assertions.assertEquals(
-            0, new NodePairFinder(section, NodePairFinder.LOCAL_HASH)
-                .findMatchingSequence().getCount()
-        );
+    void collidingNestedLiteralsAreReplaced() {
+        final Tree left = Tree.createDraft("Root(Literal<'Aa'>)");
+        final Tree right = Tree.createDraft("Root(Literal<'BB'>)");
+        final DiffTree diff = TopDownMapper.INSTANCE.compare(left, right);
+        Assertions.assertTrue(left.deepCompare(diff.getBefore()));
+        Assertions.assertTrue(right.deepCompare(diff.getAfter()));
     }
 
     @Test
@@ -79,9 +72,9 @@ class HashCollisionMappingTest {
     void mappingRetainsDistinctEqualSiblings() {
         final Node left = DraftNode.create("Root(Leaf,Leaf,Other)");
         final Node right = DraftNode.create("Root(Leaf,Leaf,Other)");
-        final Mapping mapping = TopDownMapper.INSTANCE.map(left, right);
-        Assertions.assertSame(right.getChild(0), mapping.getRight(left.getChild(0)));
-        Assertions.assertSame(right.getChild(1), mapping.getRight(left.getChild(1)));
-        Assertions.assertSame(left.getChild(1), mapping.getLeft(right.getChild(1)));
+        final DiffTree diff = TopDownMapper.INSTANCE.compare(new Tree(left), new Tree(right));
+        Assertions.assertEquals(3, diff.getAfter().getRoot().orElseThrow().getChildCount());
+        Assertions.assertTrue(new Tree(left).deepCompare(diff.getBefore()));
+        Assertions.assertTrue(new Tree(right).deepCompare(diff.getAfter()));
     }
 }

@@ -23,34 +23,30 @@
  */
 package com.kniazkov.astranaut.core.algorithms.mapping;
 
-import com.kniazkov.astranaut.core.algorithms.ExtNodeCreator;
-import com.kniazkov.astranaut.core.base.ExtNode;
-import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.algorithms.DiffStrategy;
+import com.kniazkov.astranaut.core.algorithms.PositionalDiff;
+import com.kniazkov.astranaut.core.base.DiffTree;
+import com.kniazkov.astranaut.core.base.Tree;
 
 /**
- * Top-down mapper.
- *  Compares root nodes first and then children in depth.
+ * Compatibility entry point for the ordered occurrence-based difference strategy.
+ * Node-identity Mapping tables have been replaced by DiffStrategy and immutable diff trees.
  * @since 0.0.1
  */
-public final class TopDownMapper implements Mapper {
+public final class TopDownMapper implements DiffStrategy {
     /**
-     * The instance.
+     * Default sequential strategy.
      */
-    public static final Mapper INSTANCE = new TopDownMapper();
+    public static final DiffStrategy INSTANCE = new TopDownMapper();
 
     /**
-     * Private constructor.
+     * Shared stateless facade.
      */
     private TopDownMapper() {
     }
 
     @Override
-    public Mapping map(final Node left, final Node right) {
-        final TopDownAlgorithm algorithm = new TopDownAlgorithm();
-        final ExtNodeCreator builder = new ExtNodeCreator();
-        final ExtNode first = builder.create(left);
-        final ExtNode second = builder.create(right);
-        algorithm.execute(first, second);
-        return new TopDownMapping(algorithm);
+    public DiffTree compare(final Tree before, final Tree after) {
+        return new PositionalDiff().compare(before, after);
     }
 }

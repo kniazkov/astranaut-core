@@ -16,9 +16,9 @@ Node required = populated.getRoot().orElseThrow();
 Unwrap with `orElseThrow()` only when the surrounding contract guarantees a root.
 General consumers should handle absence explicitly. `getRoot()` is final: a Tree
 subclass cannot replace the stored root or change the emptiness contract.
-`Pattern` and `DiffTree` still require a non-null root in their constructors;
-they inherit `Optional<Node>` rather than overriding it with incompatible
-`Optional<PatternNode>` or `Optional<DiffNode>` return types.
+`Pattern` requires a non-null root. `DiffTree()` supports empty-to-empty differences;
+its other constructor accepts a non-null ordinary, scaffold or operation root.
+Both inherit `Optional<Node>`.
 
 ## Empty-tree behavior
 
@@ -32,12 +32,12 @@ they inherit `Optional<Node>` rather than overriding it with incompatible
 | JSON serializer | Empty object `{}` without a root member |
 | JSON deserializer | Missing/null root yields an empty tree without requesting a factory |
 | DOT / PNG / SVG | Empty graph, with no placeholder node |
-| `PatternBuilder`, `DiffTreeBuilder`, `SubtreeBuilder` | Constructor rejects empty input with `IllegalArgumentException` |
-| `DiffTreeBuilder.build(Tree, Mapper)` | Empty target returns false without changing the builder |
+| `PatternBuilder`, `SubtreeBuilder` | Constructor rejects empty input with `IllegalArgumentException` |
+| `DiffTreeBuilder` / `build(Tree, DiffStrategy)` | Both empty states and root insertion/deletion are supported |
 
 A Node transformer returning null violates its contract and throws; it does not
-implicitly delete a tree. Root insertion/deletion in difference trees belongs to
-#19. The legacy deserializer's error/fallback policy is unchanged; invalid input
+implicitly delete a tree. [Difference trees](differences.md) represent root insertion/deletion
+explicitly. The legacy deserializer's error/fallback policy is unchanged; invalid input
 may still become an empty tree or a DummyNode tree until #20 replaces that policy.
 An empty JSON object does not represent a DummyNode tree.
 
@@ -57,6 +57,6 @@ been reused; the built children list cannot be modified through the Node API.
 Existing type/schema and wildcard-Optional getter tests continue to apply.
 
 This is the next implementation stage of #11, not completion of the entire issue.
-Legacy PatternNode/DiffNode mutations and lazy wrapper state still require their
-model migration, coordinated with #14, #16 and #19. The whole object graph must
+PatternNode and DiffNode now publish immutable snapshots. Other legacy lazy wrapper
+state still requires its model migration. The whole object graph must
 satisfy the immutable contract before general concurrent access is promised.
