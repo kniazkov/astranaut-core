@@ -1,15 +1,32 @@
 {
-  "root": {
-    "type": "Addition",
-    "children": [
-      {
-        "type": "IntegerLiteral",
-        "data": "2"
-      },
-      {
-        "type": "IntegerLiteral",
-        "data": "3"
-      }
-    ]
-  }
+  "version": 1,
+  "kind": "tree",
+  "nodes": [
+    {
+      "kind": "node",
+      "type": "IntegerLiteral",
+      "data": "2",
+      "children": []
+    },
+    {
+      "kind": "node",
+      "type": "IntegerLiteral",
+      "data": "3",
+      "children": []
+    },
+    {
+      "kind": "node",
+      "type": "Addition",
+      "data": "",
+      "children": [
+        {
+          "node": 0
+        },
+        {
+          "node": 1
+        }
+      ]
+    }
+  ],
+  "root": 2
 }

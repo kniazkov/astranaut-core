@@ -21,9 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.kniazkov.astranaut.core.utils;
+
+import com.kniazkov.astranaut.core.base.Type;
+import java.util.List;
+import java.util.Optional;
 
 /**
- * This package contains helper classes for the JSON deserializer.
+ * Explicit fallback for an unresolved node type or hole constraint.
  * @since 0.0.1
  */
-package com.kniazkov.astranaut.core.utils.deserializer;
+@FunctionalInterface
+public interface UnknownTypeHandler {
+    /**
+     * Supplies an independent descriptor preserving the requested name and child tags.
+     * A hole constraint supplies an empty layout.
+     * @param name Requested type
+     * @param tags Occurrence layout
+     * @return Descriptor for reconstruction
+     */
+    Type resolve(String name, List<Optional<String>> tags);
+}

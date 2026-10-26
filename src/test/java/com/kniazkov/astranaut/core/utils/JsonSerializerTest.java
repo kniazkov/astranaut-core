@@ -133,7 +133,7 @@ class JsonSerializerTest {
             oops = true;
         }
         Assertions.assertFalse(oops);
-        Assertions.assertEquals(expected, result);
+        Assertions.assertEquals(this.parse(expected), this.parse(result));
     }
 
     @Test
@@ -179,7 +179,17 @@ class JsonSerializerTest {
         } catch (final IOException exception) {
             oops = true;
         }
-        return !oops && expected.equals(result);
+        return !oops && this.parse(expected).equals(this.parse(result));
+    }
+
+    /**
+     * Parses a fixture without coupling assertions to object key order.
+     * @param source Text
+     * @return JSON value
+     * @checkstyle NonStaticMethodCheck (5 lines)
+     */
+    private com.kniazkov.json.JsonElement parse(final String source) {
+        return Assertions.assertDoesNotThrow(() -> com.kniazkov.json.Json.parse(source));
     }
 
     /**

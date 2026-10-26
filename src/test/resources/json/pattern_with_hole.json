@@ -1,28 +1,50 @@
 {
-  "root": {
-    "type": "Addition",
-    "children": [
-      {
-        "type": "Hole",
-        "number": 0,
-        "prototype": {
-          "type": "Variable",
-          "data": "w"
+  "version": 1,
+  "kind": "pattern",
+  "nodes": [
+    {
+      "kind": "hole",
+      "type": "AstranautTypedHole:Variable",
+      "data": "0",
+      "children": [],
+      "constraint": "Variable"
+    },
+    {
+      "kind": "node",
+      "type": "IntegerLiteral",
+      "data": "1",
+      "children": []
+    },
+    {
+      "kind": "node",
+      "type": "IntegerLiteral",
+      "data": "2",
+      "children": []
+    },
+    {
+      "kind": "replace",
+      "type": "Replace",
+      "data": "",
+      "children": [
+        {"node": 1},
+        {"node": 2}
+      ]
+    },
+    {
+      "kind": "pattern",
+      "type": "Addition",
+      "data": "",
+      "children": [
+        {
+          "node": 0,
+          "tag": "left"
+        },
+        {
+          "node": 3,
+          "tag": "right"
         }
-      },
-      {
-        "type": "Replace",
-        "children": [
-          {
-            "type": "IntegerLiteral",
-            "data": "1"
-          },
-          {
-            "type": "IntegerLiteral",
-            "data": "2"
-          }
-        ]
-      }
-    ]
-  }
+      ]
+    }
+  ],
+  "root": 4
 }

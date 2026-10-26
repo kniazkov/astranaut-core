@@ -42,19 +42,12 @@ class EmptyTreeIntegrationTest {
     @Test
     void emptyJsonNeedsNoFactory() {
         final String json = new JsonSerializer(new Tree()).serialize();
-        Assertions.assertEquals("{}", json.trim());
-        final Provider provider = new Provider() {
-            @Override
-            public Factory getFactory(final String language) {
-                throw new AssertionError("An empty tree needs no factory");
+        Assertions.assertTrue(json.contains("\"root\": null"));
+        final Tree restored = new JsonDeserializer(
+            json, name -> {
+                throw new AssertionError("An empty tree needs no resolver");
             }
-
-            @Override
-            public Transformer getTransformer(final String language) {
-                throw new AssertionError("An empty tree needs no transformer");
-            }
-        };
-        final Tree restored = new JsonDeserializer(json, provider).convert();
+        ).convert();
         Assertions.assertTrue(restored.getRoot().isEmpty());
     }
 

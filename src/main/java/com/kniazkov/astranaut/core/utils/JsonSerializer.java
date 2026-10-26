@@ -23,101 +23,75 @@
  */
 package com.kniazkov.astranaut.core.utils;
 
-import com.kniazkov.astranaut.core.base.Hole;
-import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.DiffTree;
+import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.Tree;
-import com.kniazkov.astranaut.core.base.Type;
+import com.kniazkov.astranaut.core.utils.json.NodeWriter;
 import com.kniazkov.json.JsonArray;
 import com.kniazkov.json.JsonObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
- * Converts a tree to a string that contains JSON object.
+ * Version-one flat node-table JSON. Structure mode is the default.
  * @since 0.0.1
  */
 public final class JsonSerializer {
     /**
-     * The 'root' string.
+     * Immutable input.
      */
-    private static final String STR_ROOT = "root";
+    private final Tree tree;
 
     /**
-     * The 'language' string.
+     * Selected metadata mode.
      */
-    private static final String STR_LANGUAGE = "language";
+    private final Mode mode;
 
     /**
-     * The 'type' string.
-     */
-    private static final String STR_TYPE = "type";
-
-    /**
-     * The 'prototype' string.
-     */
-    private static final String STR_PROTOTYPE = "prototype";
-
-    /**
-     * The 'data' string.
-     */
-    private static final String STR_DATA = "data";
-
-    /**
-     * The 'hole' string.
-     */
-    private static final String STR_HOLE = "Hole";
-
-    /**
-     * The 'number' string.
-     */
-    private static final String STR_NUMBER = "number";
-
-    /**
-     * The 'children' string.
-     */
-    private static final String STR_CHILDREN = "children";
-
-    /**
-     * The 'common' string.
-     */
-    private static final String STR_COMMON = "common";
-
-    /**
-     * The root node.
-     */
-    private final Optional<Node> root;
-
-    /**
-     * Programming language that defines a factory
-     * with which the inverse transformation will be performed.
-     */
-    private String language;
-
-    /**
-     * Constructor.
-     * @param tree The tree
+     * Selects structure-only output.
+     * @param tree Input
      */
     public JsonSerializer(final Tree tree) {
-        this.root = tree.getRoot();
-        this.language = "";
+        this(tree, Mode.STRUCTURE);
     }
 
     /**
-     * Converts the tree to a string that contains a JSON object.
-     * @return The tree represented as a string
+     * Selects either structural or extended output.
+     * @param tree Input
+     * @param mode Output mode
+     */
+    public JsonSerializer(final Tree tree, final Mode mode) {
+        this.tree = Objects.requireNonNull(tree);
+        this.mode = Objects.requireNonNull(mode);
+    }
+
+    /**
+     * Writes a dependency-ordered node table, including explicit empty-root state.
+     * @return JSON text
      */
     public String serialize() {
-        final JsonObject obj = new JsonObject();
-        this.root.ifPresent(
-            node -> this.convertNode(node, obj.createObject(JsonSerializer.STR_ROOT))
-        );
-        if (!this.language.isEmpty()) {
-            obj.addString(JsonSerializer.STR_LANGUAGE, this.language);
+        final JsonObject result = new JsonObject();
+        result.addNumber("version", 1);
+        String kind = "tree";
+        if (this.tree instanceof DiffTree) {
+            kind = "diff";
+        } else if (this.tree instanceof Pattern) {
+            kind = "pattern";
         }
-        return obj.toText("  ");
+        result.addString("kind", kind);
+        final JsonArray nodes = result.createArray("nodes");
+        if (this.tree.getRoot().isPresent()) {
+            result.addNumber(
+                "root", new NodeWriter(this.mode == Mode.EXTENDED)
+                .write(this.tree.getRoot().orElseThrow(), nodes)
+            );
+        } else {
+            result.addNull("root");
+        }
+        return result.toText("  ");
     }
 
     /**
@@ -143,58 +117,17 @@ public final class JsonSerializer {
     }
 
     /**
-     * Converts a node to a JSON object.
-     * @param node Node
-     * @param result Object to be filled with node data
+     * Structural content is always present; metadata never includes source text.
+     * @since 0.0.1
      */
-    private void convertNode(final Node node, final JsonObject result) {
-        if (node instanceof Hole) {
-            this.convertHole((Hole) node, result);
-        } else {
-            this.convertOrdinaryNode(node, result);
-        }
-    }
-
-    /**
-     * Converts an 'ordinary' node to a JSON object.
-     * @param node Node
-     * @param result Object to be filled with node data
-     */
-    private void convertOrdinaryNode(final Node node, final JsonObject result) {
-        final Type type = node.getType();
-        result.addString(JsonSerializer.STR_TYPE, type.getName());
-        final String data = node.getData();
-        if (!data.isEmpty()) {
-            result.addString(JsonSerializer.STR_DATA, data);
-        }
-        final int count = node.getChildCount();
-        if (count > 0) {
-            final JsonArray children = result.createArray(JsonSerializer.STR_CHILDREN);
-            for (int index = 0; index < count; index = index + 1) {
-                final JsonObject child = children.createObject();
-                this.convertNode(node.getChild(index), child);
-            }
-        }
-        if (this.language.isEmpty()) {
-            final String property = node.getProperties().getOrDefault(
-                JsonSerializer.STR_LANGUAGE,
-                ""
-            );
-            if (!JsonSerializer.STR_COMMON.equals(property)) {
-                this.language = property;
-            }
-        }
-    }
-
-    /**
-     * Converts a hole to a JSON object.
-     * @param hole Hole
-     * @param result Object to be filled with node data
-     */
-    private void convertHole(final Hole hole, final JsonObject result) {
-        result.addString(JsonSerializer.STR_TYPE, JsonSerializer.STR_HOLE);
-        result.addNumber(JsonSerializer.STR_NUMBER, hole.getNumber());
-        final JsonObject prototype = result.createObject(JsonSerializer.STR_PROTOTYPE);
-        this.convertOrdinaryNode(hole.getPrototype(), prototype);
+    public enum Mode {
+        /**
+         * Types, data, operation/hole parameters and ordered tagged edges.
+         */
+        STRUCTURE,
+        /**
+         * Additionally properties, direct base names and source coordinates/filenames.
+         */
+        EXTENDED
     }
 }
