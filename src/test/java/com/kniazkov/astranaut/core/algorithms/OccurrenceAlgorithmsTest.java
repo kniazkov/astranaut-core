@@ -172,7 +172,7 @@ class OccurrenceAlgorithmsTest {
     }
 
     @Test
-    void preservesFragmentsAndDataAndRejectsTagLoss() {
+    void preservesFragmentsDataAndDraftOccurrenceTags() {
         final Source source = (begin, end) -> "source";
         final DraftNode.Constructor builder = new DraftNode.Constructor();
         builder.setName("Parent");
@@ -203,11 +203,11 @@ class OccurrenceAlgorithmsTest {
         final Node tagged = new StructuralNodeFixture(
             parent, List.of(shared), List.of(Optional.of("tag"))
         );
-        Assertions.assertTrue(
-            new OccurrenceReplacer().replace(
-                new NodeOccurrence(tagged).getChild(0), replacement
-            ).isEmpty()
-        );
+        final Node rebound = new OccurrenceReplacer().replace(
+            new NodeOccurrence(tagged).getChild(0), replacement
+        ).orElseThrow();
+        Assertions.assertEquals(Optional.of("tag"), rebound.getChildTag(0));
+        Assertions.assertSame(replacement, rebound.getChild("tag").orElseThrow());
     }
 
     @Test
