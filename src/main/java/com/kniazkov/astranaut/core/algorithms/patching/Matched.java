@@ -25,6 +25,10 @@ package com.kniazkov.astranaut.core.algorithms.patching;
 
 import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.base.ActionList;
+import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeOccurrence;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Data obtained through the matching process.
@@ -35,6 +39,11 @@ final class Matched extends ActionList {
      * Data obtained as a result of hole matching.
      */
     private final Extracted holes = new Extracted();
+
+    /**
+     * Occurrence-scoped local commands.
+     */
+    private final OccurrencePatch patch = new OccurrencePatch();
 
     /**
      * Partially clones this object. The new instance will contain only information
@@ -53,17 +62,56 @@ final class Matched extends ActionList {
      */
     void merge(final Matched other) {
         super.merge(other);
+        this.patch.merge(other.patch);
         this.holes.replaceWith(other.holes);
     }
 
     /**
-     * Accumulates data in a slot; repeated numbers never impose equality.
+     * Accumulates captured nodes; repeated numbers never impose equality.
      * @param number Slot
-     * @param data Captured data
+     * @param node Captured node
      * @return Always true
      */
-    boolean checkHole(final int number, final String data) {
-        this.holes.addData(number, data);
+    boolean checkHole(final int number, final Node node) {
+        this.holes.addNode(number, node);
         return true;
+    }
+
+    /**
+     * Records replacement in both occurrence and legacy reporting forms.
+     * @param address Occurrence
+     * @param node Output
+     */
+    void replaceAt(final NodeOccurrence address, final Node node) {
+        this.replaceNode(address.getNode(), node);
+        this.patch.replace(address, List.of(node));
+    }
+
+    /**
+     * Records deletion of one occurrence.
+     * @param address Occurrence
+     */
+    void deleteAt(final NodeOccurrence address) {
+        this.deleteNode(address.getNode());
+        this.patch.replace(address, List.of());
+    }
+
+    /**
+     * Records an insertion boundary.
+     * @param parent Parent
+     * @param index Boundary
+     * @param node Output
+     */
+    void insertAt(final NodeOccurrence parent, final int index, final Node node) {
+        this.patch.insert(parent, index, node);
+    }
+
+    /**
+     * Builds the complete local edit atomically.
+     * @param root Candidate root
+     * @return Output or refusal
+     */
+    Optional<List<Node>> applyValidated(final Node root) {
+        return this.patch.apply(root, this.holes);
     }
 }

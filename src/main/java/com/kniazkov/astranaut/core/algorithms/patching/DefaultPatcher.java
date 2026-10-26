@@ -23,10 +23,10 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
-import com.kniazkov.astranaut.core.base.ActionList;
-import com.kniazkov.astranaut.core.base.DiffTree;
+import com.kniazkov.astranaut.core.algorithms.RuleEngine;
 import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.List;
 
 /**
  * Default algorithm that applies patches, i.e. makes some changes in the syntax tree
@@ -47,15 +47,6 @@ public final class DefaultPatcher implements Patcher {
 
     @Override
     public Tree patch(final Tree source, final Pattern pattern) {
-        final Matcher matcher = new Matcher(source);
-        final ActionList actions = matcher.match(pattern);
-        final Tree result;
-        if (actions.hasActions()) {
-            final DiffTree diff = actions.convertTreeToDiffTree(source);
-            result = diff.getAfter();
-        } else {
-            result = source;
-        }
-        return result;
+        return new RuleEngine(List.of(new PatternRule(pattern))).apply(source);
     }
 }
