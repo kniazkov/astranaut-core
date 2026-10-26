@@ -56,3 +56,40 @@ astranaut generator is unchanged. The shared reconstruction helper now serves
 occurrence edits, pattern/difference projection and [JSON reading](json.md). Draft
 builders also accept complete tagged layouts. Pattern/difference snapshots and
 [optional tree roots](optional-root.md) have been migrated in their respective stages.
+
+## Contract acceptance (#12 and #26)
+
+The common pair contract in `SharedBuilderContractTest` runs unchanged against two
+implementations: the generated-style `Addition` fixture (using `SchemaBuilder` and
+`NodeAllocator`) and `IndependentPair` (a hand-written schema-free adapter with its own
+insertion-ordered state). The latter does not delegate to core binding/allocation helpers.
+Both expose the same two required Expression positions, so the same assertions apply.
+This is a unit-level consumer fixture, not generated output or an external JAR test.
+
+Each rejected operation is tested on a fresh, reverse-filled builder. Tests compare the
+published node and child identities, then edit index zero to expose any hidden damage to
+insertion order. They also test incomplete construction, deletion and index shifts,
+repeated build, full replacement, mutable caller lists, and shared child occurrences.
+The same construction scripts run sequentially and in a four-thread pool with separate
+builders; output and expected refusals must agree. Factories used by that test are stateless.
+This does not authorize sharing arbitrary mutable builders or consumer factories.
+
+| Contract | Regression coverage |
+| --- | --- |
+| Named edits, insertion-order indexes, required deletions, atomic false, snapshots | `SharedBuilderContractTest`, `BuilderContractTest` |
+| Data validation and expected construction refusal | `BuilderContractTest` (Char and generated-style nodes) |
+| Reordered input, subtypes, required/optional/repeated cardinalities and ambiguity | `NodeAllocatorTest`, `AllocationOracleTest` |
+| Distinct but structurally equal input occurrences retain identity/order | `AllocationOracleTest` compares each allocated object with `assertSame` |
+| Repeated source object, immutable output, no partial writes, concurrent success/refusal | `AllocationSafetyTest` |
+| Typed, named and indexed getters; optional gaps; schema-free adapters; wildcard Optional | `NodeTagsTest`, `SharedBuilderContractTest` |
+| Tags survive reconstruction, edits, and both JSON modes | `DraftTagsTest`, occurrence/reconstruction and JSON suites |
+| Concurrent tag reads of shared children and views | `NodeTagsTest`, `ImmutableViewsTest` |
+
+The exhaustive allocation reference covers 259 schemas and 15 input sequences per schema
+(3,885 comparisons). It enumerates complete assignments independently of the production
+search and checks type, cardinality and ordering constraints. Structural equality alone
+cannot verify an allocation: equal-looking source nodes must keep their occurrence identity.
+
+These suites complete the in-repository Builder/allocation and named-child contracts.
+Task #24 remains responsible for a separate Maven consumer of the built JAR and, after
+migration of astranaut, a real DSL-to-generated-code integration test.

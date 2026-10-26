@@ -30,6 +30,7 @@ import com.kniazkov.astranaut.core.base.SimpleAbstractType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Assertions;
@@ -93,13 +94,25 @@ class AllocationSafetyTest {
         final NodeAllocator allocator = new NodeAllocator(
             ChildDescriptor.create().required(child.getType()).required(child.getType()).build()
         );
-        final List<Callable<List<List<Node>>>> tasks = new ArrayList<>(64);
+        final List<Callable<Optional<List<List<Node>>>>> tasks = new ArrayList<>(64);
         for (int index = 0; index < 64; index = index + 1) {
-            tasks.add(() -> allocator.allocate(List.of(child, child)).orElseThrow());
+            final List<Node> input;
+            if (index % 2 == 0) {
+                input = List.of(child, child);
+            } else {
+                input = List.of(child);
+            }
+            tasks.add(() -> allocator.allocate(input));
+        }
+        final List<Optional<List<List<Node>>>> sequential = new ArrayList<>(tasks.size());
+        for (final var task : tasks) {
+            sequential.add(task.call());
         }
         try (var executor = Executors.newFixedThreadPool(4)) {
-            for (final var future : executor.invokeAll(tasks)) {
-                Assertions.assertEquals(List.of(List.of(child), List.of(child)), future.get());
+            final var results = executor.invokeAll(tasks);
+            for (int index = 0; index < results.size(); index += 1) {
+                Assertions.assertEquals(sequential.get(index), results.get(index).get());
+                Assertions.assertEquals(index % 2 == 0, results.get(index).get().isPresent());
             }
         }
     }
