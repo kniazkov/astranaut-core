@@ -216,15 +216,23 @@ public final class ParallelOccurrenceWalker {
         final int workers = Math.min(this.parallelism, count);
         final AtomicReferenceArray<T> results = new AtomicReferenceArray<>(count);
         final List<Future<?>> futures = new ArrayList<>(workers);
+        final TaskGroup group = new TaskGroup();
         try {
             for (int worker = 0; worker < workers; worker += 1) {
                 final int stripe = worker;
                 futures.add(
                     this.executor.submit(
                         () -> {
-                            for (int index = stripe; index < count
-                                && !Thread.currentThread().isInterrupted(); index += workers) {
-                                results.set(index, action.apply(root.getChild(index)));
+                            if (group.enter()) {
+                                try {
+                                    for (int index = stripe; index < count
+                                        && !Thread.currentThread().isInterrupted();
+                                        index += workers) {
+                                        results.set(index, action.apply(root.getChild(index)));
+                                    }
+                                } finally {
+                                    group.leave();
+                                }
                             }
                         }
                     )
@@ -239,9 +247,11 @@ public final class ParallelOccurrenceWalker {
         } catch (final ExecutionException exception) {
             throw ParallelOccurrenceWalker.propagate(exception.getCause());
         } finally {
+            group.close();
             for (final Future<?> future : futures) {
                 future.cancel(true);
             }
+            group.await();
         }
         final List<T> ordered = new ArrayList<>(count);
         for (int index = 0; index < count; index += 1) {
@@ -265,5 +275,80 @@ public final class ParallelOccurrenceWalker {
             result = new IllegalStateException("Occurrence worker failed", cause);
         }
         return result;
+    }
+
+    /**
+     * Tracks running callbacks separately from Future cancellation. Closing the gate
+     * prevents queued callbacks from starting; await joins already running callbacks.
+     * Callbacks must cooperate with interruption to allow cancellation to complete.
+     * @since 0.0.1
+     */
+    private static final class TaskGroup {
+        /**
+         * Private lifecycle monitor.
+         */
+        private final Object monitor = new Object();
+
+        /**
+         * Running callbacks.
+         */
+        private int active;
+
+        /**
+         * Closed start gate.
+         */
+        private boolean closed;
+
+        /**
+         * Enters unless cancellation closed the gate.
+         * @return Whether the callback may run
+         */
+        private boolean enter() {
+            synchronized (this.monitor) {
+                final boolean accepted = !this.closed;
+                if (accepted) {
+                    this.active += 1;
+                }
+                return accepted;
+            }
+        }
+
+        /**
+         * Completes a running callback.
+         */
+        private void leave() {
+            synchronized (this.monitor) {
+                this.active -= 1;
+                this.monitor.notifyAll();
+            }
+        }
+
+        /**
+         * Prevents later starts before futures are cancelled.
+         */
+        private void close() {
+            synchronized (this.monitor) {
+                this.closed = true;
+            }
+        }
+
+        /**
+         * Waits for operation-owned callbacks, preserving caller interruption.
+         */
+        private void await() {
+            synchronized (this.monitor) {
+                boolean interrupted = false;
+                while (this.active > 0) {
+                    try {
+                        this.monitor.wait();
+                    } catch (final InterruptedException ignored) {
+                        interrupted = true;
+                    }
+                }
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 }
