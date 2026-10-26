@@ -3,8 +3,8 @@
 `RuleEngine` executes **one pass**. It is the shared coordinator for ordinary
 `RewriteRule` implementations, `TemplateRule`, generated `ConverterRule`, and mined
 `PatternRule`. `DefaultPatcher` delegates to this engine. `DefaultTransformer`
-also delegates, retaining its compatibility loop until structural stability.
-The reusable stabilization/cycle policy remains issue #18.
+also delegates, using `RuleStabilizer` for repeated passes and cycle diagnostics.
+See [stabilization and cancellation](stabilization.md).
 
 ```java
 RewriteRule rule = new TemplateRule(
