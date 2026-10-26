@@ -177,6 +177,26 @@ public final class PatternNode extends NodeWithStructuralEquality
     }
 
     /**
+     * Creates a shallow immutable scaffold with an explicit occurrence layout.
+     * Children may include operations; the target builder validates projected trees.
+     * @param original Target metadata
+     * @param nodes Children
+     * @param tags Occurrence tags
+     * @return Structural scaffold
+     * @throws IllegalArgumentException If the occurrence layout is inconsistent
+     */
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+    public static PatternNode snapshot(final Node original, final List<Node> nodes,
+        final List<Optional<String>> tags) {
+        if (nodes.size() != tags.size()
+            || tags.stream().flatMap(Optional::stream).distinct().count()
+                != tags.stream().filter(Optional::isPresent).count()) {
+            throw new IllegalArgumentException("Invalid scaffold occurrence tags");
+        }
+        return new PatternNode(original, new TypeImpl(original, tags), nodes);
+    }
+
+    /**
      * Converts one occurrence into a hole, retaining its parent tag.
      * @param index Child index
      * @param number Hole slot
@@ -261,9 +281,20 @@ public final class PatternNode extends NodeWithStructuralEquality
          * @param original Source node
          */
         private TypeImpl(final Node original) {
+            this(
+                original, java.util.stream.IntStream.range(0, original.getChildCount())
+                    .mapToObj(original::getChildTag).toList()
+            );
+        }
+
+        /**
+         * Captures an explicit layout without retaining child objects.
+         * @param original Target metadata
+         * @param tags Occurrence layout
+         */
+        private TypeImpl(final Node original, final List<Optional<String>> tags) {
             this.original = PatternNode.targetType(original);
-            this.tags = java.util.stream.IntStream.range(0, original.getChildCount())
-                .mapToObj(original::getChildTag).toList();
+            this.tags = List.copyOf(tags);
         }
 
         @Override

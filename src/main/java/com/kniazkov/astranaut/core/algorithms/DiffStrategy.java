@@ -21,20 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.kniazkov.astranaut.core.algorithms.mapping;
+package com.kniazkov.astranaut.core.algorithms;
 
-import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.DiffTree;
+import com.kniazkov.astranaut.core.base.Tree;
 
 /**
- * A mapper that builds correspondences between two trees.
+ * Interchangeable deterministic difference strategy. Minimality is not required.
+ * Both projections must structurally equal the supplied states, including tags.
  * @since 0.0.1
  */
-public interface Mapper {
+@FunctionalInterface
+public interface DiffStrategy {
     /**
-     * Builds a mapping between two syntax trees.
-     * @param left Root node of the 'left' tree
-     * @param right Root node of the 'right' tree
-     * @return Mapping instance
+     * Compares immutable trees, including empty states.
+     * @param before Earlier state
+     * @param after Later state
+     * @return Immutable reversible difference
      */
-    Mapping map(Node left, Node right);
+    DiffTree compare(Tree before, Tree after);
 }

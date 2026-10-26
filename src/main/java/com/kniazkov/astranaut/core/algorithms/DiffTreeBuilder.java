@@ -23,230 +23,307 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
-import com.kniazkov.astranaut.core.algorithms.mapping.Mapper;
-import com.kniazkov.astranaut.core.algorithms.mapping.Mapping;
-import com.kniazkov.astranaut.core.base.DiffNode;
+import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.DiffTree;
+import com.kniazkov.astranaut.core.base.EmptyTree;
 import com.kniazkov.astranaut.core.base.Insertion;
 import com.kniazkov.astranaut.core.base.Node;
-import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
+import com.kniazkov.astranaut.core.base.NodeOccurrence;
 import com.kniazkov.astranaut.core.base.Tree;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Builder of difference syntax tree, that is, one that stores changes between two trees.
+ * Mutable editor publishing immutable reversible snapshots. Occurrence edits address the
+ * current after-state; stale addresses refuse. Legacy object edits require a unique occurrence.
+ * Every edit validates all ancestors before publication; false leaves state unchanged.
+ * The overloads retain legacy object edits alongside explicit occurrence edits.
  * @since 0.0.1
  */
+@SuppressWarnings("PMD.TooManyMethods")
 public final class DiffTreeBuilder {
     /**
-     * Default node info (to avoid null checks).
+     * Original immutable tree.
      */
-    private static final NodeInfo DEFAULT_INFO = new NodeInfo(null, null);
+    private final Tree original;
 
     /**
-     * The relationship of the nodes to their parents and corresponding difference nodes.
-     * This information is necessary to implement algorithms for inserting, removing
-     * and replacing nodes.
+     * Identity bookkeeping for legacy object-based edits.
      */
-    private final Map<Node, NodeInfo> info;
+    private final LegacyDiffHandles handles;
 
     /**
-     * Root node.
+     * Current valid after-state.
      */
-    private final DiffNode root;
+    private Tree current;
 
     /**
-     * Constructor.
-     * @param before Root node of an 'ordinary', non-difference original tree before the changes
+     * Last published immutable difference.
+     */
+    private DiffTree difference;
+
+    /**
+     * Legacy insertion tails, preserving repeated insertion order at the same anchor.
+     */
+    private final Map<Node, Map<Node, Node>> tails;
+
+    /**
+     * Starts editing a nonempty tree.
+     * @param before Original root
      */
     public DiffTreeBuilder(final Node before) {
-        this.root = new DiffNode(before);
-        this.info = DiffTreeBuilder.buildNodeInfoMap(this.root);
+        this(new Tree(before));
     }
 
     /**
-     * Constructor.
-     * @param before Original 'ordinary', non-difference tree before the changes
-     * @throws IllegalArgumentException If the tree has no root
+     * Starts editing either root state.
+     * @param before Original tree
      */
     public DiffTreeBuilder(final Tree before) {
-        this(before.getRoot().orElseThrow(
-            () -> new IllegalArgumentException("This builder requires a non-empty tree")
-        ));
+        this.handles = new LegacyDiffHandles(Objects.requireNonNull(before));
+        this.current = this.handles.prepare(before);
+        this.original = this.current;
+        this.difference = new PositionalDiff().compare(this.current, this.current);
+        this.tails = new IdentityHashMap<>();
     }
 
     /**
-     * Builds a difference tree based on the original tree and the tree after changes.
-     * @param after Root node of tree after the changes
-     * @param mapper A mapper used for node mappings
-     * @return Result of operation, {@code true} if difference tree was built
+     * Computes and validates a strategy result before replacing builder state.
+     * @param after Target root
+     * @param strategy Difference strategy
+     * @return Whether both projections match their endpoints
      */
-    public boolean build(final Node after, final Mapper mapper) {
-        final Mapping mapping = mapper.map(this.root.getPrototype(), after);
-        boolean result = true;
-        for (final Insertion insertion : mapping.getInserted()) {
-            result = result & this.insertNode(insertion);
-        }
-        for (final Map.Entry<Node, Node> replaced : mapping.getReplaced().entrySet()) {
-            result = result & this.replaceNode(replaced.getKey(), replaced.getValue());
-        }
-        for (final Node deleted : mapping.getDeleted()) {
-            result = result & this.deleteNode(deleted);
-        }
-        return result;
+    public boolean build(final Node after, final DiffStrategy strategy) {
+        return this.build(new Tree(after), strategy);
     }
 
     /**
-     * Builds a difference tree based on the original tree and the tree after changes.
-     * @param after Syntax tree after the changes
-     * @param mapper A mapper used for node mappings
-     * @return Result of operation, {@code true} if difference tree was built
+     * Computes a reversible diff, including empty states. Unexpected failures propagate.
+     * @param after Target state
+     * @param strategy Difference strategy
+     * @return False on construction refusal or an incorrect strategy result
      */
-    public boolean build(final Tree after, final Mapper mapper) {
-        return after.getRoot().map(node -> this.build(node, mapper)).orElse(false);
+    public boolean build(final Tree after, final DiffStrategy strategy) {
+        Objects.requireNonNull(after);
+        boolean accepted = false;
+        try {
+            final DiffTree next = strategy.compare(this.original, after);
+            if (this.original.deepCompare(
+                next.getBefore()
+            ) && after.deepCompare(
+                next.getAfter()
+            )) {
+                this.current = after;
+                this.difference = next;
+                accepted = true;
+            }
+        } catch (final ConstructionException ignored) {
+            accepted = false;
+        }
+        return accepted;
     }
 
     /**
-     * Adds an action to the difference tree that inserts a node after another node.
-     *  If no other node is specified, inserts at the beginning of the children's list.
-     * @param insertion Full information about the node being inserted
-     * @return Result of operation, {@code true} if action was added
+     * Returns the current immutable state for obtaining occurrence addresses.
+     * @return Current after-state
      */
-    public boolean insertNode(final Insertion insertion) {
-        boolean result = false;
-        DiffNode parent = this.info.getOrDefault(
-            insertion.getInto(),
-            DiffTreeBuilder.DEFAULT_INFO
-        ).getDiff();
-        if (parent == null) {
-            parent = this.info.getOrDefault(
-                insertion.getAfter(),
-                DiffTreeBuilder.DEFAULT_INFO
-            ).getParent();
-        }
-        if (parent != null) {
-            result = parent.insertNodeAfter(insertion.getNode(), insertion.getAfter());
-        }
-        return result;
+    public Tree getCurrentTree() {
+        return this.current;
     }
 
     /**
-     * Adds an action to the difference tree that replaces a node.
-     * @param node Child element that will be replaced
-     * @param replacement Child element to be replaced by
-     * @return Result of operation, {@code true} if action was added
-     */
-    public boolean replaceNode(final Node node, final Node replacement) {
-        boolean result = false;
-        final DiffNode parent =
-            this.info.getOrDefault(node, DiffTreeBuilder.DEFAULT_INFO).getParent();
-        if (parent != null) {
-            result = parent.replaceNode(node, replacement);
-        }
-        return result;
-    }
-
-    /**
-     * Adds an action to the difference tree that removes a node.
-     * @param node The node to be removed
-     * @return Result of operation, {@code true} if action was added
-     */
-    public boolean deleteNode(final Node node) {
-        boolean result = false;
-        final DiffNode parent =
-            this.info.getOrDefault(node, DiffTreeBuilder.DEFAULT_INFO).getParent();
-        if (parent != null) {
-            result = parent.deleteNode(node);
-        }
-        return result;
-    }
-
-    /**
-     * Returns resulting difference tree.
+     * Returns a stable snapshot which later edits cannot change.
      * @return Difference tree
      */
     public DiffTree getDiffTree() {
-        return new DiffTree(this.root);
+        return this.difference;
     }
 
     /**
-     * Builds the map containing relationship of the nodes to their parents.
-     * @param root Root node
-     * @return The map containing relationship of the nodes to their parents.
+     * Replaces one current occurrence, including the root.
+     * @param address Current occurrence
+     * @param replacement New valid subtree
+     * @return Whether accepted
      */
-    private static Map<Node, NodeInfo> buildNodeInfoMap(final DiffNode root) {
-        final Map<Node, NodeInfo> map = new IdentityHashMap<>();
-        map.put(root.getPrototype(), new NodeInfo(root, null));
-        DiffTreeBuilder.buildNodeInfoMap(map, root);
-        return map;
-    }
-
-    /**
-     * Builds the map containing relationship of the nodes to their parents (recursive method).
-     * @param map Where to put the results
-     * @param parent Parent node
-     */
-    private static void buildNodeInfoMap(
-        final Map<Node, NodeInfo> map,
-        final DiffNode parent) {
-        parent.forEachChild(
-            child -> {
-                final DiffNode node = (DiffNode) child;
-                final NodeInfo obj = new NodeInfo(node, parent);
-                Node proto = node.getPrototype();
-                while (true) {
-                    map.put(proto, obj);
-                    if (proto instanceof PrototypeBasedNode) {
-                        proto = ((PrototypeBasedNode) proto).getPrototype();
-                    } else {
-                        break;
-                    }
-                }
-                DiffTreeBuilder.buildNodeInfoMap(map, node);
+    public boolean replaceNode(final NodeOccurrence address, final Node replacement) {
+        boolean accepted = false;
+        if (this.belongs(address)) {
+            final Optional<Node> root = new OccurrenceReplacer().replace(address, replacement);
+            if (root.isPresent()) {
+                accepted = this.commit(new Tree(root.orElseThrow()), address.getParent());
             }
+        }
+        return accepted;
+    }
+
+    /**
+     * Deletes one current occurrence, with deletion of the root yielding an empty tree.
+     * @param address Current occurrence
+     * @return Whether accepted by every ancestor
+     */
+    public boolean deleteNode(final NodeOccurrence address) {
+        boolean accepted = false;
+        if (this.belongs(address)) {
+            if (address.getParent().isEmpty()) {
+                accepted = this.commit(EmptyTree.INSTANCE, Optional.empty());
+            } else {
+                final NodeOccurrence parent = address.getParent().orElseThrow();
+                final List<Node> children = new ArrayList<>(parent.getNode().getChildrenList());
+                final List<Optional<String>> tags = DiffTreeBuilder.tags(parent.getNode());
+                children.remove(address.getIndex());
+                tags.remove(address.getIndex());
+                accepted = this.change(
+                    parent, new OccurrenceReplacer.Content(
+                    parent.getNode().getData(), children, tags
+                )
+                );
+            }
+        }
+        return accepted;
+    }
+
+    /**
+     * Inserts an untagged child at a current boundary, before index or at the end.
+     * Named layout changes can instead replace the whole parent with a valid new node.
+     * @param parent Current parent occurrence
+     * @param index Current child boundary
+     * @param node Inserted valid subtree
+     * @return Whether accepted
+     */
+    public boolean insertNode(final NodeOccurrence parent, final int index, final Node node) {
+        Objects.requireNonNull(node);
+        boolean accepted = false;
+        if (this.belongs(parent) && index >= 0 && index <= parent.getNode().getChildCount()) {
+            final List<Node> children = new ArrayList<>(parent.getNode().getChildrenList());
+            final List<Optional<String>> tags = DiffTreeBuilder.tags(parent.getNode());
+            children.add(index, node);
+            tags.add(index, Optional.empty());
+            accepted = this.change(
+                parent, new OccurrenceReplacer.Content(parent.getNode().getData(), children, tags)
+            );
+        }
+        return accepted;
+    }
+
+    /**
+     * Legacy object-based replacement; shared/ambiguous references refuse.
+     * @param node Unique source object
+     * @param replacement New subtree
+     * @return Whether accepted
+     */
+    public boolean replaceNode(final Node node, final Node replacement) {
+        return this.handles.find(
+            this.current, node
+        ).map(
+            address -> this.replaceNode(address, replacement)
+        ).orElse(
+            false
         );
     }
 
     /**
-     * Some additional information about each node needed to insert, replace, or delete nodes.
-     * @since 0.0.1
+     * Legacy object-based deletion; shared/ambiguous references refuse.
+     * @param node Unique source object
+     * @return Whether accepted
      */
-    private static final class NodeInfo {
-        /**
-         * The corresponding difference node.
-         */
-        private final DiffNode diff;
-
-        /**
-         * The parent node.
-         */
-        private final DiffNode parent;
-
-        /**
-         * Constructor.
-         * @param diff The corresponding difference node
-         * @param parent The parent node
-         */
-        NodeInfo(final DiffNode diff, final DiffNode parent) {
-            this.diff = diff;
-            this.parent = parent;
-        }
-
-        /**
-         * Returns corresponding difference node.
-         * @return Difference node
-         */
-        public DiffNode getDiff() {
-            return this.diff;
-        }
-
-        /**
-         * Returns parent node.
-         * @return Difference node containing this node
-         */
-        public DiffNode getParent() {
-            return this.parent;
-        }
+    public boolean deleteNode(final Node node) {
+        return this.handles.find(this.current, node).map(this::deleteNode).orElse(false);
     }
+
+    /**
+     * Legacy ordered insertion. Repeated calls at one anchor retain declaration order.
+     * @param insertion Insertion command
+     * @return Whether a unique valid target exists and accepts the child
+     */
+    public boolean insertNode(final Insertion insertion) {
+        final Map<Node, Node> anchors = this.tails.getOrDefault(
+            insertion.getInto(), new IdentityHashMap<>()
+        );
+        final Node after = anchors.getOrDefault(insertion.getAfter(), insertion.getAfter());
+        Optional<NodeOccurrence> parent = Optional.empty();
+        if (insertion.getInto() != null) {
+            parent = this.handles.find(this.current, insertion.getInto());
+        } else if (after != null) {
+            parent = this.handles.find(this.current, after).flatMap(NodeOccurrence::getParent);
+        }
+        boolean accepted = false;
+        if (parent.isPresent()) {
+            final NodeOccurrence address = parent.orElseThrow();
+            final int index = LegacyDiffHandles.boundary(address.getNode(), after);
+            if (index >= 0) {
+                accepted = this.insertNode(address, index, insertion.getNode());
+            }
+        }
+        if (accepted) {
+            this.tails.computeIfAbsent(insertion.getInto(), key -> new IdentityHashMap<>())
+                .put(insertion.getAfter(), insertion.getNode());
+        }
+        return accepted;
+    }
+
+    /**
+     * Applies one changed child sequence and validates all ancestors.
+     * @param parent Current parent
+     * @param content Desired children and tags
+     * @return Whether committed
+     */
+    private boolean change(final NodeOccurrence parent, final OccurrenceReplacer.Content content) {
+        final Optional<Node> changed = OccurrenceReplacer.rebuild(parent.getNode(), content);
+        boolean accepted = false;
+        if (changed.isPresent()) {
+            final Optional<Node> root = new OccurrenceReplacer().replace(
+                parent, changed.orElseThrow()
+            );
+            if (root.isPresent()) {
+                accepted = this.commit(new Tree(root.orElseThrow()), Optional.of(parent));
+            }
+        }
+        return accepted;
+    }
+
+    /**
+     * Commits valid endpoints and remembers rebuilt ancestor handles for legacy callers.
+     * @param next Candidate state
+     * @param parent Deepest rebuilt ancestor
+     * @return Whether the whole diff was accepted
+     */
+    private boolean commit(final Tree next, final Optional<NodeOccurrence> parent) {
+        final boolean accepted = this.build(next, new PositionalDiff());
+        if (accepted) {
+            this.handles.track(next, parent);
+        }
+        return accepted;
+    }
+
+    /**
+     * Rejects foreign or stale root identities.
+     * @param address Address
+     * @return Whether it belongs to the current snapshot
+     */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
+    private boolean belongs(final NodeOccurrence address) {
+        NodeOccurrence root = Objects.requireNonNull(address);
+        while (root.getParent().isPresent()) {
+            root = root.getParent().orElseThrow();
+        }
+        return this.current.getRoot().isPresent()
+            && root.getNode() == this.current.getRoot().orElseThrow();
+    }
+
+    /**
+     * Captures mutable working tags for one parent.
+     * @param node Parent
+     * @return Tags
+     */
+    private static List<Optional<String>> tags(final Node node) {
+        return new ArrayList<>(
+            java.util.stream.IntStream.range(0, node.getChildCount())
+            .mapToObj(node::getChildTag).toList()
+        );
+    }
+
 }

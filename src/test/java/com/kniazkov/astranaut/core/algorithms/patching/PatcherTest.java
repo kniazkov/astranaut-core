@@ -23,9 +23,9 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
+import com.kniazkov.astranaut.core.algorithms.DiffStrategy;
 import com.kniazkov.astranaut.core.algorithms.DiffTreeBuilder;
 import com.kniazkov.astranaut.core.algorithms.PatternBuilder;
-import com.kniazkov.astranaut.core.algorithms.mapping.Mapper;
 import com.kniazkov.astranaut.core.algorithms.mapping.TopDownMapper;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.DiffNode;
@@ -207,7 +207,7 @@ class PatcherTest {
     void mineAndPatchComplexCase() {
         final Node before = DraftNode.create("X(A,C(D(F(G(H)))))");
         final Node after = DraftNode.create("X(A,B,C(D(F(G(I)))))");
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();
@@ -229,7 +229,7 @@ class PatcherTest {
     void mineAndPatchThreeInsertions() {
         final Node before = DraftNode.create("X(D)");
         final Node after = DraftNode.create("X(A,B,C,D)");
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();
@@ -247,7 +247,7 @@ class PatcherTest {
     void mineAndPatchOneInsertionAndOneDeletion() {
         final Node before = DraftNode.create("X(Y,Z,D)");
         final Node after = DraftNode.create("X(Z,A,B,C,D)");
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();
@@ -263,7 +263,7 @@ class PatcherTest {
     void mineAndPatchInsertionToEmpty() {
         final Tree before = Tree.createDraft("X(Y())");
         final Tree after = Tree.createDraft("X(Y(Z))");
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder builder = new DiffTreeBuilder(before);
         builder.build(after, mapper);
         final DiffTree diff = builder.getDiffTree();
@@ -281,7 +281,7 @@ class PatcherTest {
         final Tree after = Tree.createDraft(
             "X(Y(A,E,A,D),Z(A,E,A,D),W(C,D),V(A,B),U())"
         );
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder builder = new DiffTreeBuilder(before);
         builder.build(after, mapper);
         final DiffTree diff = builder.getDiffTree();
@@ -299,7 +299,7 @@ class PatcherTest {
             nodes
         );
         final Tree after = Tree.createDraft("X(Y(A<'a'>,B,D),Z(A<'a'>,B))");
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();
@@ -324,7 +324,7 @@ class PatcherTest {
             nodes
         );
         final Tree after = Tree.createDraft("X(Y(A<'a'>,B,D),Z(A<'q'>,B))");
-        final Mapper mapper = TopDownMapper.INSTANCE;
+        final DiffStrategy mapper = TopDownMapper.INSTANCE;
         final DiffTreeBuilder diffbuilder = new DiffTreeBuilder(before);
         diffbuilder.build(after, mapper);
         final DiffTree diff = diffbuilder.getDiffTree();

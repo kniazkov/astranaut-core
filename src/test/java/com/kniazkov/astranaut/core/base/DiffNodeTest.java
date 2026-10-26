@@ -23,14 +23,10 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import com.kniazkov.astranaut.core.example.LittleTrees;
 import com.kniazkov.astranaut.core.example.green.GreenFactory;
 import com.kniazkov.astranaut.core.utils.JsonDeserializer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -88,7 +84,7 @@ class DiffNodeTest {
         Assertions.assertSame(diff.getFragment(), original.getFragment());
         Assertions.assertEquals(diff.getData(), original.getData());
         Assertions.assertEquals(diff.getChildCount(), original.getChildCount());
-        Assertions.assertThrows(UnsupportedOperationException.class, diff.getType()::createBuilder);
+        Assertions.assertNotNull(diff.getType().createBuilder());
     }
 
     @Test
@@ -153,57 +149,6 @@ class DiffNodeTest {
     }
 
     @Test
-    void testInsertNodeFirst() {
-        final Node first = LittleTrees.createReturnStatement(null);
-        final Node second = LittleTrees.wrapExpressionWithStatement(
-            LittleTrees.createAssignment(
-                LittleTrees.createVariable("x"),
-                LittleTrees.createIntegerLiteral(0)
-            )
-        );
-        final Node before = LittleTrees.createStatementBlock(first);
-        final Node after = LittleTrees.createStatementBlock(second, first);
-        final DiffNode diff = new DiffNode(before);
-        final boolean result = diff.insertNodeAfter(second, null);
-        Assertions.assertTrue(result);
-        Assertions.assertTrue(before.deepCompare(diff.getBefore()));
-        Assertions.assertTrue(after.deepCompare(diff.getAfter()));
-    }
-
-    @Test
-    void insertAndDelete() {
-        final Map<String, Set<Node>> nodes = new TreeMap<>();
-        final DiffNode diff = new DiffNode(DraftNode.create("A(B,C,D)", nodes));
-        Assertions.assertTrue(diff.deleteNode(nodes.get("B").iterator().next()));
-        Assertions.assertTrue(
-            diff.insertNodeAfter(DraftNode.create("E"), nodes.get("C").iterator().next())
-        );
-        Assertions.assertEquals("A(C, E, D)", diff.getAfter().toString());
-    }
-
-    @Test
-    void testInsertNodeFails() {
-        final DiffNode diff = new DiffNode(
-            LittleTrees.createStatementBlock(
-                LittleTrees.createReturnStatement(null)
-            )
-        );
-        final boolean result = diff.insertNodeAfter(
-            LittleTrees.createVariable("x"),
-            LittleTrees.createVariable("y")
-        );
-        Assertions.assertFalse(result);
-    }
-
-    @Test
-    void testParentReference() {
-        final DiffNode root = new DiffNode(DraftNode.create("A(B,C)"));
-        final Node child = root.getChild(0);
-        Assertions.assertTrue(child instanceof DiffNode);
-        Assertions.assertSame(((DiffNode) child).getParent(), root);
-    }
-
-    @Test
     void testDiffNodeAsString() {
         final String description = "X(Y, Z)";
         final DiffNode root = new DiffNode(DraftNode.create(description));
@@ -212,52 +157,22 @@ class DiffNodeTest {
 
     @Test
     void getBranchFromBadNode() {
-        Assertions.assertSame(
-            DummyNode.INSTANCE,
-            new DiffNode(new TestNode(TestBuilderCase.NULL_BUILDER)).getBefore()
+        Assertions.assertThrows(
+            NullPointerException.class,
+            () -> new DiffNode(new TestNode(TestBuilderCase.NULL_BUILDER)).getBefore()
         );
-        Assertions.assertSame(
-            DummyNode.INSTANCE,
-            new DiffNode(new TestNode(TestBuilderCase.BAD_DATA)).getBefore()
+        Assertions.assertThrows(
+            ConstructionException.class,
+            () -> new DiffNode(new TestNode(TestBuilderCase.BAD_DATA)).getBefore()
         );
-        Assertions.assertSame(
-            DummyNode.INSTANCE,
-            new DiffNode(new TestNode(TestBuilderCase.BAD_CHILDREN)).getBefore()
+        Assertions.assertThrows(
+            ConstructionException.class,
+            () -> new DiffNode(new TestNode(TestBuilderCase.BAD_CHILDREN)).getBefore()
         );
-        Assertions.assertSame(
-            DummyNode.INSTANCE,
-            new DiffNode(new TestNode(TestBuilderCase.INVALID_BUILDER)).getBefore()
+        Assertions.assertThrows(
+            ConstructionException.class,
+            () -> new DiffNode(new TestNode(TestBuilderCase.INVALID_BUILDER)).getBefore()
         );
-    }
-
-    @Test
-    void replaceNonExistingNode() {
-        final DiffNode diff = new DiffNode(DraftNode.create("X"));
-        Assertions.assertFalse(diff.replaceNode(-1, DummyNode.INSTANCE));
-        Assertions.assertFalse(diff.replaceNode(1, DummyNode.INSTANCE));
-        Assertions.assertFalse(diff.replaceNode(DummyNode.INSTANCE, DummyNode.INSTANCE));
-    }
-
-    @Test
-    void replaceAlreadyReplacedNode() {
-        final DiffNode diff = new DiffNode(DraftNode.create("X(A)"));
-        Assertions.assertTrue(diff.replaceNode(0, DraftNode.create("B")));
-        Assertions.assertFalse(diff.replaceNode(0, DraftNode.create("C")));
-    }
-
-    @Test
-    void deleteNonExistingNode() {
-        final DiffNode diff = new DiffNode(DraftNode.create("X"));
-        Assertions.assertFalse(diff.deleteNode(-1));
-        Assertions.assertFalse(diff.deleteNode(1));
-        Assertions.assertFalse(diff.deleteNode(DummyNode.INSTANCE));
-    }
-
-    @Test
-    void deleteAlreadyDeletedNode() {
-        final DiffNode diff = new DiffNode(DraftNode.create("X(A)"));
-        Assertions.assertTrue(diff.deleteNode(0));
-        Assertions.assertFalse(diff.deleteNode(0));
     }
 
     /**

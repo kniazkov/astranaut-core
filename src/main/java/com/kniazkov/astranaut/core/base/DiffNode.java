@@ -23,337 +23,109 @@
  */
 package com.kniazkov.astranaut.core.base;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import com.kniazkov.astranaut.core.algorithms.DiffProjection;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * Node containing child nodes, as well as actions on these nodes.
+ * Immutable difference scaffold. Editing belongs to DiffTreeBuilder, never to nodes.
+ * The shared pattern builder also allows ordinary tree algorithms to rebuild scaffolds.
  * @since 0.0.1
  */
-@SuppressWarnings("PMD.GodClass")
 public final class DiffNode extends NodeWithStructuralEquality
     implements DiffTreeItem, PrototypeBasedNode {
     /**
-     * Independent type descriptor.
+     * Immutable target metadata and operation children.
      */
-    private final Type type;
+    private final PatternNode content;
 
     /**
-     * The parent node with action.
+     * Wraps an existing tree iteratively.
+     * @param original Source tree
      */
-    private final DiffNode parent;
-
-    /**
-     * The prototype node, i.e. 'ordinary', non-difference original node before the changes.
-     */
-    private final Node prototype;
-
-    /**
-     * The list of children with actions.
-      */
-    private final List<DiffTreeItem> children;
-
-    /**
-     * Constructor.
-     * @param parent The parent convertible node
-     * @param prototype The prototype node
-     */
-    private DiffNode(final DiffNode parent, final Node prototype) {
-        this.parent = parent;
-        this.prototype = prototype;
-        this.type = new TypeImpl(prototype.getType());
-        this.children = this.initChildrenList();
+    public DiffNode(final Node original) {
+        this(new PatternNode(original));
     }
 
     /**
-     * Constructor.
-     * @param prototype The prototype node.
+     * Creates an immutable explicit scaffold.
+     * @param content Pattern-compatible content
      */
-    public DiffNode(final Node prototype) {
-        this(null, prototype);
-    }
-
-    /**
-     * Returns the parent node.
-     * @return The parent node
-     */
-    public DiffNode getParent() {
-        return this.parent;
+    public DiffNode(final PatternNode content) {
+        this.content = java.util.Objects.requireNonNull(content);
     }
 
     @Override
     public Type getType() {
-        return this.type;
+        return this.content.getType();
+    }
+
+    /**
+     * Returns the descriptor used to reconstruct ordinary states.
+     * @return Target descriptor
+     */
+    public Type getTargetType() {
+        return this.content.getTargetType();
     }
 
     @Override
     public Node getPrototype() {
-        return this.prototype;
+        return this.content.getPrototype();
     }
 
     @Override
     public Fragment getFragment() {
-        return this.prototype.getFragment();
+        return this.content.getFragment();
     }
 
     @Override
     public String getData() {
-        return this.prototype.getData();
+        return this.content.getData();
     }
 
     @Override
     public int getChildCount() {
-        return this.children.size();
+        return this.content.getChildCount();
     }
 
     @Override
     public Node getChild(final int index) {
-        return this.children.get(index);
+        return this.content.getChild(index);
+    }
+
+    @Override
+    public Optional<Node> getChild(final String tag) {
+        return this.content.getChild(tag);
+    }
+
+    @Override
+    public Optional<String> getChildTag(final int index) {
+        return this.content.getChildTag(index);
+    }
+
+    @Override
+    public List<Node> getChildrenList() {
+        return this.content.getChildrenList();
     }
 
     @Override
     public Map<String, String> getProperties() {
-        return this.prototype.getProperties();
+        return this.content.getProperties();
     }
 
     @Override
     public Node getBefore() {
-        return this.getBranch(DiffTreeItem::getBefore);
+        return new DiffProjection(false).project(new Tree(this)).getRoot().orElseThrow();
     }
 
     @Override
     public Node getAfter() {
-        return this.getBranch(DiffTreeItem::getAfter);
+        return new DiffProjection(true).project(new Tree(this)).getRoot().orElseThrow();
     }
 
     @Override
     public String toString() {
         return Node.toString(this);
-    }
-
-    /**
-     * Adds an action that inserts the node after another node.
-     *  If no other node is specified, inserts at the beginning of the children's list.
-     * @param node Node to be inserted
-     * @param after Node after which to insert
-     * @return Result of operation, @return {@code true} if action was added
-     */
-    @SuppressWarnings("PMD.CompareObjectsWithEquals")
-    public boolean insertNodeAfter(final Node node, final Node after) {
-        boolean result = false;
-        if (after == null) {
-            this.children.add(0, new Insert(node));
-            result = true;
-        } else {
-            final ListIterator<DiffTreeItem> iterator = this.children.listIterator();
-            while (iterator.hasNext()) {
-                final Node child = iterator.next();
-                if (child instanceof DiffNode && ((DiffNode) child).getPrototype() == after
-                    || child instanceof Insert && ((Insert) child).getAfter() == after) {
-                    iterator.add(new Insert(node));
-                    result = true;
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Adds an action that replaces a node.
-     *  The position of the node is specified by the index.
-     * @param index Node index
-     * @param replacement Child node to be replaced by
-     * @return Result of operation, @return {@code true} if action was added
-     */
-    public boolean replaceNode(final int index, final Node replacement) {
-        boolean result = false;
-        if (index >= 0 && index < this.children.size()) {
-            final DiffTreeItem child = this.children.get(index);
-            if (child instanceof DiffNode) {
-                this.children.set(
-                    index,
-                    new Replace(
-                        ((DiffNode) child).getPrototype(),
-                        replacement
-                    )
-                );
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Adds an action that replaces a node.
-     * @param node A node
-     * @param replacement Child node to be replaced by
-     * @return Result of operation, @return {@code true} if action was added
-     */
-    public boolean replaceNode(final Node node, final Node replacement) {
-        boolean result = false;
-        final int index = this.findChildIndex(node);
-        if (index >= 0) {
-            result = this.replaceNode(index, replacement);
-        }
-        return result;
-    }
-
-    /**
-     * Adds an action that removes a node by index.
-     * @param index Node index
-     * @return Result of operation, @return {@code true} if action was added
-     */
-    public boolean deleteNode(final int index) {
-        boolean result = false;
-        if (index >= 0 && index < this.children.size()) {
-            final DiffTreeItem child = this.children.get(index);
-            if (child instanceof DiffNode) {
-                this.children.set(index, new Delete(((DiffNode) child).getPrototype()));
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Adds an action that removes a node.
-     * @param node A node
-     * @return Result of operation, @return {@code true} if action was added
-     */
-    public boolean deleteNode(final Node node) {
-        boolean result = false;
-        final int index = this.findChildIndex(node);
-        if (index >= 0) {
-            result = this.deleteNode(index);
-        }
-        return result;
-    }
-
-    /**
-     * Transforms children nodes to difference ones.
-     * @return List of difference nodes
-     */
-    private List<DiffTreeItem> initChildrenList() {
-        final int count = this.prototype.getChildCount();
-        final List<DiffTreeItem> result = new LinkedList<>();
-        for (int index = 0; index < count; index = index + 1) {
-            result.add(
-                new DiffNode(this, this.prototype.getChild(index))
-            );
-        }
-        return result;
-    }
-
-    /**
-     * Searches the index of a child element by its prototype.
-     * @param node Prototype of the node whose index is to be found
-     * @return Index or -1 if there is no such node or it has already been deleted or replaced
-     */
-    @SuppressWarnings("PMD.CompareObjectsWithEquals")
-    private int findChildIndex(final Node node) {
-        int result = -1;
-        final int count = this.children.size();
-        for (int index = 0; result < 0 && index < count; index = index + 1) {
-            final DiffTreeItem child = this.children.get(index);
-            if (child instanceof DiffNode) {
-                Node proto = ((DiffNode) child).getPrototype();
-                while (true) {
-                    if (node == proto) {
-                        result = index;
-                        break;
-                    } else if (proto instanceof PrototypeBasedNode) {
-                        proto = ((PrototypeBasedNode) proto).getPrototype();
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Returns a branch: before or after the changes.
-     * @param selector Branch selector
-     * @return This node, before of after changes
-     */
-    private Node getBranch(final BranchSelector selector) {
-        Node result = DummyNode.INSTANCE;
-        final Builder builder = this.prototype.getType().createBuilder();
-        do {
-            if (builder == null) {
-                break;
-            }
-            builder.setFragment(this.getFragment());
-            if (!builder.setData(this.getData())) {
-                break;
-            }
-            final List<Node> list = new ArrayList<>(this.children.size());
-            for (final DiffTreeItem child : this.children) {
-                final Node branch = selector.select(child);
-                if (branch != null) {
-                    list.add(branch);
-                }
-            }
-            if (!builder.setChildren(list)) {
-                break;
-            }
-            if (!builder.isValid()) {
-                break;
-            }
-            result = builder.build();
-        } while (false);
-        return result;
-    }
-
-    /**
-     * Selector that selects some branch from a difference tree item: before or after the changes.
-     * @since 0.0.1
-     */
-    private interface BranchSelector {
-        /**
-         * Selects a branch from difference tree item.
-         * @param item An item
-         * @return Branch (node before or after changes)
-         */
-        Node select(DiffTreeItem item);
-    }
-
-    /**
-     * Type descriptor independent of node instances.
-     * @since 0.0.1
-     */
-    private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
-        /**
-         * Immutable type definition.
-         */
-        private final Type original;
-
-        /**
-         * Creates the descriptor.
-         * @param original Prototype type
-         */
-        private TypeImpl(final Type original) {
-            this.original = original;
-        }
-
-        @Override
-        public String getName() {
-            return this.original.getName();
-        }
-
-        @Override
-        public Map<String, String> getProperties() {
-            return this.original.getProperties();
-        }
-
-        @Override
-        public Builder createBuilder() {
-            throw new UnsupportedOperationException();
-        }
     }
 }
