@@ -55,7 +55,6 @@ reads of a published tree with a shared child are tested after its builder has
 been reused; the built children list cannot be modified through the Node API.
 Existing type/schema and wildcard-Optional getter tests continue to apply.
 
-This is the next implementation stage of #11, not completion of the entire issue.
-PatternNode and DiffNode now publish immutable snapshots. Other legacy lazy wrapper
-state still requires its model migration. The whole object graph must
-satisfy the immutable contract before general concurrent access is promised.
+PatternNode, DiffNode and the built-in subtree/labeled views now publish immutable
+snapshots without lazy child mutation. See [the model audit](immutable-model.md) for
+ownership, publication, adapter obligations and the separate consumer/generator work.
