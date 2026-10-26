@@ -705,3 +705,5 @@ representation, builder contracts and optional parallel strategy.
 
 See [the rule engine](docs/rule-engine.md) and [stabilization](docs/stabilization.md)
 for atomic rewriting, repeated passes, cycle diagnostics and cooperative cancellation.
+
+Public dependency acceptance and generator migration: [consumer guide](docs/consumer.md).
