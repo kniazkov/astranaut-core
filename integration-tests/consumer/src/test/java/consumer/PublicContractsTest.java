@@ -73,6 +73,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 0.0.1
  */
 class PublicContractsTest {
+    @Test void hasNoVisualizationOrLoggingBackendOnClasspath() {
+        for (String name : List.of("guru.nidi.graphviz.engine.Graphviz",
+            "com.eclipsesource.v8.V8", "ch.qos.logback.classic.Logger")) {
+            assertThrows(ClassNotFoundException.class, () -> Class.forName(name));
+        }
+    }
+
     @Test void loadsExactlyTheBuiltJar() throws Exception {
         Path loaded = Path.of(Node.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         assertTrue(Files.isRegularFile(loaded), "core must come from a JAR, not classes");

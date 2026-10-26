@@ -3,7 +3,7 @@
 Core targets Java 21. Add `com.kniazkov:astranaut-core:0.0.1` as an ordinary Maven
 dependency. Consumer code uses `com.kniazkov.astranaut.core` packages. It does not need
 the core sources, test fixtures, or the astranaut-build parent in its own POM.
-Visualization dependencies are still transitive until the separately deferred #23.
+Visualization is a separate opt-in dependency; core has no Graphviz/V8/Logback dependency.
 
 ## Independent Maven acceptance project
 
