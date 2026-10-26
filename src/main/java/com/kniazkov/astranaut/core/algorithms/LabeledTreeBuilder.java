@@ -29,8 +29,6 @@ import com.kniazkov.astranaut.core.base.NodeWithStructuralEquality;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,7 +70,21 @@ public class LabeledTreeBuilder {
      */
     public Tree build(final Set<Node> selected, final String name, final String value) {
         return this.root.map(
-            node -> new Tree(new LabeledNode(node, selected, Map.entry(name, value)))
+            node -> new Tree(
+                NodeViewBuilder.build(
+                node,
+                    source -> java.util.stream.IntStream.range(
+                    0, source.getChildCount()
+                ).boxed().toList(),
+                    (source, indexes, children) -> new LabeledNode(
+                    source, children, LabeledNode.initProperties(
+                        source, selected, Map.entry(
+                        name, value
+                    )
+                    )
+                )
+            )
+            )
         ).orElse(EmptyTree.INSTANCE);
     }
 
@@ -90,7 +102,7 @@ public class LabeledTreeBuilder {
         /**
          * Child labeled nodes.
          */
-        private final List<LabeledNode> children;
+        private final List<Node> children;
 
         /**
          * Collection of properties that contains a specific label.
@@ -100,14 +112,21 @@ public class LabeledTreeBuilder {
         /**
          * Constructor.
          * @param original Original node.
-         * @param selected Set of selected nodes in which the property will be added
-         * @param property Property to be added
+         * @param children Completed child snapshots
+         * @param properties Snapshot properties
          */
-        private LabeledNode(final Node original,
-            final Set<Node> selected, final Map.Entry<String, String> property) {
+        private LabeledNode(
+            final Node original, final List<Node> children,
+            final Map<String, String> properties
+        ) {
             this.original = original;
-            this.children = LabeledNode.initChildrenList(original, selected, property);
-            this.properties = LabeledNode.initProperties(original, selected, property);
+            this.children = List.copyOf(children);
+            this.properties = Map.copyOf(properties);
+        }
+
+        @Override
+        public com.kniazkov.astranaut.core.base.Fragment getFragment() {
+            return this.original.getFragment();
         }
 
         @Override
@@ -165,23 +184,6 @@ public class LabeledTreeBuilder {
         }
 
         /**
-         * Initiates a list of labeled child nodes.
-         * @param original Original node.
-         * @param selected Set of selected nodes in which the property will be added
-         * @param property Property to be added
-         * @return List of labeled child nodes
-         */
-        private static List<LabeledNode> initChildrenList(final Node original,
-            final Set<Node> selected, final Map.Entry<String, String> property) {
-            final int count = original.getChildCount();
-            final List<LabeledNode> list = new ArrayList<>(count);
-            for (int index = 0; index < count; index = index + 1) {
-                list.add(new LabeledNode(original.getChild(index), selected, property));
-            }
-            return Collections.unmodifiableList(list);
-        }
-
-        /**
          * Initiates a property collection with the added property (if necessary).
          * @param original Original node.
          * @param selected Set of selected nodes in which the property will be added
@@ -197,7 +199,7 @@ public class LabeledTreeBuilder {
             } else {
                 result = original.getProperties();
             }
-            return Collections.unmodifiableMap(result);
+            return Map.copyOf(result);
         }
     }
 }

@@ -31,7 +31,6 @@ import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,39 +87,35 @@ public class SubtreeBuilder {
     /**
      * Creates a subtree from the original tree, with the result depends on the nodes that are
      *  specified in the set.
+     * Selection callbacks must be pure and source nodes immutable during construction.
      * @param nodes The set of nodes
      * @return Root node of created subtree.
      */
     public Node create(final Set<Node> nodes) {
-        final Map<Node, List<Integer>> indexes = new IdentityHashMap<>();
-        this.build(this.root, indexes, nodes);
-        final Node result;
-        if (indexes.get(this.root).isEmpty()) {
+        final Node view = NodeViewBuilder.build(
+            this.root, node -> this.select(node, nodes), SubNode::new
+        );
+        Node result = view;
+        if (view.getChildCount() == 0) {
             result = DummyNode.INSTANCE;
-        } else {
-            result = new SubNode(this.root, indexes);
         }
         return result;
     }
 
     /**
-     * Constructs an index map containing the indexes of the nodes that will be included
-     *  in the resulting tree.
-     * @param node Current node
-     * @param indexes Index map
-     * @param set The set of nodes
+     * Selects each source edge once; shared subtrees reuse their completed immutable view.
+     * @param node Source parent
+     * @param selected Selected source nodes
+     * @return Ordered original indexes
      */
-    private void build(final Node node, final Map<Node, List<Integer>> indexes,
-        final Set<Node> set) {
-        final List<Integer> list = indexes.computeIfAbsent(node, s -> new ArrayList<>(0));
-        final int count = node.getChildCount();
-        for (int index = 0; index < count; index = index + 1) {
-            final Node child = node.getChild(index);
-            if (this.algorithm.isApplicable(child, set)) {
-                list.add(index);
-                this.build(child, indexes, set);
+    private List<Integer> select(final Node node, final Set<Node> selected) {
+        final List<Integer> result = new ArrayList<>(node.getChildCount());
+        for (int index = 0; index < node.getChildCount(); index += 1) {
+            if (this.algorithm.isApplicable(node.getChild(index), selected)) {
+                result.add(index);
             }
         }
+        return result;
     }
 
     /**
@@ -131,8 +126,10 @@ public class SubtreeBuilder {
      */
     private static boolean isPresentInSet(final Node node, final Set<Node> set) {
         boolean result = set.contains(node);
-        if (!result && node instanceof PrototypeBasedNode) {
-            result = SubtreeBuilder.isPresentInSet(((PrototypeBasedNode) node).getPrototype(), set);
+        Node current = node;
+        while (!result && current instanceof PrototypeBasedNode wrapper) {
+            current = wrapper.getPrototype();
+            result = set.contains(current);
         }
         return result;
     }
@@ -163,26 +160,27 @@ public class SubtreeBuilder {
         private final Node original;
 
         /**
-         * Index map containing the indexes of the nodes that should be included
+         * Immutable list containing the indexes of the nodes that should be included
          *  to the resulting tree.
          */
-        private final Map<Node, List<Integer>> indexes;
+        private final List<Integer> indexes;
 
         /**
-         * Array of children (also truncated nodes).
+         * Immutable list of children (also truncated nodes).
          */
-        private final SubNode[] children;
+        private final List<Node> children;
 
         /**
          * Constructor.
          * @param original Original node
-         * @param indexes Index map containing the indexes of the nodes that should be included
-         *  to the resulting tree
+         * @param indexes Original edge positions
+         * @param children Completed child snapshots
          */
-        private SubNode(final Node original, final Map<Node, List<Integer>> indexes) {
+        private SubNode(final Node original, final List<Integer> indexes,
+            final List<Node> children) {
             this.original = original;
-            this.indexes = indexes;
-            this.children = new SubNode[indexes.get(original).size()];
+            this.indexes = List.copyOf(indexes);
+            this.children = List.copyOf(children);
         }
 
         @Override
@@ -207,18 +205,12 @@ public class SubtreeBuilder {
 
         @Override
         public int getChildCount() {
-            return this.children.length;
+            return this.children.size();
         }
 
         @Override
         public Node getChild(final int index) {
-            if (this.children[index] == null) {
-                this.children[index] = new SubNode(
-                    this.original.getChild(this.indexes.get(this.original).get(index)),
-                    this.indexes
-                );
-            }
-            return this.children[index];
+            return this.children.get(index);
         }
 
         @Override
@@ -229,7 +221,7 @@ public class SubtreeBuilder {
         @Override
         public java.util.Optional<String> getChildTag(final int index) {
             java.util.Objects.checkIndex(index, this.getChildCount());
-            return this.original.getChildTag(this.indexes.get(this.original).get(index));
+            return this.original.getChildTag(this.indexes.get(index));
         }
 
         @Override

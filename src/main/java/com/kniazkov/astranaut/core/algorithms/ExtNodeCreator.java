@@ -47,25 +47,30 @@ public final class ExtNodeCreator {
      */
     public ExtNode create(final Node node) {
         final Map<Node, Integer> hashes = NodeStructure.hashes(node);
-        final ExtNodeImpl root = new ExtNodeImpl(node, null, hashes.get(node));
+        final ExtNodeImpl root = new ExtNodeImpl(node, new Location(null, -1), hashes.get(node));
         final Deque<ExtNodeImpl> pending = new ArrayDeque<>();
         pending.push(root);
         while (!pending.isEmpty()) {
             final ExtNodeImpl parent = pending.pop();
             for (int index = 0; index < parent.children.length; index += 1) {
                 final Node prototype = parent.prototype.getChild(index);
-                final ExtNodeImpl child = new ExtNodeImpl(prototype, parent, hashes.get(prototype));
-                child.index = index;
+                final ExtNodeImpl child = new ExtNodeImpl(
+                    prototype, new Location(parent, index), hashes.get(prototype)
+                );
                 parent.children[index] = child;
-                if (index > 0) {
-                    child.left = parent.children[index - 1];
-                    parent.children[index - 1].right = child;
-                }
                 pending.push(child);
             }
         }
         return root;
     }
+
+    /**
+     * Position of a wrapper occurrence, never stored on its shared source node.
+     * @param parent Parent wrapper, null at the root
+     * @param index Child position, minus one at the root
+     * @since 0.0.1
+     */
+    private record Location(ExtNode parent, int index) { }
 
     /**
      * Class that implements the extended node interface.
@@ -78,26 +83,9 @@ public final class ExtNodeCreator {
         private final Node prototype;
 
         /**
-         * Parent node of this node, which is the node that has this node as on of its children.
+         * Immutable occurrence position, independent of the shared prototype.
          */
-        private final ExtNode parent;
-
-        /**
-         * Index (sequence number) of this node in the list of children of this node's parent.
-         */
-        private int index;
-
-        /**
-         * Left neighbor node of this node, which is the node whose index in the parent node
-         *  is one less than the index of this node.
-         */
-        private ExtNode left;
-
-        /**
-         * Right neighbor node of this node, which is the node whose index in the parent node
-         *  is one greater than the index of this node.
-         */
-        private ExtNode right;
+        private final Location location;
 
         /**
          * Absolute hash.
@@ -112,15 +100,14 @@ public final class ExtNodeCreator {
         /**
          * Creates a wrapper. Links are completed before the root is published.
          * @param prototype Original node
-         * @param parent Parent wrapper
+         * @param location Occurrence position
          * @param hash Cached structural hash
          */
-        private ExtNodeImpl(final Node prototype, final ExtNode parent, final int hash) {
+        private ExtNodeImpl(final Node prototype, final Location location, final int hash) {
             this.prototype = prototype;
-            this.parent = parent;
+            this.location = location;
             this.hash = hash;
             this.children = new ExtNodeImpl[prototype.getChildCount()];
-            this.index = -1;
         }
 
         @Override
@@ -135,22 +122,31 @@ public final class ExtNodeCreator {
 
         @Override
         public ExtNode getParent() {
-            return this.parent;
+            return this.location.parent();
         }
 
         @Override
         public int getIndex() {
-            return this.index;
+            return this.location.index();
         }
 
         @Override
         public ExtNode getLeft() {
-            return this.left;
+            ExtNode result = null;
+            if (this.location.index() > 0) {
+                result = this.location.parent().getExtChild(this.location.index() - 1);
+            }
+            return result;
         }
 
         @Override
         public ExtNode getRight() {
-            return this.right;
+            ExtNode result = null;
+            final ExtNode parent = this.location.parent();
+            if (parent != null && this.location.index() + 1 < parent.getChildCount()) {
+                result = parent.getExtChild(this.location.index() + 1);
+            }
+            return result;
         }
 
         @Override
