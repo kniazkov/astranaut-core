@@ -769,3 +769,6 @@ Java 21 utility/API replacements and required generator changes are described in
 
 See [immutable normalization](docs/normalization.md) for the independent property/edge
 representation, builder contracts and optional parallel strategy.
+
+See [the rule engine](docs/rule-engine.md) and [stabilization](docs/stabilization.md)
+for atomic rewriting, repeated passes, cycle diagnostics and cooperative cancellation.
