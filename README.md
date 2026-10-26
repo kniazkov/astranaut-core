@@ -590,16 +590,16 @@ A **`DiffTree`** is a *special syntax tree* that captures **changes between two 
 
 | Type       | Meaning                                                                 | Example (Pseudocode)            |  
 |------------|-------------------------------------------------------------------------|----------------------------------|  
-| **Insert** | *"This node is NEW in the ‘after’ tree."*                               | `Insert(addedNode)` → Was `null` |  
+| **Insert** | *"This node is NEW in the ‘after’ tree."*                               | `Insert(addedNode)` → Absent before |
 | **Replace**| *"This node CHANGED from X to Y."*                                      | `Replace(oldNode, newNode)`     |  
-| **Delete** | *"This node was REMOVED in the ‘after’ tree."*                         | `Delete(removedNode)` → Now `null` |  
+| **Delete** | *"This node was REMOVED in the ‘after’ tree."*                         | `Delete(removedNode)` → Absent after |
 
 2. **`DiffTree`**
 
 - **Subclass of `Tree`**, so it works with all standard algorithms.  
 - **Extra methods**:  
-  - `getOriginalTree()` → Returns the pre-change state.  
-  - `getModifiedTree()` → Returns the post-change state.  
+  - `getBefore()` → Returns the pre-change state.
+  - `getAfter()` → Returns the post-change state.
 
 #### 3. **`DiffTreeBuilder`**  
 
@@ -624,53 +624,23 @@ DiffTree diffTree = builder.getDiffTree();
 
 *"Git diff for your AST, minus the command-line angst."* 🔄🌳
 
-## **Mapping, Mapper & TopDownMapper – The Tree Correspondence Crew**
+## Reversible differences and strategies
 
-### **Core Concept**
-A **`Mapping`** is essentially a *Rosetta Stone* between two syntax trees - it defines how nodes in a "left"
-tree relate to nodes in a "right" tree. Think of it as:
+`DiffStrategy.compare(before, after)` produces an immutable `DiffTree` from which
+both states can be reconstructed, including empty roots and child tags.
+`PositionalDiff` provides deterministic ordered alignment; `WholeTreeDiff` records
+whole-root changes. `TopDownMapper.INSTANCE` is a facade for the positional strategy.
+The old identity-keyed `Mapping` and `Mapper` APIs have been removed.
 
-1. **A bilingual dictionary** for AST nodes
-2. **A change manifest** showing what was inserted/replaced/deleted
-3. **A transformation blueprint** to turn Left Tree → Right Tree
-
-### **Key Players**
-
-**`Mapping` Interface (The Contract):**
 ```java
-// Two-way node correspondence
-Node rightNode = mapping.getLeft(leftNode); // What does leftNode become?
-Node leftNode = mapping.getRight(rightNode); // Where did rightNode come from?
-
-// Change inventory
-List<Insertion> addedNodes = mapping.getInserted(); // New nodes in right tree
-Map<Node, Node> replaced = mapping.getReplaced();   // Old→New node pairs
-Set<Node> deleted = mapping.getDeleted();           // Nodes removed from left
+DiffTree difference = new PositionalDiff().compare(oldTree, newTree);
+Tree before = difference.getBefore();
+Tree after = difference.getAfter();
 ```
 
-**`Mapper` (The Matchmaker):**
-- Builds these mappings between trees
-- Current implementation: **`TopDownMapper`** (works root→leaves)
-
-**`DiffTreeBuilder` Integration:**
-```java
-DiffTreeBuilder builder = new DiffTreeBuilder(oldTree);
-bulder.build(newTree, TopDownMapper.INSTANCE);
-DiffTree diffTree = builder.getDiffTree();
-```
-
-### **Why This Matters**
-- **Change Analysis**: Understand exactly how trees differ
-- **Selective Updates**: Apply only specific transformations
-- **Custom Diffs**: Implement your own mapping logic
-
-### **TopDownMapper's Approach**
-1. Starts at roots, works downward
-2. Matches nodes by:
-   - Type equality
-   - Structural similarity
-   - Position in tree
-3. Automatically classifies changes as inserts/replaces/deletes
+`DiffTreeBuilder` supports atomic edits by `NodeOccurrence` and publishes immutable
+snapshots. See [reversible differences](docs/differences.md) for editing, builder
+refusals, tags, literal operation payloads and explicit parallel execution.
 
 ## **Pattern, Hole & PatternBuilder – The "Mad Libs" of Tree Transformations**  
 
