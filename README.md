@@ -58,6 +58,9 @@ See [the type model and migration guide](docs/type-model.md) for `AbstractType`,
 See [structural equality and hashing](docs/structural-equality.md) for the Node
 contract, adapter examples, collision handling and explicit parallel operations.
 
+See [the immutable-model audit](docs/immutable-model.md) for snapshot ownership,
+concurrent publication, subtree/labeled views and the obligations of external adapters.
+
 # The Basics: Interfaces & Classes  
 This is where the tree magic starts.  
 

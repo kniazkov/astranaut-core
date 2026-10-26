@@ -126,10 +126,10 @@ Names remain the identifiers in serialization and the basis of type equality.
 
 Immutable patterns and differences, occurrence-based transformations and
 [tag-preserving JSON round trips](json.md) now implement these contracts. Issues #11
-and #26 retain their remaining model and external-consumer integration checks;
-this does not claim that every legacy wrapper or the external generator is migrated.
+and #26 are covered by the built-in model/tag suites and [immutable-view audit](immutable-model.md).
+Independent consumer and generator integration remains #24; the external generator is unchanged.
 Structural equality and hashing with tags are implemented as described in
 [the structural equality guide](structural-equality.md).
 
 Tree roots now use `Optional<Node>`; see [the root migration guide](optional-root.md)
-for empty-tree behavior and boundaries of the remaining immutable-model work.
+for empty-tree behavior, and the model audit for publication and adapter responsibilities.
