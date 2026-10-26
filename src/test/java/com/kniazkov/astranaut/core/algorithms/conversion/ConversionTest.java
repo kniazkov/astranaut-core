@@ -26,7 +26,6 @@ package com.kniazkov.astranaut.core.algorithms.conversion;
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.Char;
 import com.kniazkov.astranaut.core.base.DraftNode;
-import com.kniazkov.astranaut.core.base.DummyNode;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.TestBuilder;
 import com.kniazkov.astranaut.core.base.TestBuilderCase;
@@ -226,12 +225,13 @@ class ConversionTest {
             Collections.singletonList(Converter0.INSTANCE),
             GreenFactory.INSTANCE
         );
-        Tree result = transformer.transform(new Tree(new TestNode(TestBuilderCase.BAD_DATA)));
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-        result = transformer.transform(new Tree(new TestNode(TestBuilderCase.BAD_CHILDREN)));
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
-        result = transformer.transform(new Tree(new TestNode(TestBuilderCase.INVALID_BUILDER)));
-        Assertions.assertSame(DummyNode.INSTANCE, result.getRoot().orElseThrow());
+        for (final TestBuilderCase test : List.of(
+            TestBuilderCase.BAD_DATA, TestBuilderCase.BAD_CHILDREN, TestBuilderCase.INVALID_BUILDER
+        )) {
+            final Node original = new TestNode(test);
+            final Tree result = transformer.transform(new Tree(original));
+            Assertions.assertSame(original, result.getRoot().orElseThrow());
+        }
     }
 
     @Test

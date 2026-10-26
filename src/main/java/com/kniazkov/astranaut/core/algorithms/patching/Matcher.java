@@ -30,6 +30,7 @@ import com.kniazkov.astranaut.core.base.Delete;
 import com.kniazkov.astranaut.core.base.Hole;
 import com.kniazkov.astranaut.core.base.Insert;
 import com.kniazkov.astranaut.core.base.Node;
+import com.kniazkov.astranaut.core.base.NodeOccurrence;
 import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.Replace;
 import com.kniazkov.astranaut.core.base.Tree;
@@ -82,13 +83,27 @@ class Matcher {
         final ActionList list = new ActionList();
         for (final Node node : preset) {
             final Matched applicants = new Matched();
-            final boolean matches = Matcher.checkNode(node, head, applicants);
+            final boolean matches = Matcher.checkNode(new NodeOccurrence(node), head, applicants);
             if (matches) {
                 this.found.add(node);
                 list.merge(applicants);
             }
         }
         return list;
+    }
+
+    /**
+     * Matches only the current occurrence; traversal and atomic acceptance belong to RuleEngine.
+     * @param pattern Pattern
+     * @return Local actions or non-applicability
+     */
+    Optional<Matched> matchRoot(final Pattern pattern) {
+        final Matched actions = new Matched();
+        return this.root.filter(
+            node -> Matcher.checkNode(
+                new NodeOccurrence(node), pattern.getRoot().orElseThrow(), actions
+            )
+        ).map(node -> actions);
     }
 
     /**
@@ -102,13 +117,14 @@ class Matcher {
 
     /**
      * Checks if the node of the original tree matches the pattern node.
-     * @param node Node of the original tree
+     * @param address Occurrence in the original tree
      * @param pattern Node of the difference tree (i.e. pattern)
      * @param matched Intermediate data obtained by matching subtrees
      * @return Matching result ({@code true} if matches)
      */
     private static boolean checkNode(
-        final Node node, final Node pattern, final Matched matched) {
+        final NodeOccurrence address, final Node pattern, final Matched matched) {
+        final Node node = address.getNode();
         final Node sample;
         final Action action = Action.toAction(pattern);
         if (action instanceof Replace || action instanceof Delete) {
@@ -122,18 +138,18 @@ class Matcher {
                 break;
             }
             if (sample instanceof Hole hole) {
-                result = matched.checkHole(hole.getNumber(), node.getData());
+                result = matched.checkHole(hole.getNumber(), node);
             } else {
                 result = node.getData().equals(sample.getData())
-                    && Matcher.matchNodeAndSample(node, sample, matched);
+                    && Matcher.matchNodeAndSample(address, sample, matched);
             }
             if (!result) {
                 break;
             }
             if (action instanceof Replace) {
-                matched.replaceNode(node, action.getAfter());
+                matched.replaceAt(address, action.getAfter());
             } else if (action instanceof Delete) {
-                matched.deleteNode(node);
+                matched.deleteAt(address);
             }
         } while (false);
         return result;
@@ -153,31 +169,33 @@ class Matcher {
     /**
      * Matches a node and a sample provided the types are equal, the data is equal,
      *  and the sample is not an action.
-     * @param node Node of the original tree
+     * @param address Occurrence in the original tree
      * @param sample Sample to match
      * @param matched Intermediate data obtained by matching subtrees
      * @return Matching result ({@code true} if matches)
      */
-    private static boolean matchNodeAndSample(final Node node, final Node sample,
+    private static boolean matchNodeAndSample(final NodeOccurrence address, final Node sample,
         final Matched matched) {
+        final Node node = address.getNode();
         final boolean result;
         if (node.getChildCount() == 0) {
-            result = Matcher.mathEmptyNodeAndSample(node, sample, matched);
+            result = Matcher.mathEmptyNodeAndSample(address, sample, matched);
         } else {
-            result = Matcher.checkChildren(node, sample, matched);
+            result = Matcher.checkChildren(address, sample, matched);
         }
         return result;
     }
 
     /**
      * Matches a node without children and a sample.
-     * @param node Node of the original tree
+     * @param address Occurrence in the original tree
      * @param sample Sample to match
      * @param matched Intermediate data obtained by matching subtrees
      * @return Matching result ({@code true} if matches)
      */
-    private static boolean mathEmptyNodeAndSample(final Node node, final Node sample,
+    private static boolean mathEmptyNodeAndSample(final NodeOccurrence address, final Node sample,
         final Matched matched) {
+        final Node node = address.getNode();
         boolean result = true;
         final int count = sample.getChildCount();
         Node previous = null;
@@ -186,6 +204,7 @@ class Matcher {
             if (action instanceof Insert) {
                 final Node insertion = action.getAfter();
                 matched.insertNodeAfter(insertion, node, previous);
+                matched.insertAt(address, 0, insertion);
                 previous = insertion;
             } else {
                 result = false;
@@ -198,13 +217,14 @@ class Matcher {
     /**
      * Checks if the children of the node of the original tree
      *  matches the children of the pattern node.
-     * @param node Node of the original tree
+     * @param address Occurrence in the original tree
      * @param sample Node of the difference tree (i.e. pattern)
      * @param matched Intermediate data obtained by matching subtrees
      * @return Matching result ({@code true} if matches)
      */
     private static boolean checkChildren(
-        final Node node, final Node sample, final Matched matched) {
+        final NodeOccurrence address, final Node sample, final Matched matched) {
+        final Node node = address.getNode();
         final int left = node.getChildCount();
         final int right = sample.getChildCount();
         boolean result = false;
@@ -221,13 +241,14 @@ class Matcher {
                 if (action instanceof Insert) {
                     final Node insertion = action.getAfter();
                     applicants.insertNodeAfter(insertion, node, previous);
+                    applicants.insertAt(address, index + offset, insertion);
                     previous = insertion;
                 } else if (index + offset >= left) {
                     result = false;
                 } else {
                     final Node current = node.getChild(index + offset);
                     result = Matcher.checkNode(
-                        current,
+                        address.getChild(index + offset),
                         child,
                         applicants
                     );

@@ -27,6 +27,8 @@ import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.base.Hole;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.PatternOperator;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +38,7 @@ import java.util.Optional;
  * backtracking, as in the Astranaut generator.
  * @since 0.0.1
  */
+@SuppressWarnings("PMD.TooManyMethods")
 public final class PatternMatcher {
     /**
      * Matches one entire node.
@@ -61,7 +64,6 @@ public final class PatternMatcher {
      * @param nodes Candidate occurrences
      * @param reverse Whether starts are visited right-to-left
      * @return First nonempty match
-     * @checkstyle NonStaticMethodCheck (25 lines)
      */
     public Optional<Match> find(final Node pattern, final List<Node> nodes, final boolean reverse) {
         final List<Node> snapshot = List.copyOf(nodes);
@@ -71,11 +73,27 @@ public final class PatternMatcher {
             if (reverse) {
                 start = snapshot.size() - offset - 1;
             }
-            final Cursor cursor = new Cursor(snapshot, new Extracted());
-            cursor.index = start;
-            if (PatternMatcher.consume(pattern, cursor) && cursor.index > start) {
-                result = Optional.of(new Match(start, cursor.index, cursor.captures));
-            }
+            result = this.matchAt(pattern, snapshot, start);
+        }
+        return result;
+    }
+
+    /**
+     * Attempts exactly one candidate start without searching later positions.
+     * @param pattern Pattern
+     * @param nodes Immutable candidate sequence
+     * @param index Start
+     * @return Nonempty match or failure
+     * @checkstyle NonStaticMethodCheck (15 lines)
+     */
+    public Optional<Match> matchAt(final Node pattern, final List<Node> nodes, final int index) {
+        final List<Node> snapshot = List.copyOf(nodes);
+        java.util.Objects.checkIndex(index, snapshot.size());
+        final Cursor cursor = new Cursor(snapshot, new Extracted());
+        cursor.index = index;
+        Optional<Match> result = Optional.empty();
+        if (PatternMatcher.consume(pattern, cursor) && cursor.index > index) {
+            result = Optional.of(new Match(index, cursor.index, cursor.captures));
         }
         return result;
     }
@@ -136,15 +154,13 @@ public final class PatternMatcher {
      */
     private static boolean children(final Node pattern, final Node node,
         final Extracted captures) {
-        final Cursor cursor = new Cursor(node.getChildrenList(), captures);
+        final Deque<ChildFrame> stack = new ArrayDeque<>();
+        stack.push(new ChildFrame(pattern, node, captures));
         boolean valid = true;
-        for (int index = 0; valid && index < pattern.getChildCount(); index += 1) {
-            final Optional<String> tag = pattern.getChildTag(index);
-            valid = tag.isEmpty() || cursor.index < node.getChildCount()
-                && tag.equals(node.getChildTag(cursor.index));
-            valid = valid && PatternMatcher.consume(pattern.getChild(index), cursor);
+        while (valid && !stack.isEmpty()) {
+            valid = stack.peek().advance(stack);
         }
-        return valid && cursor.index == node.getChildCount();
+        return valid;
     }
 
     /**
@@ -251,6 +267,100 @@ public final class PatternMatcher {
      * @since 0.0.1
      */
     public record Match(int start, int end, Extracted captures) { }
+
+    /**
+     * Explicit structural matching stack; nested ordinary nodes never recurse.
+     * @since 0.0.1
+     */
+    private static final class ChildFrame {
+        /**
+         * Structural pattern.
+         */
+        private final Node pattern;
+
+        /**
+         * Candidate supplying occurrence tags.
+         */
+        private final Node candidate;
+
+        /**
+         * Candidate children and shared attempt-local captures.
+         */
+        private final Cursor cursor;
+
+        /**
+         * Next pattern child.
+         */
+        private int next;
+
+        /**
+         * Creates one structural frame.
+         * @param pattern Pattern
+         * @param candidate Candidate
+         * @param captures Attempt captures
+         */
+        private ChildFrame(final Node pattern, final Node candidate, final Extracted captures) {
+            this.pattern = pattern;
+            this.candidate = candidate;
+            this.cursor = new Cursor(candidate.getChildrenList(), captures);
+        }
+
+        /**
+         * Advances one pattern edge, or completes this frame.
+         * @param stack Explicit frames
+         * @return Whether matching can continue
+         */
+        private boolean advance(final Deque<ChildFrame> stack) {
+            final boolean valid;
+            if (this.next == this.pattern.getChildCount()) {
+                valid = this.cursor.index == this.candidate.getChildCount();
+                stack.pop();
+            } else {
+                final Optional<String> tag = this.pattern.getChildTag(this.next);
+                final boolean bound = tag.isEmpty()
+                    || this.cursor.index < this.candidate.getChildCount()
+                    && tag.equals(this.candidate.getChildTag(this.cursor.index));
+                valid = bound && this.matchChild(this.pattern.getChild(this.next), stack);
+                this.next += 1;
+            }
+            return valid;
+        }
+
+        /**
+         * Delegates operators but pushes ordinary descendants onto the explicit stack.
+         * @param child Pattern child
+         * @param stack Frames
+         * @return Whether matched
+         */
+        private boolean matchChild(final Node child, final Deque<ChildFrame> stack) {
+            final boolean valid;
+            if (child instanceof PatternOperator || child instanceof Hole) {
+                valid = PatternMatcher.consume(child, this.cursor);
+            } else {
+                valid = this.matchOrdinary(child, stack);
+            }
+            return valid;
+        }
+
+        /**
+         * Checks a structural node before scheduling its children.
+         * @param child Pattern
+         * @param stack Frames
+         * @return Whether accepted
+         */
+        private boolean matchOrdinary(final Node child, final Deque<ChildFrame> stack) {
+            boolean valid = this.cursor.index < this.cursor.nodes.size();
+            if (valid) {
+                final Node node = this.cursor.nodes.get(this.cursor.index);
+                this.cursor.index += 1;
+                valid = node.isSubtypeOf(child.getType()) && node.getData().equals(child.getData());
+                if (valid) {
+                    stack.push(new ChildFrame(child, node, this.cursor.captures));
+                }
+            }
+            return valid;
+        }
+    }
 
     /**
      * Mutable state confined to one attempt.

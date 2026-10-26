@@ -25,6 +25,7 @@ package com.kniazkov.astranaut.core.algorithms;
 
 import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ConstructionException;
+import com.kniazkov.astranaut.core.base.Fragment;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeOccurrence;
 import com.kniazkov.astranaut.core.base.Type;
@@ -65,6 +66,35 @@ public final class OccurrenceReplacer {
     }
 
     /**
+     * Rebuilds one newly created output node with a matched source span.
+     * Existing children retain their identity and provenance.
+     * @param node Output node
+     * @param fragment Matched span
+     * @return Rebuilt node, or refusal
+     * @checkstyle NonStaticMethodCheck (15 lines)
+     */
+    public Optional<Node> withFragment(final Node node, final Fragment fragment) {
+        return OccurrenceReplacer.rebuild(
+            new Source(node.getType(), fragment), new Content(
+                node.getData(), node.getChildrenList(),
+                java.util.stream.IntStream.range(0, node.getChildCount())
+                    .mapToObj(node::getChildTag).toList()
+            )
+        );
+    }
+
+    /**
+     * Rebuilds requested content, refusing reordered or retagged results.
+     * @param original Source descriptor and provenance
+     * @param content Requested content
+     * @return New node or refusal
+     */
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+    public static Optional<Node> rebuild(final Node original, final Content content) {
+        return OccurrenceReplacer.rebuild(original, content, original.getType());
+    }
+
+    /**
      * Restores an ancestor without accepting reordered or retagged children.
      * @param original Original ancestor
      * @param children Desired compact child sequence
@@ -81,16 +111,6 @@ public final class OccurrenceReplacer {
     }
 
     /**
-     * Rebuilds requested content, refusing reordered or retagged results.
-     * @param original Source descriptor and provenance
-     * @param content Requested content
-     * @return New node or refusal
-     */
-    static Optional<Node> rebuild(final Node original, final Content content) {
-        return OccurrenceReplacer.rebuild(original, content, original.getType());
-    }
-
-    /**
      * Restores content through an explicit concrete output descriptor.
      * @param original Source provenance and identity
      * @param content Requested content
@@ -98,15 +118,27 @@ public final class OccurrenceReplacer {
      * @return New node or refusal
      */
     static Optional<Node> rebuild(final Node original, final Content content, final Type type) {
+        return OccurrenceReplacer.rebuild(
+            new Source(type, original.getFragment()), content
+        );
+    }
+
+    /**
+     * Rebuilds with explicit provenance for newly synthesized template nodes.
+     * @param source Output descriptor and metadata
+     * @param content Content
+     * @return Valid rebuilt node or refusal
+     */
+    static Optional<Node> rebuild(final Source source, final Content content) {
         Optional<Node> result = Optional.empty();
         try {
-            final Builder builder = type.createBuilder();
-            builder.setFragment(original.getFragment());
+            final Builder builder = source.type().createBuilder();
+            builder.setFragment(source.fragment());
             if (builder.setData(content.data())
                 && OccurrenceReplacer.bind(builder, content)
                 && builder.isValid()) {
                 final Node built = builder.build();
-                if (OccurrenceReplacer.matches(original, built, content)) {
+                if (OccurrenceReplacer.matches(source, built, content)) {
                     result = Optional.of(built);
                 }
             }
@@ -138,18 +170,18 @@ public final class OccurrenceReplacer {
     /**
      * Checks that reconstruction preserved the requested occurrence edges exactly.
      * Identity is intentional: untouched subtrees must remain shared.
-     * @param original Original ancestor
+     * @param source Original metadata
      * @param built Rebuilt ancestor
      * @param content Requested children, data and tags
      * @return Whether the builder preserved the requested structure and metadata
      */
     @SuppressWarnings("PMD.CompareObjectsWithEquals")
-    private static boolean matches(final Node original, final Node built,
+    private static boolean matches(final Source source, final Node built,
         final Content content) {
         final List<Node> children = content.children();
-        boolean result = original.getType().equals(built.getType())
+        boolean result = source.type().equals(built.getType())
             && content.data().equals(built.getData())
-            && original.getFragment().equals(built.getFragment())
+            && source.fragment().equals(built.getFragment())
             && children.size() == built.getChildCount();
         for (int index = 0; result && index < children.size(); index += 1) {
             result = built.getChild(index) == children.get(index)
@@ -165,6 +197,29 @@ public final class OccurrenceReplacer {
      * @param tags Occurrence tags
      * @since 0.0.1
      */
-    record Content(String data, List<Node> children, List<Optional<String>> tags) { }
+    public record Content(String data, List<Node> children, List<Optional<String>> tags) {
+        /**
+         * Snapshots requested content.
+         * @param data Data
+         * @param children Children
+         * @param tags Tags
+         * @throws IllegalArgumentException If edge tags and children have different lengths
+         */
+        public Content {
+            Objects.requireNonNull(data);
+            children = List.copyOf(children);
+            tags = List.copyOf(tags);
+            if (children.size() != tags.size()) {
+                throw new IllegalArgumentException("Child and tag counts differ");
+            }
+        }
+    }
 
+    /**
+     * Metadata for an independently built output node.
+     * @param type Output type
+     * @param fragment Output provenance
+     * @since 0.0.1
+     */
+    record Source(Type type, Fragment fragment) { }
 }
