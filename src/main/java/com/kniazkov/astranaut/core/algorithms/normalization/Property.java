@@ -53,7 +53,15 @@ public final class Property extends NodeWithStructuralEquality implements Node {
      */
     public Property(final String name, final String value) {
         this.type = new TypeImpl(name);
-        this.value = value;
+        this.value = java.util.Objects.requireNonNull(value);
+    }
+
+    /**
+     * Returns the original property key.
+     * @return Key, independently of the reserved service type name
+     */
+    public String getName() {
+        return ((TypeImpl) this.type).name;
     }
 
     @Override
@@ -101,7 +109,7 @@ public final class Property extends NodeWithStructuralEquality implements Node {
          * @param name Name
          */
         private PropertyBuilder(final String name) {
-            this.name = name;
+            this.name = java.util.Objects.requireNonNull(name);
             this.value = "";
         }
 
@@ -147,12 +155,12 @@ public final class Property extends NodeWithStructuralEquality implements Node {
          * @param name Type name
          */
         private TypeImpl(final String name) {
-            this.name = name;
+            this.name = java.util.Objects.requireNonNull(name);
         }
 
         @Override
         public String getName() {
-            return this.name;
+            return "AstranautProperty".concat(NormalizationType.encode(this.name));
         }
 
         @Override

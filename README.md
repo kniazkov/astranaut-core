@@ -766,3 +766,6 @@ is `com.kniazkov:astranaut-core:0.0.1`; Java packages keep their existing names.
 
 Java 21 utility/API replacements and required generator changes are described in
 [the migration guide](docs/java21-migration.md).
+
+See [immutable normalization](docs/normalization.md) for the independent property/edge
+representation, builder contracts and optional parallel strategy.

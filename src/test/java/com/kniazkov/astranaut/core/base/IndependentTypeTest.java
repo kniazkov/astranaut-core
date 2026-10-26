@@ -86,13 +86,13 @@ final class IndependentTypeTest {
         final NormalizedNode original = new NormalizedNode(DraftNode.create("Branch(A,B)"));
         final Type type = original.getType();
         final Builder builder = type.createBuilder();
-        Assertions.assertTrue(builder.setChildren(List.of(DraftNode.create("C"))));
+        Assertions.assertTrue(builder.setChildren(original.getChildrenList()));
         final Node created = builder.build();
         Assertions.assertInstanceOf(NormalizedNode.class, created);
         Assertions.assertEquals(type, created.getType());
-        Assertions.assertEquals(1, created.getChildCount());
-        Assertions.assertEquals(2, original.getChildCount());
-        Assertions.assertEquals(0, type.createBuilder().build().getChildCount());
+        Assertions.assertEquals(4, created.getChildCount());
+        Assertions.assertEquals(4, original.getChildCount());
+        Assertions.assertFalse(type.createBuilder().isValid());
     }
 
     @Test

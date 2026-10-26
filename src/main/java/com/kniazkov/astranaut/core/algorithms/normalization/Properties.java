@@ -48,14 +48,23 @@ public final class Properties extends NodeWithStructuralEquality implements Node
     /**
      * List of properties.
      */
-    private List<Property> list;
+    private final List<Property> list;
 
     /**
      * Constructor.
      * @param map Map, containing properties from original node
      */
     public Properties(final Map<String, String> map) {
-        this.list = Properties.initList(map);
+        this(Properties.initList(map));
+    }
+
+    /**
+     * Publishes a sorted immutable snapshot.
+     * @param children Unique property nodes
+     */
+    private Properties(final List<Property> children) {
+        this.list = children.stream().sorted(java.util.Comparator.comparing(Property::getName))
+            .toList();
     }
 
     @Override
@@ -90,7 +99,7 @@ public final class Properties extends NodeWithStructuralEquality implements Node
     public Map<String, String> collectAllProperties() {
         final Map<String, String> map = new TreeMap<>();
         for (final Property property : this.list) {
-            map.put(property.getTypeName(), property.getData());
+            map.put(property.getName(), property.getData());
         }
         return Collections.unmodifiableMap(map);
     }
@@ -102,7 +111,7 @@ public final class Properties extends NodeWithStructuralEquality implements Node
      */
     private static List<Property> initList(final Map<String, String> map) {
         List<Property> result = Collections.emptyList();
-        if (map != null && !map.isEmpty()) {
+        if (!map.isEmpty()) {
             final List<Property> list = new ArrayList<>(map.size());
             for (final Map.Entry<String, String> property : map.entrySet()) {
                 list.add(new Property(property.getKey(), property.getValue()));
@@ -142,10 +151,11 @@ public final class Properties extends NodeWithStructuralEquality implements Node
         @Override
         public boolean setChildren(final List<Node> list) {
             final List<Property> properties = new ArrayList<>(list.size());
+            final java.util.Set<String> names = new java.util.HashSet<>();
             boolean result = true;
             for (final Node node : list) {
-                if (node instanceof Property) {
-                    properties.add((Property) node);
+                if (node instanceof Property property && names.add(property.getName())) {
+                    properties.add(property);
                 } else {
                     result = false;
                     break;
@@ -186,9 +196,7 @@ public final class Properties extends NodeWithStructuralEquality implements Node
 
         @Override
         public Node build() {
-            final Properties node = new Properties(null);
-            node.list = List.copyOf(this.children);
-            return node;
+            return new Properties(this.children);
         }
     }
 
@@ -199,7 +207,7 @@ public final class Properties extends NodeWithStructuralEquality implements Node
     private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         @Override
         public String getName() {
-            return "Properties";
+            return "AstranautProperties";
         }
 
         @Override

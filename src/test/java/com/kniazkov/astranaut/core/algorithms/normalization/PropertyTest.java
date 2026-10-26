@@ -42,7 +42,7 @@ class PropertyTest {
         final String before = "red";
         final String after = "blue";
         final Node property = new Property(name, before);
-        Assertions.assertEquals(name, property.getTypeName());
+        Assertions.assertEquals(name, ((Property) property).getName());
         Assertions.assertEquals(before, property.getData());
         Assertions.assertEquals(0, property.getChildCount());
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> property.getChild(0));
@@ -55,7 +55,7 @@ class PropertyTest {
         Assertions.assertTrue(builder.setChildren(Collections.emptyList()));
         Assertions.assertTrue(builder.isValid());
         final Node created = builder.build();
-        Assertions.assertEquals(name, created.getTypeName());
+        Assertions.assertEquals(property.getType(), created.getType());
         Assertions.assertEquals(after, created.getData());
     }
 }
