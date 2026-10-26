@@ -58,10 +58,25 @@ class AllocationOracleTest {
         for (int length = 0; length <= 3; length = length + 1) {
             for (int code = 0; code < 1 << length; code = code + 1) {
                 final List<Node> input = this.input(length, code);
+                final Optional<List<List<Node>>> expected = this.expected(schema, input);
+                final Optional<List<List<Node>>> actual = new NodeAllocator(schema).allocate(input);
                 Assertions.assertEquals(
-                    this.expected(schema, input), new NodeAllocator(schema).allocate(input),
-                    () -> String.format("schema=%s, input=%s", schema, input)
+                    expected, actual, () -> String.format("schema=%s, input=%s", schema, input)
                 );
+                expected.ifPresent(slots -> this.sameOccurrences(slots, actual.orElseThrow()));
+            }
+        }
+    }
+
+    /**
+     * Structural equality must not hide a swap of equal but distinct occurrences.
+     * @param expected Reference allocation
+     * @param actual Allocator output
+     */
+    private void sameOccurrences(final List<List<Node>> expected, final List<List<Node>> actual) {
+        for (int slot = 0; slot < expected.size(); slot += 1) {
+            for (int item = 0; item < expected.get(slot).size(); item += 1) {
+                Assertions.assertSame(expected.get(slot).get(item), actual.get(slot).get(item));
             }
         }
     }
