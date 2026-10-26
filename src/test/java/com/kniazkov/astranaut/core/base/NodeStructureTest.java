@@ -125,15 +125,16 @@ class NodeStructureTest {
     }
 
     @Test
-    void repeatedHashCallsDoNotRetainMutableWrapperState() {
+    void immutablePatternEditsHaveIndependentHashes() {
         final Node original = DraftNode.create("Root(Leaf)");
         final PatternNode pattern = new PatternNode(original);
         final int before = NodeStructure.hash(pattern);
-        Assertions.assertTrue(pattern.makeHole(original.getChild(0), 7));
-        final int after = NodeStructure.hash(pattern);
+        final PatternNode edited = pattern.withHole(0, 7);
+        final int after = NodeStructure.hash(edited);
         Assertions.assertNotEquals(before, after);
-        Assertions.assertEquals(pattern.hashCode(), after);
-        Assertions.assertNotEquals(original, pattern);
+        Assertions.assertEquals(edited.hashCode(), after);
+        Assertions.assertEquals(before, pattern.hashCode());
+        Assertions.assertEquals(original, pattern);
     }
 
     @Test

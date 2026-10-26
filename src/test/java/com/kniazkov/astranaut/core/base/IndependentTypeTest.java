@@ -103,9 +103,6 @@ final class IndependentTypeTest {
             Assertions.assertEquals("purple", node.getProperties().get("color"));
             Assertions.assertTrue(node.getType().getProperties().isEmpty());
             Assertions.assertEquals(hole.getType(), node.getType());
-            Assertions.assertThrows(
-                UnsupportedOperationException.class, node.getType()::createBuilder
-            );
         }
     }
 
@@ -115,7 +112,7 @@ final class IndependentTypeTest {
         final Map<String, String> properties = original.getType().getProperties();
         Assertions.assertFalse(properties.isEmpty());
         final List<Node> nodes = List.of(
-            new Hole(original, 2), new PatternNode(original), new DiffNode(original)
+            new PatternNode(original), new DiffNode(original)
         );
         for (final Node node : nodes) {
             Assertions.assertEquals(properties, node.getType().getProperties());

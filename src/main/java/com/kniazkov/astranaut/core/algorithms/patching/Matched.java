@@ -23,9 +23,8 @@
  */
 package com.kniazkov.astranaut.core.algorithms.patching;
 
+import com.kniazkov.astranaut.core.algorithms.conversion.Extracted;
 import com.kniazkov.astranaut.core.base.ActionList;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Data obtained through the matching process.
@@ -35,7 +34,7 @@ final class Matched extends ActionList {
     /**
      * Data obtained as a result of hole matching.
      */
-    private Map<Integer, String> holes;
+    private final Extracted holes = new Extracted();
 
     /**
      * Partially clones this object. The new instance will contain only information
@@ -44,9 +43,7 @@ final class Matched extends ActionList {
      */
     Matched fork() {
         final Matched obj = new Matched();
-        if (this.holes != null) {
-            obj.holes = new TreeMap<>(this.holes);
-        }
+        obj.holes.replaceWith(this.holes);
         return obj;
     }
 
@@ -56,33 +53,17 @@ final class Matched extends ActionList {
      */
     void merge(final Matched other) {
         super.merge(other);
-        if (this.holes == null) {
-            this.holes = other.holes;
-        } else {
-            this.holes.putAll(other.holes);
-        }
+        this.holes.replaceWith(other.holes);
     }
 
     /**
-     * Checks data matched for a hole. If a hole with the given number is seen for the first time,
-     * stores the data. If it's already known, verifies that the data matches.
-     * @param number Hole number
-     * @param data Matched data
-     * @return Checking result, {@code true} if data is accepted or matches previous,
-     *  {@code false} otherwise.
+     * Accumulates data in a slot; repeated numbers never impose equality.
+     * @param number Slot
+     * @param data Captured data
+     * @return Always true
      */
     boolean checkHole(final int number, final String data) {
-        final boolean result;
-        if (this.holes == null) {
-            this.holes = new TreeMap<>();
-            this.holes.put(number, data);
-            result = true;
-        } else if (this.holes.containsKey(number)) {
-            result = this.holes.get(number).equals(data);
-        } else {
-            this.holes.put(number, data);
-            result = true;
-        }
-        return result;
+        this.holes.addData(number, data);
+        return true;
     }
 }

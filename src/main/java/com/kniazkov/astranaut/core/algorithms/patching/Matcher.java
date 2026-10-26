@@ -74,7 +74,8 @@ class Matcher {
         final Node head = pattern.getRoot().orElseThrow();
         final List<Node> preset = this.root.map(
             node -> new DepthFirstWalker(node).findAll(
-                candidate -> candidate.getType().equals(head.getType())
+                candidate -> head instanceof Hole hole && hole.accepts(candidate)
+                    || candidate.getType().equals(head.getType())
                     && candidate.getData().equals(head.getData())
             )
         ).orElseGet(List::of);
@@ -115,13 +116,13 @@ class Matcher {
         } else {
             sample = pattern;
         }
-        boolean result = node.getType().equals(sample.getType());
+        boolean result = Matcher.accepts(sample, node);
         do {
             if (!result) {
                 break;
             }
-            if (pattern instanceof Hole) {
-                result = matched.checkHole(((Hole) pattern).getNumber(), node.getData());
+            if (sample instanceof Hole hole) {
+                result = matched.checkHole(hole.getNumber(), node.getData());
             } else {
                 result = node.getData().equals(sample.getData())
                     && Matcher.matchNodeAndSample(node, sample, matched);
@@ -136,6 +137,17 @@ class Matcher {
             }
         } while (false);
         return result;
+    }
+
+    /**
+     * Checks ordinary types or a hole constraint.
+     * @param sample Pattern
+     * @param node Candidate
+     * @return Whether accepted
+     */
+    private static boolean accepts(final Node sample, final Node node) {
+        return sample instanceof Hole hole && hole.accepts(node)
+            || node.getType().equals(sample.getType());
     }
 
     /**
@@ -196,8 +208,9 @@ class Matcher {
         final int left = node.getChildCount();
         final int right = sample.getChildCount();
         boolean result = false;
-        final Matched applicants = matched.fork();
+        Matched applicants = matched.fork();
         for (int index = 0; !result && index < left; index = index + 1) {
+            applicants = matched.fork();
             result = true;
             final Iterator<Node> iterator = sample.getIteratorOverChildren();
             int offset = 0;

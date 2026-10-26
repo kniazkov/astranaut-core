@@ -23,138 +23,102 @@
  */
 package com.kniazkov.astranaut.core.algorithms;
 
+import com.kniazkov.astranaut.core.base.Hole;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.Pattern;
 import com.kniazkov.astranaut.core.base.PatternNode;
 import com.kniazkov.astranaut.core.base.PrototypeBasedNode;
 import com.kniazkov.astranaut.core.base.Tree;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Pattern builder.
- *
+ * Mutable pattern mining builder. Every published Pattern is an immutable snapshot.
  * @since 0.0.1
  */
 public final class PatternBuilder {
     /**
-     * Default node info (to avoid null checks).
-     */
-    private static final NodeInfo DEFAULT_INFO = new NodeInfo(null);
-
-    /**
-     * The relationship of the nodes to their parents and corresponding difference nodes.
-     * This information is necessary to implement algorithms for inserting, removing
-     * and replacing nodes.
-     */
-    private final Map<Node, NodeInfo> info;
-
-    /**
-     * Root node.
+     * Immutable baseline.
      */
     private final PatternNode root;
 
     /**
-     * Constructor.
-     * @param tree Syntax tree from which the pattern is built
-     * @throws IllegalArgumentException If the tree has no root
+     * Selected hole slots by baseline node identity.
+     */
+    private final Map<Node, Integer> holes;
+
+    /**
+     * Snapshots the source tree.
+     * @param tree Source tree
+     * @throws IllegalArgumentException If empty
      */
     public PatternBuilder(final Tree tree) {
         this.root = new PatternNode(
             tree.getRoot().orElseThrow(
-                () -> new IllegalArgumentException("This builder requires a non-empty tree")
+                () -> new IllegalArgumentException("Pattern mining requires a root")
             )
         );
-        this.info = PatternBuilder.buildNodeInfoMap(this.root);
+        this.holes = new IdentityHashMap<>();
     }
 
     /**
-     * Returns root of resulting pattern.
-     * @return Root node of pattern
+     * Publishes an independent pattern, preserving actions and untouched subtrees.
+     * @return Pattern snapshot
      */
     public Pattern getPattern() {
-        return new Pattern(this.root);
+        final Map<Node, Node> done = new IdentityHashMap<>();
+        final List<Node> nodes = new DepthFirstWalker(this.root).collectAll();
+        for (final Node node : nodes.reversed()) {
+            if (done.containsKey(node)) {
+                continue;
+            }
+            if (this.holes.containsKey(node)) {
+                done.put(node, new Hole(node, this.holes.get(node)));
+            } else if (node instanceof PatternNode pattern) {
+                done.put(
+                    node, pattern.withChildren(
+                        node.getChildrenList().stream().map(done::get).toList()
+                    )
+                );
+            } else {
+                done.put(node, node);
+            }
+        }
+        return new Pattern(done.get(this.root));
     }
 
     /**
-     * Turns a child node into a hole.
-     * @param node Child node
-     * @param number Hole number
-     * @return Result of operation, @return {@code true} if node was transformer
+     * Selects every baseline occurrence of a source object, not structurally equal objects.
+     * @param node Source object or one of its mining prototypes
+     * @param number Non-negative slot
+     * @return Whether any occurrence was selected
+     * @throws IllegalArgumentException If the slot is negative
      */
     public boolean makeHole(final Node node, final int number) {
-        boolean result = false;
-        final PatternNode parent =
-            this.info.getOrDefault(node, PatternBuilder.DEFAULT_INFO).getParent();
-        if (parent != null) {
-            result = parent.makeHole(node, number);
+        if (number < 0) {
+            throw new IllegalArgumentException("Negative hole slot");
         }
-        return result;
-    }
-
-    /**
-     * Builds the map containing relationship of the nodes to their parents.
-     * @param root Root node
-     * @return The map containing relationship of the nodes to their parents.
-     */
-    private static Map<Node, NodeInfo> buildNodeInfoMap(final PatternNode root) {
-        final Map<Node, NodeInfo> map = new IdentityHashMap<>();
-        map.put(root.getPrototype(), new NodeInfo(null));
-        PatternBuilder.buildNodeInfoMap(map, root);
-        return map;
-    }
-
-    /**
-     * Builds the map containing relationship of the nodes to their parents (recursive method).
-     * @param map Where to put the results
-     * @param parent Parent node
-     */
-    private static void buildNodeInfoMap(final Map<Node, NodeInfo> map, final PatternNode parent) {
-        final NodeInfo obj = new NodeInfo(parent);
-        parent.forEachChild(
-            child -> {
-                if (child instanceof PatternNode) {
-                    final PatternNode node = (PatternNode) child;
-                    Node proto = node.getPrototype();
-                    while (true) {
-                        map.put(proto, obj);
-                        if (proto instanceof PrototypeBasedNode) {
-                            proto = ((PrototypeBasedNode) proto).getPrototype();
-                        } else {
-                            break;
-                        }
-                    }
-                    PatternBuilder.buildNodeInfoMap(map, node);
-                }
-            }
+        final List<Node> found = new DepthFirstWalker(this.root).findAll(
+            candidate -> candidate instanceof PatternNode
+                && PatternBuilder.isPrototype(candidate, node)
         );
+        found.forEach(candidate -> this.holes.put(candidate, number));
+        return !found.isEmpty();
     }
 
     /**
-     * Some additional information about each node needed to make holes.
-     *  So far there's only a parent node here, but we may need something else.
-     * @since 0.0.1
+     * Follows mining wrappers by reference identity.
+     * @param candidate Baseline node
+     * @param target Requested source object
+     * @return Whether the prototype chain contains the target
      */
-    private static final class NodeInfo {
-        /**
-         * The parent node.
-         */
-        private final PatternNode parent;
-
-        /**
-         * Constructor.
-         * @param parent The parent node
-         */
-        NodeInfo(final PatternNode parent) {
-            this.parent = parent;
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
+    private static boolean isPrototype(final Node candidate, final Node target) {
+        Node current = candidate;
+        while (current != target && current instanceof PrototypeBasedNode prototype) {
+            current = prototype.getPrototype();
         }
-
-        /**
-         * Returns parent node.
-         * @return Pattern node containing this node
-         */
-        public PatternNode getParent() {
-            return this.parent;
-        }
+        return current == target;
     }
 }

@@ -41,7 +41,7 @@ public final class Pattern extends Tree {
      * Constructor.
      * @param root Root node the difference tree
      */
-    public Pattern(final PatternNode root) {
+    public Pattern(final Node root) {
         super(root);
     }
 }

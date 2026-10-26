@@ -55,8 +55,8 @@ public final class Replace extends NodeWithStructuralEquality implements Action 
      * @param after Child element to be replaced by
      */
     public Replace(final Node before, final Node after) {
-        this.before = before;
-        this.after = after;
+        this.before = java.util.Objects.requireNonNull(before);
+        this.after = java.util.Objects.requireNonNull(after);
     }
 
     @Override
@@ -91,19 +91,8 @@ public final class Replace extends NodeWithStructuralEquality implements Action 
 
     @Override
     public Node getChild(final int index) {
-        final Node node;
-        switch (index) {
-            case 0:
-                node = this.before;
-                break;
-            case 1:
-                node = this.after;
-                break;
-            default:
-                node = null;
-                break;
-        }
-        return node;
+        java.util.Objects.checkIndex(index, 2);
+        return List.of(this.before, this.after).get(index);
     }
 
     @Override

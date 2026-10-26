@@ -23,45 +23,94 @@
  */
 package com.kniazkov.astranaut.core.base;
 
+import com.kniazkov.astranaut.core.algorithms.DepthFirstWalker;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A node that contains child nodes as well as actions on those nodes.
- * Child nodes can be replaced by holes.
+ * Immutable structural pattern containing ordinary nodes, actions and holes.
+ * Editing produces a new pattern; a published node never changes its children.
  * @since 0.0.1
  */
 public final class PatternNode extends NodeWithStructuralEquality
     implements PatternItem, PrototypeBasedNode {
     /**
-     * Independent type descriptor.
-     */
-    private final Type type;
-
-    /**
-     * The prototype node, i.e. 'ordinary', non-pattern original node.
+     * Source retained for mining identity only.
      */
     private final Node prototype;
 
     /**
-     * The list of children with actions.
-      */
-    private final List<PatternItem> children;
+     * Independent pattern builder descriptor.
+     */
+    private final TypeImpl type;
 
     /**
-     * Constructor.
-     * @param original Original non-pattern node
+     * Immutable children.
+     */
+    private final List<Node> children;
+
+    /**
+     * Snapshotted source data.
+     */
+    private final String data;
+
+    /**
+     * Snapshotted provenance.
+     */
+    private final Fragment fragment;
+
+    /**
+     * Snapshotted display metadata.
+     */
+    private final Map<String, String> properties;
+
+    /**
+     * Wraps a tree iteratively, preserving actions and existing holes.
+     * @param original Source
      */
     public PatternNode(final Node original) {
+        this(original, PatternNode.wrapChildren(original));
+    }
+
+    /**
+     * Creates a structural snapshot with replacement children.
+     * @param original Source metadata
+     * @param children Pattern children
+     */
+    private PatternNode(final Node original, final List<Node> children) {
+        this(original, new TypeImpl(original), children);
+    }
+
+    /**
+     * Publishes a node using an independent descriptor.
+     * @param original Metadata source
+     * @param type Descriptor
+     * @param children Children
+     */
+    private PatternNode(final Node original, final TypeImpl type, final List<Node> children) {
         this.prototype = original;
-        this.type = new TypeImpl(original.getType());
-        this.children = PatternNode.initChildrenList(original);
+        this.type = type;
+        this.children = List.copyOf(children);
+        this.data = original.getData();
+        this.fragment = original.getFragment();
+        this.properties = Map.copyOf(original.getProperties());
     }
 
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    /**
+     * Returns the concrete output descriptor, independent of mining prototypes.
+     * @return Target type whose builder validates substituted children
+     */
+    public Type getTargetType() {
+        return this.type.original;
     }
 
     @Override
@@ -71,17 +120,17 @@ public final class PatternNode extends NodeWithStructuralEquality
 
     @Override
     public Fragment getFragment() {
-        return this.prototype.getFragment();
+        return this.fragment;
     }
 
     @Override
     public Map<String, String> getProperties() {
-        return this.prototype.getProperties();
+        return this.properties;
     }
 
     @Override
     public String getData() {
-        return this.prototype.getData();
+        return this.data;
     }
 
     @Override
@@ -95,20 +144,16 @@ public final class PatternNode extends NodeWithStructuralEquality
     }
 
     @Override
-    public java.util.Optional<String> getChildTag(final int index) {
-        java.util.Objects.checkIndex(index, this.getChildCount());
-        return this.prototype.getChildTag(index);
+    public Optional<String> getChildTag(final int index) {
+        return this.type.tags.get(index);
     }
 
     @Override
-    public java.util.Optional<Node> getChild(final String tag) {
-        java.util.Objects.requireNonNull(tag);
-        java.util.Optional<Node> result = java.util.Optional.empty();
-        for (int index = 0; index < this.getChildCount(); index += 1) {
-            if (this.getChildTag(index).filter(tag::equals).isPresent()) {
-                result = java.util.Optional.of(this.getChild(index));
-                break;
-            }
+    public Optional<Node> getChild(final String tag) {
+        final int index = this.type.tags.indexOf(Optional.of(tag));
+        Optional<Node> result = Optional.empty();
+        if (index >= 0) {
+            result = Optional.of(this.getChild(index));
         }
         return result;
     }
@@ -119,91 +164,116 @@ public final class PatternNode extends NodeWithStructuralEquality
     }
 
     /**
-     * Turns a child node into a hole.
-     * @param node Child node
-     * @param number Hole number
-     * @return Result of operation, @return {@code true} if node was transformer
+     * Replaces the ordered child occurrences without changing this node or its tags.
+     * @param nodes Replacement children
+     * @return New immutable pattern node
+     * @throws IllegalArgumentException If the occurrence count changes
      */
-    public boolean makeHole(final Node node, final int number) {
-        boolean result = false;
-        final int index = this.findChildIndex(node);
-        if (index >= 0) {
-            final Hole hole = new Hole(node, number);
-            this.children.set(index, hole);
-            result = true;
+    public PatternNode withChildren(final List<Node> nodes) {
+        if (nodes.size() != this.children.size()) {
+            throw new IllegalArgumentException("Pattern occurrence layout must be retained");
+        }
+        return new PatternNode(this, this.type, nodes);
+    }
+
+    /**
+     * Converts one occurrence into a hole, retaining its parent tag.
+     * @param index Child index
+     * @param number Hole slot
+     * @return New immutable pattern
+     */
+    public PatternNode withHole(final int index, final int number) {
+        final List<Node> nodes = new ArrayList<>(this.children);
+        nodes.set(index, new Hole(this.children.get(index), number));
+        return this.withChildren(nodes);
+    }
+
+    /**
+     * Resolves the original output descriptor through mining wrappers.
+     * @param node Source
+     * @return Concrete descriptor
+     */
+    private static Type targetType(final Node node) {
+        Node current = node;
+        while (current instanceof PrototypeBasedNode prototype
+            && !(current instanceof PatternNode) && !(current instanceof Hole)) {
+            current = prototype.getPrototype();
+        }
+        final Type result;
+        if (current instanceof PatternNode pattern) {
+            result = pattern.getTargetType();
+        } else {
+            result = current.getType();
         }
         return result;
     }
 
     /**
-     * Transforms children nodes of difference node to pattern items.
-     * @param original Difference node
-     * @return List of pattern item
+     * Copies ordinary descendants bottom-up; operation payloads remain ordinary nodes.
+     * @param root Source root
+     * @return Immutable direct children
      */
-    private static List<PatternItem> initChildrenList(final Node original) {
-        final int count = original.getChildCount();
-        final List<PatternItem> result = new ArrayList<>(count);
-        for (int index = 0; index < count; index = index + 1) {
-            final Node child = original.getChild(index);
-            final Action action = Action.toAction(child);
-            if (action == null) {
-                result.add(new PatternNode(child));
+    private static List<Node> wrapChildren(final Node root) {
+        final Map<Node, Node> wrapped = new IdentityHashMap<>();
+        final List<Node> nodes = new ArrayList<>(0);
+        new DepthFirstWalker(root).findAll(
+            node -> {
+                nodes.add(node);
+                return Action.toAction(node) != null || node instanceof Hole;
+            }
+        );
+        for (final Node node : nodes.reversed()) {
+            if (wrapped.containsKey(node)) {
+                continue;
+            }
+            final Action action = Action.toAction(node);
+            if (action != null) {
+                wrapped.put(node, action);
+            } else if (node instanceof Hole) {
+                wrapped.put(node, node);
             } else {
-                result.add(action);
+                final List<Node> children = node.getChildrenList().stream()
+                    .map(wrapped::get).toList();
+                wrapped.put(node, new PatternNode(node, children));
             }
         }
-        return result;
+        return root.getChildrenList().stream().map(child -> wrapped.getOrDefault(child, child))
+            .toList();
     }
 
     /**
-     * Searches the index of a child element by its prototype.
-     * @param node Prototype of the node whose index is to be found
-     * @return Index or -1 if there is no such node
-     */
-    @SuppressWarnings("PMD.CompareObjectsWithEquals")
-    private int findChildIndex(final Node node) {
-        int result = -1;
-        final int count = this.children.size();
-        for (int index = 0; result < 0 && index < count; index = index + 1) {
-            final PatternItem child = this.children.get(index);
-            if (child instanceof PatternNode) {
-                Node proto = ((PatternNode) child).getPrototype();
-                while (true) {
-                    if (node == proto) {
-                        result = index;
-                        break;
-                    } else if (proto instanceof PrototypeBasedNode) {
-                        proto = ((PrototypeBasedNode) proto).getPrototype();
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Type descriptor independent of node instances.
+     * Transparent source type identity with a pattern-aware independent builder.
      * @since 0.0.1
      */
     private static final class TypeImpl extends TypeWithNameBasedEquality implements Type {
         /**
-         * Immutable type definition.
+         * Immutable source descriptor.
          */
         private final Type original;
 
         /**
-         * Creates the descriptor.
-         * @param original Prototype type
+         * Immutable occurrence layout, without captured child objects.
          */
-        private TypeImpl(final Type original) {
-            this.original = original;
+        private final List<Optional<String>> tags;
+
+        /**
+         * Captures metadata without retaining a source node.
+         * @param original Source node
+         */
+        private TypeImpl(final Node original) {
+            this.original = PatternNode.targetType(original);
+            this.tags = java.util.stream.IntStream.range(0, original.getChildCount())
+                .mapToObj(original::getChildTag).toList();
         }
 
         @Override
         public String getName() {
             return this.original.getName();
+        }
+
+        @Override
+        public java.util.Set<AbstractType> getBaseTypes() {
+            return this.original.getBaseTypes();
         }
 
         @Override
@@ -213,7 +283,121 @@ public final class PatternNode extends NodeWithStructuralEquality
 
         @Override
         public Builder createBuilder() {
-            throw new UnsupportedOperationException();
+            return new Constructor(this);
+        }
+    }
+
+    /**
+     * Builds patterns independently of concrete source child constraints.
+     * @since 0.0.1
+     */
+    private static final class Constructor implements Builder {
+        /**
+         * Descriptor.
+         */
+        private final TypeImpl type;
+
+        /**
+         * Mutable source-like metadata builder.
+         */
+        private final DraftNode.Constructor metadata;
+
+        /**
+         * Children in insertion order, indexed by layout slot.
+         */
+        private final Map<Integer, Node> children;
+
+        /**
+         * Creates an empty builder.
+         * @param type Pattern descriptor
+         */
+        private Constructor(final TypeImpl type) {
+            this.type = type;
+            this.metadata = Constructor.createMetadata(type);
+            this.children = new java.util.LinkedHashMap<>();
+        }
+
+        @Override
+        public void setFragment(final Fragment value) {
+            this.metadata.setFragment(value);
+        }
+
+        @Override
+        public boolean setData(final String value) {
+            return this.metadata.setData(value);
+        }
+
+        @Override
+        public boolean setChildren(final List<Node> nodes) {
+            final List<Node> snapshot = List.copyOf(nodes);
+            final boolean valid = snapshot.size() == this.type.tags.size();
+            if (valid) {
+                this.children.clear();
+                for (int index = 0; index < snapshot.size(); index += 1) {
+                    this.children.put(index, snapshot.get(index));
+                }
+            }
+            return valid;
+        }
+
+        @Override
+        public boolean setChild(final String tag, final Node node) {
+            Objects.requireNonNull(node);
+            final int index = this.type.tags.indexOf(Optional.of(tag));
+            if (index >= 0) {
+                this.children.put(index, node);
+            }
+            return index >= 0;
+        }
+
+        @Override
+        public boolean setChild(final int index, final Node node) {
+            Objects.requireNonNull(node);
+            final boolean valid = index >= 0 && index < this.children.size();
+            if (valid) {
+                this.children.put(new ArrayList<>(this.children.keySet()).get(index), node);
+            }
+            return valid;
+        }
+
+        @Override
+        public boolean removeChild(final String tag) {
+            return this.children.remove(this.type.tags.indexOf(Optional.of(tag))) != null;
+        }
+
+        @Override
+        public boolean removeChild(final int index) {
+            final boolean valid = index >= 0 && index < this.children.size();
+            if (valid) {
+                this.children.remove(new ArrayList<>(this.children.keySet()).get(index));
+            }
+            return valid;
+        }
+
+        @Override
+        public boolean isValid() {
+            return this.children.size() == this.type.tags.size();
+        }
+
+        @Override
+        public Node build() {
+            if (!this.isValid()) {
+                throw new ConstructionException("Incomplete pattern children");
+            }
+            final List<Node> nodes = java.util.stream.IntStream.range(0, this.children.size())
+                .mapToObj(this.children::get).toList();
+            return new PatternNode(this.metadata.build(), this.type, nodes);
+        }
+
+        /**
+         * Initializes independent metadata once, before building.
+         * @param type Descriptor
+         * @return Metadata builder
+         */
+        private static DraftNode.Constructor createMetadata(final Type type) {
+            final DraftNode.Constructor result = new DraftNode.Constructor();
+            result.setName(type.getName());
+            return result;
         }
     }
 }

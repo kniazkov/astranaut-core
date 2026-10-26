@@ -27,6 +27,7 @@ import com.kniazkov.astranaut.core.base.Builder;
 import com.kniazkov.astranaut.core.base.ConstructionException;
 import com.kniazkov.astranaut.core.base.Node;
 import com.kniazkov.astranaut.core.base.NodeOccurrence;
+import com.kniazkov.astranaut.core.base.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,15 +71,42 @@ public final class OccurrenceReplacer {
      * @return Rebuilt ancestor or a refusal
      */
     static Optional<Node> rebuild(final Node original, final List<Node> children) {
+        return OccurrenceReplacer.rebuild(
+            original, new Content(
+                original.getData(), children,
+                java.util.stream.IntStream.range(0, original.getChildCount())
+                    .mapToObj(original::getChildTag).toList()
+            )
+        );
+    }
+
+    /**
+     * Rebuilds requested content, refusing reordered or retagged results.
+     * @param original Source descriptor and provenance
+     * @param content Requested content
+     * @return New node or refusal
+     */
+    static Optional<Node> rebuild(final Node original, final Content content) {
+        return OccurrenceReplacer.rebuild(original, content, original.getType());
+    }
+
+    /**
+     * Restores content through an explicit concrete output descriptor.
+     * @param original Source provenance and identity
+     * @param content Requested content
+     * @param type Concrete output type
+     * @return New node or refusal
+     */
+    static Optional<Node> rebuild(final Node original, final Content content, final Type type) {
         Optional<Node> result = Optional.empty();
         try {
-            final Builder builder = original.getType().createBuilder();
+            final Builder builder = type.createBuilder();
             builder.setFragment(original.getFragment());
-            if (builder.setData(original.getData())
-                && OccurrenceReplacer.bind(builder, original, children)
+            if (builder.setData(content.data())
+                && OccurrenceReplacer.bind(builder, content)
                 && builder.isValid()) {
                 final Node built = builder.build();
-                if (OccurrenceReplacer.matches(original, built, children)) {
+                if (OccurrenceReplacer.matches(original, built, content)) {
                     result = Optional.of(built);
                 }
             }
@@ -91,15 +119,14 @@ public final class OccurrenceReplacer {
     /**
      * Prefers explicit named bindings; otherwise delegates full allocation to the builder.
      * @param builder New builder
-     * @param original Source of edge tags
-     * @param children Desired children
+     * @param content Desired children and tags
      * @return Whether the builder accepted the bindings
      */
-    private static boolean bind(final Builder builder, final Node original,
-        final List<Node> children) {
+    private static boolean bind(final Builder builder, final Content content) {
+        final List<Node> children = content.children();
         boolean accepted = !children.isEmpty();
         for (int index = 0; accepted && index < children.size(); index += 1) {
-            final Optional<String> tag = original.getChildTag(index);
+            final Optional<String> tag = content.tags().get(index);
             accepted = tag.isPresent() && builder.setChild(tag.orElseThrow(), children.get(index));
         }
         if (!accepted) {
@@ -113,20 +140,31 @@ public final class OccurrenceReplacer {
      * Identity is intentional: untouched subtrees must remain shared.
      * @param original Original ancestor
      * @param built Rebuilt ancestor
-     * @param children Requested children
+     * @param content Requested children, data and tags
      * @return Whether the builder preserved the requested structure and metadata
      */
     @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private static boolean matches(final Node original, final Node built,
-        final List<Node> children) {
+        final Content content) {
+        final List<Node> children = content.children();
         boolean result = original.getType().equals(built.getType())
-            && original.getData().equals(built.getData())
+            && content.data().equals(built.getData())
             && original.getFragment().equals(built.getFragment())
             && children.size() == built.getChildCount();
         for (int index = 0; result && index < children.size(); index += 1) {
             result = built.getChild(index) == children.get(index)
-                && original.getChildTag(index).equals(built.getChildTag(index));
+                && content.tags().get(index).equals(built.getChildTag(index));
         }
         return result;
     }
+
+    /**
+     * Explicit ordered content shared by replacement and template substitution.
+     * @param data Data
+     * @param children Child objects
+     * @param tags Occurrence tags
+     * @since 0.0.1
+     */
+    record Content(String data, List<Node> children, List<Optional<String>> tags) { }
+
 }
