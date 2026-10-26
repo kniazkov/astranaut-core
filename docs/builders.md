@@ -52,6 +52,7 @@ failure, concurrent calls, incomplete builders, tagged/indexed edits and snapsho
 ## Scope
 
 This stage migrates core and its consumer fixtures to `setChildren` / `build`. The external
-astranaut generator is unchanged. Tag-preserving reconstruction across whole-tree
-algorithms, normalization and JSON remains part of their respective follow-up tasks;
-the mutable pattern/diff representations and Optional-root migration are also separate.
+astranaut generator is unchanged. The shared reconstruction helper now serves
+occurrence edits, pattern/difference projection and [JSON reading](json.md). Draft
+builders also accept complete tagged layouts. Pattern/difference snapshots and
+[optional tree roots](optional-root.md) have been migrated in their respective stages.
