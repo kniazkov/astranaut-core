@@ -23,15 +23,9 @@ So if you're working with anything Astranaut produces, you're working with Core 
 
 * Java 21 or newer (bytecode targets Java 21)
 * Maven 3.6.3+ (to build)
-* Graphviz with `dot` on `PATH` (for PNG/SVG visualization and the full test suite)
 
-Tree manipulation and DOT text generation do not require Graphviz. Image rendering
-uses the installed `dot` executable through `GraphvizCmdLineEngine`; J2V8 is not
-used or included as a transitive dependency.
-
-On Debian/Ubuntu, install Graphviz with `sudo apt-get install graphviz`. On other
-systems, install Graphviz and add its `bin` directory to `PATH`. Check the setup
-with `dot -V` before running `mvn clean verify`.
+Core and its full test suite require no Graphviz or logging backend. Optional rendering
+is provided by [astranaut-visualization](https://github.com/kniazkov/astranaut-visualization).
 
 # How to Add Astranaut Core to Your Project
 
@@ -497,18 +491,11 @@ looks when visualized.
   - `bgcolor` → Background (e.g., `"lightgray"`).  
 - **Non-destructive**: Generates a **new tree** with decorated nodes.  
 
-## **TreeVisualizer – Your Syntax Tree as Art**  
+## Tree visualization
 
-**What it does:**  
-
-Takes a `Tree` and **spits out a picture** (PNG/SVG). Perfect for:  
-- Debugging ("*Why does my AST look like spaghetti?*")  
-- Documentation ("*See slide 42 for the parse flow*")  
-- Impressing your cat.  
-
-Example:
-
-![SIMPLE AST](src/main/documents/simple_ast.png)
+DOT, PNG and SVG rendering moved to the separate
+[astranaut-visualization](https://github.com/kniazkov/astranaut-visualization) dependency.
+The new package is `com.kniazkov.astranaut.visualization`.
 
 ## JSON serialization
 

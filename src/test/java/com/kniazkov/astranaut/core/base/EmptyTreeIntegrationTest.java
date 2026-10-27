@@ -30,7 +30,6 @@ import com.kniazkov.astranaut.core.algorithms.mapping.TopDownMapper;
 import com.kniazkov.astranaut.core.algorithms.patching.DefaultPatcher;
 import com.kniazkov.astranaut.core.utils.JsonDeserializer;
 import com.kniazkov.astranaut.core.utils.JsonSerializer;
-import com.kniazkov.astranaut.core.utils.visualizer.DotGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -49,14 +48,6 @@ class EmptyTreeIntegrationTest {
             }
         ).convert();
         Assertions.assertTrue(restored.getRoot().isEmpty());
-    }
-
-    @Test
-    void emptyDotContainsNoNode() {
-        final String dot = new DotGenerator(new Tree()).generate();
-        Assertions.assertTrue(dot.contains("digraph"));
-        Assertions.assertFalse(dot.contains("label="));
-        Assertions.assertFalse(dot.contains("->"));
     }
 
     @Test
